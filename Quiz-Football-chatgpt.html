@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Football Test — Superfan Quiz</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --grass: #2e7d4f;
+    --grass-light: #4caf78;
+    --grass-pale: #e8f5ee;
+    --pitch: #f0f7f3;
+    --pitch-mid: #ddeee6;
+    --gold: #e8a020;
+    --gold-dim: #c4851a;
+    --gold-pale: #fef3e0;
+    --dark: #1a2e22;
+    --text: #2a3d30;
+    --grey: #7a9485;
+    --red: #c0392b;
+    --red-pale: #fdecea;
+    --card: #ffffff;
+    --border: #c8dfd3;
+    --border-strong: #a8c8b8;
+    --shadow: rgba(46,125,79,0.10);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--pitch);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(46,125,79,0.04) 49px, rgba(46,125,79,0.04) 50px),
+      repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(46,125,79,0.04) 49px, rgba(46,125,79,0.04) 50px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header {
+    text-align: center;
+    padding: 40px 0 32px;
+    border-bottom: 2px solid var(--border-strong);
+    margin-bottom: 36px;
+  }
+
+  .header .badge {
+    display: inline-block;
+    background: var(--grass);
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    padding: 4px 14px;
+    margin-bottom: 16px;
+    border-radius: 2px;
+  }
+
+  .header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 10vw, 80px);
+    line-height: 0.9;
+    letter-spacing: 2px;
+    color: var(--dark);
+  }
+
+  .header h1 span {
+    color: var(--grass);
+    display: block;
+  }
+
+  .header p {
+    margin-top: 16px;
+    color: var(--grey);
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── CATEGORY GRID ── */
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .cat-btn {
+    background: var(--card);
+    border: 2px solid var(--border);
+    color: var(--text);
+    padding: 16px 12px;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: center;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.4px;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px var(--shadow);
+  }
+
+  .cat-btn:hover { border-color: var(--grass-light); color: var(--grass); background: var(--grass-pale); }
+
+  .cat-btn.selected {
+    background: var(--grass);
+    border-color: var(--grass);
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(46,125,79,0.25);
+  }
+
+  .cat-btn .flag { display: block; font-size: 24px; margin-bottom: 7px; }
+
+  /* ── START BUTTON ── */
+  .start-btn {
+    width: 100%;
+    background: var(--grass);
+    color: #fff;
+    border: none;
+    padding: 18px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+    box-shadow: 0 3px 12px rgba(46,125,79,0.3);
+  }
+
+  .start-btn:hover { background: var(--grass-light); transform: translateY(-1px); box-shadow: 0 5px 16px rgba(46,125,79,0.35); }
+
+  /* ── SECTION LABELS ── */
+  .section-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--grass);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border-strong); }
+
+  /* ── QUIZ ── */
+  .quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--border-strong);
+  }
+
+  .q-counter { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; color: var(--grey); }
+  .q-counter span { color: var(--grass); font-size: 22px; }
+  .score-display { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; color: var(--grey); }
+  .score-display span { color: var(--grass); font-size: 22px; }
+
+  .progress-bar { height: 4px; background: var(--border); margin-bottom: 32px; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--grass); transition: width 0.3s; }
+
+  .question-box {
+    background: var(--card);
+    padding: 28px 24px;
+    margin-bottom: 20px;
+    position: relative;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 10px var(--shadow);
+  }
+
+  .question-box::before {
+    content: attr(data-num);
+    position: absolute;
+    top: -10px;
+    left: 18px;
+    background: var(--gold);
+    color: #fff;
+    padding: 3px 12px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    border-radius: 2px;
+  }
+
+  .question-text {
+    font-size: 18px;
+    line-height: 1.5;
+    font-weight: 500;
+    color: var(--dark);
+  }
+
+  .options-grid { display: grid; gap: 10px; margin-bottom: 24px; }
+
+  .option-btn {
+    background: var(--card);
+    border: 2px solid var(--border);
+    color: var(--text);
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--grass-light);
+    background: var(--grass-pale);
+    transform: translateX(2px);
+  }
+
+  .option-btn .opt-letter {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    color: var(--grass);
+    min-width: 22px;
+  }
+
+  .option-btn.correct {
+    background: var(--grass);
+    border-color: var(--grass);
+    color: #fff;
+  }
+
+  .option-btn.correct .opt-letter { color: #fff; }
+
+  .option-btn.wrong {
+    background: var(--red-pale);
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .option-btn.wrong .opt-letter { color: var(--red); }
+
+  .option-btn:disabled { cursor: default; }
+
+  .feedback-box {
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    font-size: 15px;
+    line-height: 1.55;
+    border-radius: 4px;
+    display: none;
+  }
+
+  .feedback-box.show { display: block; }
+
+  .feedback-box.correct-fb {
+    background: var(--grass-pale);
+    border-left: 4px solid var(--grass);
+    color: var(--dark);
+  }
+
+  .feedback-box.wrong-fb {
+    background: var(--gold-pale);
+    border-left: 4px solid var(--gold);
+    color: var(--dark);
+  }
+
+  .next-btn {
+    width: 100%;
+    background: var(--grass);
+    color: #fff;
+    border: none;
+    padding: 16px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+    display: none;
+    box-shadow: 0 3px 12px rgba(46,125,79,0.3);
+  }
+
+  .next-btn.show { display: block; }
+  .next-btn:hover { background: var(--grass-light); transform: translateY(-1px); }
+
+  /* ── RESULTS ── */
+  .results-screen {
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .results-score {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(80px, 18vw, 140px);
+    color: var(--grass);
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  .results-score .denom { color: var(--grey); font-size: 0.5em; }
+
+  .results-verdict {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--dark);
+    margin-bottom: 16px;
+  }
+
+  .results-sub {
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .play-again-btn {
+    background: var(--grass);
+    color: #fff;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+    box-shadow: 0 3px 12px rgba(46,125,79,0.3);
+  }
+
+  .play-again-btn:hover { background: var(--grass-light); transform: translateY(-1px); }
+
+  .test-banner {
+    background: var(--gold-pale);
+    border: 1px dashed var(--gold);
+    color: var(--gold-dim);
+    padding: 10px 14px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    text-align: center;
+    border-radius: 4px;
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="badge">⚽ SUPERFAN QUIZ</div>
+    <h1>THE<span>FOOTBALL</span>TEST</h1>
+    <p>Legends, transfers, managers, iconic moments. How well do you really know the game?</p>
+  </div>
+
+  <!-- SETUP -->
+  <div id="setup-screen">
+
+    <div class="test-banner">
+      NEW QUESTION VERSION — La Liga &amp; Champions League
+    </div>
+
+    <div class="section-label">CHOOSE A CATEGORY</div>
+    <div class="category-grid">
+      <button class="cat-btn selected" data-cat="La Liga">
+        <span class="flag">🇪🇸</span>La Liga
+      </button>
+      <button class="cat-btn" data-cat="Champions League">
+        <span class="flag">⭐</span>Champions League
+      </button>
+    </div>
+
+    <button class="start-btn" id="start-btn">⚽ KICK OFF</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz-screen" class="hidden">
+    <div class="quiz-header">
+      <div class="q-counter">QUESTION <span id="q-num">1</span> / 8</div>
+      <div class="score-display">SCORE <span id="score-num">0</span></div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="question-box" id="question-box" data-num="Q1">
+      <div class="question-text" id="question-text"></div>
+    </div>
+    <div class="options-grid" id="options-grid"></div>
+    <div class="feedback-box" id="feedback-box"></div>
+    <button class="next-btn" id="next-btn">NEXT QUESTION →</button>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results-screen" class="results-screen hidden">
+    <div class="results-score" id="final-score">0<span class="denom">/8</span></div>
+    <div class="results-verdict" id="results-verdict"></div>
+    <div class="results-sub" id="results-sub"></div>
+    <button class="play-again-btn" onclick="resetQuiz()">PLAY AGAIN</button>
+  </div>
+
+</div>
+
+<script>
+  // ─────────────────────────────────────────────
+  // QUESTION BANK
+  // ─────────────────────────────────────────────
+  const QUESTION_BANK = {
+    "La Liga": [
+        {
+            "question": "Which team finished third in La Liga in the 2023-24 season after a surprise Champions League qualification campaign?",
+            "options": [
+                "Real Sociedad",
+                "Girona",
+                "Athletic Club",
+                "Real Betis"
+            ],
+            "correct": 1,
+            "explanation": "Girona were the surprise story of the season, finishing third behind Real Madrid and Barcelona and qualifying for the Champions League."
+        },
+        {
+            "question": "Which Real Madrid midfielder won the Ballon d'Or in 2018 after starring for club and country?",
+            "options": [
+                "Toni Kroos",
+                "Luka Modrić",
+                "Casemiro",
+                "Isco"
+            ],
+            "correct": 1,
+            "explanation": "Luka Modrić won the 2018 Ballon d'Or after helping Real Madrid win the Champions League and leading Croatia to the World Cup final."
+        },
+        {
+            "question": "Which club did Barcelona beat in the 2015 Champions League final to complete a treble?",
+            "options": [
+                "Bayern Munich",
+                "Juventus",
+                "Chelsea",
+                "Paris Saint-Germain"
+            ],
+            "correct": 1,
+            "explanation": "Barcelona beat Juventus 3-1 in Berlin, with goals from Rakitić, Suárez and Neymar completing Luis Enrique's treble."
+        },
+        {
+            "question": "Which Basque club won the Copa del Rey in 2024, ending a long wait for a major trophy?",
+            "options": [
+                "Real Sociedad",
+                "Athletic Club",
+                "Eibar",
+                "Alavés"
+            ],
+            "correct": 1,
+            "explanation": "Athletic Club beat Mallorca on penalties in the 2024 Copa del Rey final, winning the trophy for the first time in 40 years."
+        },
+        {
+            "question": "Which former Barcelona captain joined Inter Miami in 2023 after leaving PSG?",
+            "options": [
+                "Sergio Busquets",
+                "Gerard Piqué",
+                "Lionel Messi",
+                "Jordi Alba"
+            ],
+            "correct": 2,
+            "explanation": "Lionel Messi moved to Inter Miami in 2023 after two seasons at Paris Saint-Germain."
+        },
+        {
+            "question": "Which Spanish club plays its home matches at the Ramón Sánchez-Pizjuán Stadium?",
+            "options": [
+                "Sevilla",
+                "Valencia",
+                "Villarreal",
+                "Real Betis"
+            ],
+            "correct": 0,
+            "explanation": "Sevilla's home ground is the Ramón Sánchez-Pizjuán, one of Spain's most famous football stadiums."
+        },
+        {
+            "question": "Which Real Madrid player scored the winning goal in the 2014 Champions League final after Sergio Ramos forced extra time?",
+            "options": [
+                "Gareth Bale",
+                "Ángel Di María",
+                "Karim Benzema",
+                "Marcelo"
+            ],
+            "correct": 0,
+            "explanation": "Gareth Bale headed Madrid in front in extra time against Atlético Madrid, before Marcelo and Ronaldo made it 4-1."
+        },
+        {
+            "question": "Which Barcelona midfielder was famous for wearing the number 6 shirt and later became the club's manager?",
+            "options": [
+                "Andrés Iniesta",
+                "Xavi Hernández",
+                "Sergio Busquets",
+                "Deco"
+            ],
+            "correct": 1,
+            "explanation": "Xavi wore number 6 for Barcelona and later managed the club, winning La Liga in the 2022-23 season."
+        },
+        {
+            "question": "Which club did Antoine Griezmann originally join Atlético Madrid from in 2014?",
+            "options": [
+                "Real Sociedad",
+                "Lyon",
+                "Marseille",
+                "Monaco"
+            ],
+            "correct": 0,
+            "explanation": "Griezmann moved from Real Sociedad to Atlético Madrid in 2014 and became one of Diego Simeone's key players."
+        },
+        {
+            "question": "Which Real Madrid striker won the Ballon d'Or in 2022?",
+            "options": [
+                "Cristiano Ronaldo",
+                "Karim Benzema",
+                "Vinícius Júnior",
+                "Raúl"
+            ],
+            "correct": 1,
+            "explanation": "Karim Benzema won the 2022 Ballon d'Or after leading Real Madrid to La Liga and Champions League glory."
+        },
+        {
+            "question": "Which club is Barcelona's city rival in La Liga derbies?",
+            "options": [
+                "Girona",
+                "Espanyol",
+                "Valencia",
+                "Mallorca"
+            ],
+            "correct": 1,
+            "explanation": "Espanyol are Barcelona's traditional city rivals, with matches between them known as the Barcelona derby."
+        },
+        {
+            "question": "Which Villarreal manager led the club to the Europa League title in 2021?",
+            "options": [
+                "Marcelino",
+                "Unai Emery",
+                "Manuel Pellegrini",
+                "Quique Setién"
+            ],
+            "correct": 1,
+            "explanation": "Unai Emery led Villarreal to the 2021 Europa League, beating Manchester United on penalties in the final."
+        },
+        {
+            "question": "Which Real Madrid defender scored the stoppage-time equaliser in the 2014 Champions League final?",
+            "options": [
+                "Pepe",
+                "Sergio Ramos",
+                "Raphaël Varane",
+                "Dani Carvajal"
+            ],
+            "correct": 1,
+            "explanation": "Sergio Ramos headed in from a corner in the 93rd minute, saving Madrid before they beat Atlético in extra time."
+        },
+        {
+            "question": "Which Barcelona forward joined the club from Borussia Dortmund in 2017 for a fee that could rise above €100m?",
+            "options": [
+                "Ousmane Dembélé",
+                "Philippe Coutinho",
+                "Raphinha",
+                "Memphis Depay"
+            ],
+            "correct": 0,
+            "explanation": "Ousmane Dembélé joined Barcelona from Dortmund in 2017 after Neymar's move to PSG."
+        },
+        {
+            "question": "Which club did Real Madrid sign Federico Valverde from before he became a first-team regular?",
+            "options": [
+                "River Plate",
+                "Peñarol",
+                "Boca Juniors",
+                "Nacional"
+            ],
+            "correct": 1,
+            "explanation": "Valverde joined Real Madrid from Uruguayan club Peñarol and developed into a key midfielder."
+        },
+        {
+            "question": "Which team won La Liga in the 2022-23 season?",
+            "options": [
+                "Real Madrid",
+                "Barcelona",
+                "Atlético Madrid",
+                "Sevilla"
+            ],
+            "correct": 1,
+            "explanation": "Barcelona won La Liga in 2022-23 under Xavi, building their title charge on a strong defence."
+        },
+        {
+            "question": "Which club did Pedri join Barcelona from?",
+            "options": [
+                "Las Palmas",
+                "Tenerife",
+                "Villarreal",
+                "Valencia"
+            ],
+            "correct": 0,
+            "explanation": "Pedri joined Barcelona from Las Palmas and quickly became one of Spain's brightest midfield talents."
+        },
+        {
+            "question": "Which Atlético Madrid goalkeeper won multiple Zamora Trophies under Diego Simeone?",
+            "options": [
+                "Jan Oblak",
+                "David de Gea",
+                "Ivo Grbić",
+                "Miguel Ángel Moyá"
+            ],
+            "correct": 0,
+            "explanation": "Jan Oblak became one of Europe's best goalkeepers and won several Zamora Trophies for having La Liga's best goals-against record."
+        },
+        {
+            "question": "Which Real Madrid player is nicknamed 'El Pajarito'?",
+            "options": [
+                "Rodrygo",
+                "Federico Valverde",
+                "Eduardo Camavinga",
+                "Dani Ceballos"
+            ],
+            "correct": 1,
+            "explanation": "Federico Valverde is known as 'El Pajarito', meaning 'the little bird'."
+        },
+        {
+            "question": "Which Barcelona academy is famous for producing Messi, Xavi and Iniesta?",
+            "options": [
+                "La Masia",
+                "La Fábrica",
+                "Mare Nostrum",
+                "Can Barça"
+            ],
+            "correct": 0,
+            "explanation": "La Masia is Barcelona's famous academy and helped produce several of the club's greatest players."
+        },
+        {
+            "question": "Which Spanish club is known as 'Los Blancos'?",
+            "options": [
+                "Real Madrid",
+                "Valencia",
+                "Sevilla",
+                "Celta Vigo"
+            ],
+            "correct": 0,
+            "explanation": "Real Madrid are known as 'Los Blancos' because of their traditional all-white kit."
+        },
+        {
+            "question": "Which La Liga club is strongly associated with the Mestalla stadium?",
+            "options": [
+                "Villarreal",
+                "Valencia",
+                "Getafe",
+                "Real Valladolid"
+            ],
+            "correct": 1,
+            "explanation": "Valencia play at Mestalla, one of Spain's most atmospheric stadiums."
+        },
+        {
+            "question": "Which Brazilian forward joined Barcelona from Leeds United in 2022?",
+            "options": [
+                "Malcom",
+                "Raphinha",
+                "Vitor Roque",
+                "Willian José"
+            ],
+            "correct": 1,
+            "explanation": "Raphinha joined Barcelona from Leeds in 2022 and later became an important attacking player."
+        },
+        {
+            "question": "Which Real Madrid midfielder retired from professional football after Euro 2024?",
+            "options": [
+                "Luka Modrić",
+                "Toni Kroos",
+                "Casemiro",
+                "Isco"
+            ],
+            "correct": 1,
+            "explanation": "Toni Kroos announced that Euro 2024 would be his final tournament before retiring from football."
+        },
+        {
+            "question": "Which club did Atlético Madrid beat in the 2014 La Liga title decider at Camp Nou?",
+            "options": [
+                "Real Madrid",
+                "Barcelona",
+                "Sevilla",
+                "Valencia"
+            ],
+            "correct": 1,
+            "explanation": "Atlético drew 1-1 with Barcelona at Camp Nou on the final day to win the 2013-14 La Liga title."
+        },
+        {
+            "question": "Which young Barcelona midfielder is known by the short name 'Gavi'?",
+            "options": [
+                "Pablo Martín Páez Gavira",
+                "Alejandro Balde",
+                "Fermín López",
+                "Marc Casadó"
+            ],
+            "correct": 0,
+            "explanation": "Gavi's full name is Pablo Martín Páez Gavira; he became a first-team regular while still a teenager."
+        },
+        {
+            "question": "Which Real Madrid forward scored in both the 2022 and 2024 Champions League finals?",
+            "options": [
+                "Rodrygo",
+                "Vinícius Júnior",
+                "Karim Benzema",
+                "Jude Bellingham"
+            ],
+            "correct": 1,
+            "explanation": "Vinícius Júnior scored the winner in 2022 against Liverpool and Madrid's second goal in 2024 against Dortmund."
+        },
+        {
+            "question": "Which club did Barcelona sell Neymar to in 2017 for a world-record fee?",
+            "options": [
+                "Manchester City",
+                "Paris Saint-Germain",
+                "Real Madrid",
+                "Chelsea"
+            ],
+            "correct": 1,
+            "explanation": "Neymar moved to PSG in 2017 after the French club triggered his €222m release clause."
+        },
+        {
+            "question": "Which Real Madrid academy is often called 'La Fábrica'?",
+            "options": [
+                "The youth system",
+                "The medical centre",
+                "The training stadium only",
+                "The scouting office"
+            ],
+            "correct": 0,
+            "explanation": "La Fábrica is the nickname for Real Madrid's youth academy, which has produced many professional players."
+        },
+        {
+            "question": "Which club won La Liga in 2019-20 after the season was interrupted by the COVID-19 pandemic?",
+            "options": [
+                "Barcelona",
+                "Real Madrid",
+                "Atlético Madrid",
+                "Sevilla"
+            ],
+            "correct": 1,
+            "explanation": "Real Madrid won the 2019-20 La Liga title under Zinedine Zidane after the season resumed behind closed doors."
+        }
+    ],
+    "Champions League": [
+        {
+            "question": "Which club did Chelsea beat in the 2021 Champions League final?",
+            "options": [
+                "Manchester City",
+                "Bayern Munich",
+                "Liverpool",
+                "Paris Saint-Germain"
+            ],
+            "correct": 0,
+            "explanation": "Chelsea beat Manchester City 1-0 in Porto, with Kai Havertz scoring the only goal."
+        },
+        {
+            "question": "Which player scored Liverpool's opening goal from the penalty spot in the 2019 Champions League final?",
+            "options": [
+                "Sadio Mané",
+                "Mohamed Salah",
+                "Roberto Firmino",
+                "James Milner"
+            ],
+            "correct": 1,
+            "explanation": "Mohamed Salah scored an early penalty before Divock Origi sealed Liverpool's 2-0 win over Tottenham."
+        },
+        {
+            "question": "Which club won the Champions League in 2020 during the one-city knockout tournament in Lisbon?",
+            "options": [
+                "Bayern Munich",
+                "Paris Saint-Germain",
+                "Real Madrid",
+                "Manchester City"
+            ],
+            "correct": 0,
+            "explanation": "Bayern Munich beat PSG 1-0 in the final and completed a treble under Hansi Flick."
+        },
+        {
+            "question": "Who scored Bayern Munich's winning goal in the 2020 Champions League final?",
+            "options": [
+                "Robert Lewandowski",
+                "Kingsley Coman",
+                "Thomas Müller",
+                "Serge Gnabry"
+            ],
+            "correct": 1,
+            "explanation": "Kingsley Coman, a former PSG academy player, headed in the only goal against Paris Saint-Germain."
+        },
+        {
+            "question": "Which club knocked Bayern Munich out of the 2023-24 Champions League semi-final?",
+            "options": [
+                "Real Madrid",
+                "Manchester City",
+                "Arsenal",
+                "Paris Saint-Germain"
+            ],
+            "correct": 0,
+            "explanation": "Real Madrid beat Bayern in the semi-final before defeating Borussia Dortmund in the final."
+        },
+        {
+            "question": "Which Portuguese club famously won the 2004 Champions League under José Mourinho?",
+            "options": [
+                "Benfica",
+                "Sporting CP",
+                "Porto",
+                "Braga"
+            ],
+            "correct": 2,
+            "explanation": "Mourinho's Porto beat Monaco 3-0 in the 2004 final, one of the great surprise wins in modern European football."
+        },
+        {
+            "question": "Which team did Real Madrid beat in the 2016 Champions League final?",
+            "options": [
+                "Juventus",
+                "Atlético Madrid",
+                "Bayern Munich",
+                "Liverpool"
+            ],
+            "correct": 1,
+            "explanation": "Real Madrid beat Atlético Madrid on penalties in Milan, two years after defeating the same rivals in Lisbon."
+        },
+        {
+            "question": "Which club completed an unbeaten Champions League campaign by winning the 2019-20 title?",
+            "options": [
+                "Liverpool",
+                "Bayern Munich",
+                "Chelsea",
+                "Real Madrid"
+            ],
+            "correct": 1,
+            "explanation": "Bayern won every match in the 2019-20 Champions League, ending with victory over PSG in the final."
+        },
+        {
+            "question": "Which Dutch club reached the 2018-19 Champions League semi-finals after knocking out Real Madrid and Juventus?",
+            "options": [
+                "PSV Eindhoven",
+                "Ajax",
+                "Feyenoord",
+                "AZ Alkmaar"
+            ],
+            "correct": 1,
+            "explanation": "Ajax's young side shocked Real Madrid and Juventus before losing dramatically to Tottenham in the semi-final."
+        },
+        {
+            "question": "Which Tottenham player scored the late goal against Ajax that sent Spurs to the 2019 final?",
+            "options": [
+                "Harry Kane",
+                "Lucas Moura",
+                "Dele Alli",
+                "Son Heung-min"
+            ],
+            "correct": 1,
+            "explanation": "Lucas Moura completed his hat-trick in stoppage time in Amsterdam, sending Tottenham through on away goals."
+        },
+        {
+            "question": "Which club did Manchester City beat in the 2023 Champions League final?",
+            "options": [
+                "AC Milan",
+                "Inter Milan",
+                "Real Madrid",
+                "Bayern Munich"
+            ],
+            "correct": 1,
+            "explanation": "Manchester City beat Inter Milan 1-0 in Istanbul, completing a historic treble."
+        },
+        {
+            "question": "Which midfielder scored Manchester City's winning goal in the 2023 Champions League final?",
+            "options": [
+                "Kevin De Bruyne",
+                "Rodri",
+                "İlkay Gündoğan",
+                "Bernardo Silva"
+            ],
+            "correct": 1,
+            "explanation": "Rodri scored the decisive second-half goal against Inter Milan."
+        },
+        {
+            "question": "Which Real Madrid goalkeeper made several crucial saves in the 2022 final against Liverpool?",
+            "options": [
+                "Keylor Navas",
+                "Thibaut Courtois",
+                "Iker Casillas",
+                "Andriy Lunin"
+            ],
+            "correct": 1,
+            "explanation": "Thibaut Courtois was named player of the match after a superb display in Real Madrid's 1-0 win."
+        },
+        {
+            "question": "Which club did Barcelona beat in the 2009 Champions League final?",
+            "options": [
+                "Chelsea",
+                "Manchester United",
+                "Arsenal",
+                "AC Milan"
+            ],
+            "correct": 1,
+            "explanation": "Barcelona beat Manchester United 2-0 in Rome, with goals from Samuel Eto'o and Lionel Messi."
+        },
+        {
+            "question": "Which Italian club has won the Champions League/European Cup seven times?",
+            "options": [
+                "Inter Milan",
+                "Juventus",
+                "AC Milan",
+                "Roma"
+            ],
+            "correct": 2,
+            "explanation": "AC Milan are Italy's most successful club in the competition, with seven European Cup/Champions League titles."
+        },
+        {
+            "question": "Who scored Real Madrid's goal in the 2022 Champions League final?",
+            "options": [
+                "Karim Benzema",
+                "Vinícius Júnior",
+                "Rodrygo",
+                "Federico Valverde"
+            ],
+            "correct": 1,
+            "explanation": "Vinícius Júnior turned in Valverde's cross to beat Liverpool 1-0 in Paris."
+        },
+        {
+            "question": "Which club did Manchester United beat in the 1999 Champions League final after two stoppage-time goals?",
+            "options": [
+                "Bayern Munich",
+                "Juventus",
+                "Barcelona",
+                "Real Madrid"
+            ],
+            "correct": 0,
+            "explanation": "United scored through Sheringham and Solskjær in stoppage time to beat Bayern Munich 2-1."
+        },
+        {
+            "question": "Which Spanish manager won the Champions League with Barcelona in 2015?",
+            "options": [
+                "Pep Guardiola",
+                "Luis Enrique",
+                "Xavi Hernández",
+                "Ernesto Valverde"
+            ],
+            "correct": 1,
+            "explanation": "Luis Enrique led Barcelona to the 2015 Champions League title as part of a treble."
+        },
+        {
+            "question": "Which club did Liverpool beat in the 2005 Champions League final after coming back from 3-0 down?",
+            "options": [
+                "Juventus",
+                "AC Milan",
+                "Inter Milan",
+                "Bayern Munich"
+            ],
+            "correct": 1,
+            "explanation": "Liverpool came back from 3-0 down against AC Milan in Istanbul and won on penalties."
+        },
+        {
+            "question": "Which Real Madrid manager won Champions League titles with the club in 2014, 2022 and 2024?",
+            "options": [
+                "Zinedine Zidane",
+                "Carlo Ancelotti",
+                "José Mourinho",
+                "Rafa Benítez"
+            ],
+            "correct": 1,
+            "explanation": "Carlo Ancelotti won the competition with Real Madrid in 2014, 2022 and 2024."
+        },
+        {
+            "question": "Which club lost the 2024 Champions League final to Real Madrid at Wembley?",
+            "options": [
+                "Bayern Munich",
+                "Manchester City",
+                "Borussia Dortmund",
+                "Paris Saint-Germain"
+            ],
+            "correct": 2,
+            "explanation": "Borussia Dortmund lost 2-0 to Real Madrid in the 2024 final at Wembley."
+        },
+        {
+            "question": "Which PSG player scored twice in the 2025 Champions League final against Inter Milan?",
+            "options": [
+                "Ousmane Dembélé",
+                "Désiré Doué",
+                "Achraf Hakimi",
+                "Gonçalo Ramos"
+            ],
+            "correct": 1,
+            "explanation": "Désiré Doué scored twice as PSG beat Inter Milan 5-0 to win their first Champions League title."
+        },
+        {
+            "question": "Which team knocked Barcelona out with a famous 4-0 win at Anfield in 2019?",
+            "options": [
+                "Liverpool",
+                "Chelsea",
+                "Manchester City",
+                "Tottenham"
+            ],
+            "correct": 0,
+            "explanation": "Liverpool overturned a 3-0 first-leg deficit with a 4-0 win at Anfield."
+        },
+        {
+            "question": "Which forward scored a bicycle kick for Real Madrid against Juventus in the 2018 quarter-final?",
+            "options": [
+                "Gareth Bale",
+                "Cristiano Ronaldo",
+                "Karim Benzema",
+                "Marco Asensio"
+            ],
+            "correct": 1,
+            "explanation": "Cristiano Ronaldo's overhead kick in Turin was so good that many Juventus fans applauded him."
+        },
+        {
+            "question": "Which club won the first Champions League title of the modern era in 1992-93?",
+            "options": [
+                "Marseille",
+                "AC Milan",
+                "Barcelona",
+                "Ajax"
+            ],
+            "correct": 0,
+            "explanation": "Marseille won the 1992-93 Champions League, beating AC Milan 1-0 in the final."
+        },
+        {
+            "question": "Which German club did Chelsea beat on penalties in the 2012 final, played in Munich?",
+            "options": [
+                "Borussia Dortmund",
+                "Bayern Munich",
+                "Bayer Leverkusen",
+                "Schalke"
+            ],
+            "correct": 1,
+            "explanation": "Chelsea beat Bayern Munich in Bayern's own stadium after Didier Drogba's late equaliser and winning penalty."
+        },
+        {
+            "question": "Which player scored Chelsea's winning penalty in the 2012 Champions League final shootout?",
+            "options": [
+                "Frank Lampard",
+                "Didier Drogba",
+                "Juan Mata",
+                "Ashley Cole"
+            ],
+            "correct": 1,
+            "explanation": "Didier Drogba scored the decisive penalty after earlier heading Chelsea level near the end of normal time."
+        },
+        {
+            "question": "Which club did Inter Milan beat in the 2010 Champions League final?",
+            "options": [
+                "Barcelona",
+                "Bayern Munich",
+                "Chelsea",
+                "Manchester United"
+            ],
+            "correct": 1,
+            "explanation": "Inter beat Bayern Munich 2-0 in Madrid, with Diego Milito scoring both goals."
+        },
+        {
+            "question": "Which country hosted the 2024 Champions League final?",
+            "options": [
+                "Germany",
+                "England",
+                "Spain",
+                "France"
+            ],
+            "correct": 1,
+            "explanation": "The 2024 final was played at Wembley Stadium in London, England."
+        },
+        {
+            "question": "Which Real Madrid player won six Champions League titles with the club between 2014 and 2024?",
+            "options": [
+                "Dani Carvajal",
+                "Karim Benzema",
+                "Cristiano Ronaldo",
+                "Sergio Ramos"
+            ],
+            "correct": 0,
+            "explanation": "Dani Carvajal was part of Real Madrid's Champions League-winning sides in 2014, 2016, 2017, 2018, 2022 and 2024."
+        }
+    ]
+};
+
+  // ─────────────────────────────────────────────
+  // QUIZ STATE
+  // ─────────────────────────────────────────────
+  const QUESTIONS_PER_QUIZ = 8;
+  let selectedCat = 'La Liga';
+  let questions = [];
+  let currentQ = 0;
+  let score = 0;
+  let answered = false;
+
+  // Fisher–Yates shuffle
+  function shuffle(array) {
+    const a = array.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // Single-select category
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedCat = btn.dataset.cat;
+    });
+  });
+
+  document.getElementById('start-btn').addEventListener('click', startQuiz);
+
+  function startQuiz() {
+    const pool = QUESTION_BANK[selectedCat];
+    questions = shuffle(pool).slice(0, QUESTIONS_PER_QUIZ);
+
+    currentQ = 0;
+    score = 0;
+    document.getElementById('setup-screen').classList.add('hidden');
+    document.getElementById('quiz-screen').classList.remove('hidden');
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    const q = questions[currentQ];
+    answered = false;
+
+    document.getElementById('q-num').textContent = currentQ + 1;
+    document.getElementById('score-num').textContent = score;
+    document.getElementById('progress-fill').style.width = ((currentQ / questions.length) * 100) + '%';
+
+    const qBox = document.getElementById('question-box');
+    qBox.setAttribute('data-num', 'Q' + (currentQ + 1));
+    document.getElementById('question-text').textContent = q.question;
+
+    const grid = document.getElementById('options-grid');
+    grid.innerHTML = '';
+    const letters = ['A', 'B', 'C', 'D'];
+
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      // Strip any leading "A) " etc. just in case
+      const text = opt.replace(/^[ABCD]\)\s*/i, '');
+      btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${text}</span>`;
+      btn.addEventListener('click', () => handleAnswer(i));
+      grid.appendChild(btn);
+    });
+
+    const fb = document.getElementById('feedback-box');
+    fb.className = 'feedback-box';
+    fb.textContent = '';
+    document.getElementById('next-btn').classList.remove('show');
+  }
+
+  function handleAnswer(chosen) {
+    if (answered) return;
+    answered = true;
+
+    const q = questions[currentQ];
+    const correct = q.correct;
+    const btns = document.querySelectorAll('.option-btn');
+
+    btns.forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === correct) btn.classList.add('correct');
+      else if (i === chosen) btn.classList.add('wrong');
+    });
+
+    const fb = document.getElementById('feedback-box');
+    if (chosen === correct) {
+      score++;
+      document.getElementById('score-num').textContent = score;
+      fb.classList.add('show', 'correct-fb');
+      fb.textContent = '✓ Correct! ' + q.explanation;
+    } else {
+      fb.classList.add('show', 'wrong-fb');
+      fb.textContent = q.explanation;
+    }
+
+    const nextBtn = document.getElementById('next-btn');
+    nextBtn.classList.add('show');
+    nextBtn.textContent = currentQ < questions.length - 1 ? 'NEXT QUESTION →' : 'SEE RESULTS →';
+  }
+
+  document.getElementById('next-btn').addEventListener('click', () => {
+    currentQ++;
+    if (currentQ >= questions.length) showResults();
+    else renderQuestion();
+  });
+
+  function showResults() {
+    document.getElementById('quiz-screen').classList.add('hidden');
+    document.getElementById('results-screen').classList.remove('hidden');
+
+    const total = questions.length;
+    document.getElementById('final-score').innerHTML = score + '<span class="denom">/' + total + '</span>';
+
+    const pct = score / total;
+    let verdict, sub;
+
+    if (pct >= 0.875) {
+      verdict = '⚽ FOOTBALL ENCYCLOPAEDIA';
+      sub = "Remarkable. You don't just watch football — you live it. Transfer windows, legendary managers, iconic scorelines... you've absorbed it all. Respect.";
+    } else if (pct >= 0.625) {
+      verdict = '🔥 PROPER FAN';
+      sub = "You clearly love this game. You know your legends, your transfers, your big moments. A few gaps, but overall you absolutely know your stuff.";
+    } else if (pct >= 0.375) {
+      verdict = '👀 INTERESTED OBSERVER';
+      sub = "You follow the highlights and the big stories. But there are depths to this game — the players, the moments, the drama — that you haven't fully explored yet.";
+    } else {
+      verdict = '🤷 FOOTBALL TOURIST';
+      sub = "It's okay. Football is a big world. Maybe start with the greatest players and iconic matches, and work your way up from there.";
+    }
+
+    document.getElementById('results-verdict').textContent = verdict;
+    document.getElementById('results-sub').textContent = sub;
+  }
+
+  function resetQuiz() {
+    document.getElementById('results-screen').classList.add('hidden');
+    document.getElementById('setup-screen').classList.remove('hidden');
+    questions = []; currentQ = 0; score = 0;
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jujutsu Kaisen — The Quiz</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, serif; background: #f4f1ec; color: #1a1a1a; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding-bottom: 2rem; padding-top: 0; }
+
+  /* Embedded banner image inside the picker */
+  .banner-img { display: block; width: 100%; max-width: 100%; height: auto; border-radius: 12px; margin: 1.5rem 0 1.25rem; box-shadow: 0 2px 8px rgba(138,94,61,0.12); }
+
+  #app { width: 100%; max-width: 720px; padding: 0 1rem; }
+  #quiz { padding-top: 1rem; }
+
+  .title-block { text-align: center; margin-bottom: 1.5rem; }
+  .main-title { font-size: 30px; font-weight: 600; color: #1a1a1a; font-family: Arial, sans-serif; letter-spacing: 0.02em; line-height: 1.2; }
+  .main-sub { font-size: 14px; color: #8a5e3d; margin-top: 6px; font-family: Arial, sans-serif; letter-spacing: 0.1em; }
+
+  /* Section picker */
+  .picker-intro { text-align: center; font-size: 15px; color: #555; margin-bottom: 1.25rem; line-height: 1.5; font-family: Arial, sans-serif; }
+  .section-list { display: flex; flex-direction: column; gap: 10px; }
+  .section-card { background: #fff; border: 1px solid #d8cfc2; border-radius: 12px; padding: 1rem 1.25rem; cursor: pointer; text-align: left; width: 100%; font-family: Arial, sans-serif; transition: background 0.15s, border-color 0.15s, transform 0.1s; display: flex; align-items: center; gap: 14px; }
+  .section-card:hover { background: #faf6f0; border-color: #8a5e3d; }
+  .section-card:active { transform: translateY(1px); }
+  .section-icon { font-size: 28px; line-height: 1; }
+  .section-card-body { flex: 1; }
+  .section-card-title { font-size: 17px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px; }
+  .section-card-desc { font-size: 13px; color: #888; line-height: 1.4; }
+
+  /* Quiz screen */
+  .section-label { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #8a5e3d; margin-bottom: 6px; font-family: Arial, sans-serif; }
+  .section-title { font-size: 24px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; font-family: Arial, sans-serif; }
+  .progress-row { display: flex; align-items: center; gap: 10px; margin: 1.25rem 0 1.5rem; }
+  .progress-bar { flex: 1; height: 4px; background: #e3d9c9; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #8a5e3d; border-radius: 2px; transition: width 0.3s ease; }
+  .progress-text { font-size: 13px; color: #8a5e3d; white-space: nowrap; font-family: Arial, sans-serif; }
+
+  /* Question card */
+  .question-card { background: #fff; border: 1px solid #d8cfc2; border-radius: 14px; padding: 1.5rem 1.75rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(138,94,61,0.08); }
+  .question-text { font-size: 20px; font-weight: 600; color: #1a1a1a; line-height: 1.4; margin-bottom: 1.25rem; font-family: Arial, sans-serif; }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option { display: flex; align-items: center; gap: 14px; padding: 13px 18px; border: 2px solid #d8cfc2; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 500; color: #1a1a1a; background: #fff; text-align: left; width: 100%; transition: background 0.15s, border-color 0.15s; font-family: Arial, sans-serif; line-height: 1.4; }
+  .option:hover:not(:disabled) { background: #faf6f0; border-color: #8a5e3d; }
+  .option.correct { background: #EAF3DE; border-color: #639922; color: #27500A; }
+  .option.wrong { background: #FCEBEB; border-color: #E24B4A; color: #791F1F; }
+  .option.opinion { background: #F5EEE3; border-color: #B89060; color: #5C3D1A; }
+  .option:disabled { cursor: default; }
+  .letter { font-size: 14px; font-weight: 700; color: #8a5e3d; min-width: 20px; }
+  .option.correct .letter { color: #3B6D11; }
+  .option.wrong .letter { color: #A32D2D; }
+  .option.opinion .letter { color: #7A5418; }
+
+  .feedback { font-size: 14px; margin-top: 12px; padding: 11px 14px; border-radius: 10px; font-family: Arial, sans-serif; line-height: 1.5; }
+  .feedback.correct { background: #EAF3DE; color: #27500A; }
+  .feedback.wrong { background: #FCEBEB; color: #791F1F; }
+  .feedback.opinion { background: #F5EEE3; color: #5C3D1A; }
+  .feedback.hidden { display: none; }
+
+  /* Action row keeps Next button inside the card and visible without scrolling */
+  .action-row { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 12px; }
+  .next-btn { padding: 11px 24px; border: 1px solid #8a5e3d; border-radius: 8px; background: #8a5e3d; color: #fff; font-size: 15px; font-weight: 500; cursor: pointer; font-family: Arial, sans-serif; transition: background 0.15s, opacity 0.3s; display: none; }
+  .next-btn.visible { display: inline-block; }
+  .next-btn:hover:not(:disabled) { background: #6e4930; }
+  .skip-btn { padding: 11px 20px; border: 1px solid #d8cfc2; border-radius: 8px; background: #fff; color: #8a5e3d; font-size: 14px; font-weight: 500; cursor: pointer; font-family: Arial, sans-serif; transition: background 0.15s, color 0.15s; }
+  .skip-btn:hover { background: #faf6f0; color: #1a1a1a; }
+  .back-btn { background: transparent; border: none; color: #8a5e3d; padding: 0; margin-bottom: 1rem; font-size: 13px; cursor: pointer; font-family: Arial, sans-serif; }
+  .back-btn:hover { color: #1a1a1a; text-decoration: underline; }
+
+  /* Result */
+  .result { text-align: center; padding: 2rem 0; }
+  .result-score { font-size: 56px; font-weight: 600; color: #8a5e3d; margin-bottom: 8px; font-family: Arial, sans-serif; }
+  .result-label { font-size: 15px; color: #8a5e3d; margin-bottom: 1rem; font-family: Arial, sans-serif; }
+  .result-msg { font-size: 17px; color: #1a1a1a; margin-bottom: 2rem; font-family: Arial, sans-serif; line-height: 1.5; }
+  .result-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 11px 28px; border: 1px solid #8a5e3d; border-radius: 8px; background: #fff; color: #8a5e3d; font-size: 14px; cursor: pointer; font-family: Arial, sans-serif; transition: background 0.15s; }
+  .restart-btn:hover { background: #faf6f0; }
+
+  @media (max-width: 600px) {
+    .main-title { font-size: 24px; }
+    .question-card { padding: 1.25rem; }
+    .question-text { font-size: 18px; }
+    .option { font-size: 15px; padding: 12px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- SECTION PICKER -->
+  <div id="picker">
+    <div class="title-block">
+      <div class="main-title">JUJUTSU KAISEN</div>
+      <div class="main-sub">THE QUIZ · 呪術廻戦</div>
+    </div>
+    <img src="kiesen.png" alt="Jujutsu Kaisen characters" class="banner-img">
+    <p class="picker-intro">Choose a part of the story to begin. You can come back and try the others any time.</p>
+    <div class="section-list" id="section-list"></div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz" style="display:none">
+    <button class="back-btn" onclick="goHome()">← Back to sections</button>
+    <p class="section-label" id="quiz-section-label"></p>
+    <p class="section-title" id="quiz-section-title"></p>
+    <div class="progress-row">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <span class="progress-text" id="progress-text"></span>
+    </div>
+    <div class="question-card">
+      <p class="question-text" id="question-text"></p>
+      <div class="options" id="options"></div>
+      <div class="feedback hidden" id="feedback"></div>
+      <div class="action-row">
+        <button class="skip-btn" id="skip-btn" onclick="skipQuestion()" style="display:none">Skip this one →</button>
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next question</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result" style="display:none">
+    <div class="result">
+      <div class="result-score" id="result-score"></div>
+      <div class="result-label" id="result-label">out of 7</div>
+      <div class="result-msg" id="result-msg"></div>
+      <div class="result-buttons">
+        <button class="restart-btn" onclick="restartCurrent()">Try again</button>
+        <button class="restart-btn" onclick="goHome()">Back to sections</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============== SECTIONS ============== */
+const sections = [
+  {
+    id: 1,
+    icon: '🏫',
+    title: 'Cursed Beginnings',
+    desc: 'Season 1 · Yuji enters Jujutsu High',
+    questions: [
+      { q: "How does Yuji Itadori first come into contact with the world of jujutsu sorcery?",
+        options: ["He is born with cursed energy", "He eats one of Sukuna's fingers to save his friends", "He is recruited from his school by Gojo", "He inherits a cursed object from his grandfather"],
+        answer: 1, feedback: "Yuji swallows Sukuna's finger at his school to save Megumi and the Occult Research Club, becoming Sukuna's vessel." },
+      { q: "Who is Sukuna?",
+        options: ["A weak curse from the modern era", "The King of Curses, an ancient and feared sorcerer", "A teacher at Jujutsu High", "Megumi's older brother"],
+        answer: 1, feedback: "Ryomen Sukuna is the legendary King of Curses, whose remains were split into 20 indestructible fingers." },
+      { q: "What is unusual about Yuji as Sukuna's vessel?",
+        options: ["He cannot use cursed energy at all", "He can stay in control of his body even after eating a finger", "He becomes a Titan", "He loses his memory each time"],
+        answer: 1, feedback: "Most people would be taken over by Sukuna instantly, but Yuji is strong-willed enough to remain in control." },
+      { q: "Who is the powerful teacher with the blindfold who takes Yuji to Jujutsu High?",
+        options: ["Nanami", "Yaga", "Satoru Gojo", "Mei Mei"],
+        answer: 2, feedback: "Satoru Gojo, considered the strongest sorcerer alive, is the one who recruits Yuji." },
+      { q: "Who are the other two first-year students at Tokyo Jujutsu High alongside Yuji?",
+        options: ["Maki and Toge", "Megumi and Nobara", "Yuta and Rika", "Todo and Mai"],
+        answer: 1, feedback: "Megumi Fushiguro and Nobara Kugisaki are Yuji's classmates and teammates." },
+      { q: "What kind of cursed technique does Megumi Fushiguro use?",
+        options: ["He summons shikigami like Divine Dogs and Nue", "He throws cursed nails", "He multiplies his strength tenfold", "He copies other people's techniques"],
+        answer: 0, feedback: "Megumi inherited the Ten Shadows Technique, which lets him summon shikigami from his shadow." },
+      { q: "Who is the high-school boy Yuji befriends in the Vs. Mahito early arc — and tragically loses?",
+        options: ["Junpei Yoshino", "Yuta Okkotsu", "Kokichi Muta", "Toge Inumaki"],
+        answer: 0, feedback: "Junpei is a bullied student manipulated and ultimately killed by the curse Mahito, deeply affecting Yuji." }
+    ]
+  },
+  {
+    id: 2,
+    icon: '⚔️',
+    title: 'The Goodwill Event',
+    desc: 'Season 1 · Kyoto exchange',
+    questions: [
+      { q: "What is the Goodwill Event?",
+        options: ["A peace treaty between curses and humans", "A friendly competition between the Tokyo and Kyoto Jujutsu schools", "A tournament between sorcerers and curse users", "A festival held inside a domain"],
+        answer: 1, feedback: "It's the annual exchange event between the Tokyo and Kyoto schools — though it's anything but friendly." },
+      { q: "Which Kyoto student becomes Yuji's loud, muscular 'best friend' almost instantly?",
+        options: ["Noritoshi Kamo", "Kasumi Miwa", "Aoi Todo", "Mechamaru"],
+        answer: 2, feedback: "Aoi Todo decides Yuji is his best friend after asking him what kind of girl is his type." },
+      { q: "What question does Todo famously use to judge whether someone is worthy of being his friend?",
+        options: ["'What is your favourite curse?'", "'What kind of girl do you like?'", "'What is your domain expansion?'", "'Who is your master?'"],
+        answer: 1, feedback: "Todo's famous test: 'What kind of girl is your type?' Yuji's answer wins him over." },
+      { q: "Who is secretly the Kyoto student known as Mechamaru, and what is his real situation?",
+        options: ["A robot built by the school", "Kokichi Muta, a sorcerer with a frail body who pilots the puppet from far away", "A curse pretending to be a student", "Todo's younger brother"],
+        answer: 1, feedback: "Mechamaru is a puppet controlled remotely by Kokichi Muta, whose real body is severely weakened." },
+      { q: "Which curse, working with Mahito, attacks the school during the event with the help of the cursed corpses known as the Death Painting Wombs?",
+        options: ["Jogo", "Hanami", "Dagon", "Kenjaku"],
+        answer: 1, feedback: "Hanami, a nature-themed curse, attacks the school during the event alongside the released Death Painting wombs." },
+      { q: "During the Hidden Inventory flashback, what is the name of Gojo's closest friend and rival from his student days?",
+        options: ["Suguru Geto", "Toji Fushiguro", "Nanami Kento", "Yuki Tsukumo"],
+        answer: 0, feedback: "Suguru Geto is Gojo's best friend in their student days, before Geto turns away from jujutsu society." },
+      { q: "Who is the powerful 'non-sorcerer' assassin hired to kill the Star Plasma Vessel during the Hidden Inventory arc?",
+        options: ["Mahito", "Toji Fushiguro", "Choso", "Naoya Zenin"],
+        answer: 1, feedback: "Toji Fushiguro — the 'Sorcerer Killer' — is the assassin who fights and briefly defeats Gojo." }
+    ]
+  },
+  {
+    id: 3,
+    icon: '🌃',
+    title: 'Shibuya Incident',
+    desc: 'Season 2 · The turning point',
+    questions: [
+      { q: "On what date does the Shibuya Incident take place?",
+        options: ["New Year's Eve", "Halloween (31 October)", "Christmas Eve", "The summer festival"],
+        answer: 1, feedback: "The curse users choose Halloween night so that civilians in costume are easier to use as bait and cover." },
+      { q: "What is the curse users' main goal at the start of the Shibuya Incident?",
+        options: ["To kill Yuji", "To seal Satoru Gojo away", "To destroy Jujutsu High", "To capture Megumi"],
+        answer: 1, feedback: "The whole plan is built around luring Gojo into a trap so he can be sealed in the Prison Realm." },
+      { q: "Which special object is used to seal Gojo away?",
+        options: ["The Prison Realm", "The Inverted Spear of Heaven", "Sukuna's finger", "The Black Rope"],
+        answer: 0, feedback: "Gojo is sealed inside the Prison Realm, a special-grade cursed object, removing the strongest sorcerer from the board." },
+      { q: "Which beloved senior sorcerer dies fighting Mahito and Jogo in Shibuya, after telling Yuji to take over from him?",
+        options: ["Nanami Kento", "Mei Mei", "Kento Yaga", "Naoya Zenin"],
+        answer: 0, feedback: "Nanami's death at Mahito's hands is one of the most devastating moments of the arc." },
+      { q: "What seemingly happens to Nobara Kugisaki during the Shibuya Incident?",
+        options: ["She becomes Sukuna's new vessel", "She is gravely injured by Mahito and her fate is left ambiguous", "She joins the curse users", "She is sealed alongside Gojo"],
+        answer: 1, feedback: "Mahito attacks Nobara with Idle Transfiguration; she is rushed away and her status is left unclear for a long time." },
+      { q: "What does Sukuna do when Yuji briefly loses control of his body in Shibuya?",
+        options: ["He runs away from the battle", "He unleashes Malevolent Shrine and devastates a huge area of Shibuya", "He helps the sorcerers fight the curses", "He disappears completely"],
+        answer: 1, feedback: "Sukuna opens his domain, Malevolent Shrine, killing huge numbers of civilians and curses across Shibuya." },
+      { q: "By the end of the Shibuya Incident, what brutal sentence does the higher-ups pass on Yuji?",
+        options: ["He is to be reinstated as a sorcerer with honours", "He is to be executed", "He is to be sent overseas to train", "He is to be made a teacher"],
+        answer: 1, feedback: "After the disaster of Shibuya, the higher-ups order Yuji's execution, treating him as a danger that must be removed." }
+    ]
+  },
+  {
+    id: 4,
+    icon: '💀',
+    title: 'Culling Game & Shinjuku Showdown',
+    desc: 'Manga only · major spoilers',
+    questions: [
+      { q: "Who is revealed to be wearing Suguru Geto's body and pulling the strings behind the Shibuya Incident?",
+        options: ["Mahito", "Kenjaku", "Toji Fushiguro", "Sukuna's true form"],
+        answer: 1, feedback: "Kenjaku, an ancient sorcerer who can transfer his brain into other bodies, has been hiding inside Geto's corpse." },
+      { q: "What is the Culling Game?",
+        options: ["A friendly tournament between schools", "A deadly battle royale across Japan that Kenjaku sets up using cursed energy barriers", "A survival show on television", "A training exercise for first-years"],
+        answer: 1, feedback: "Kenjaku traps modern people and reincarnated ancient sorcerers inside barriers across Japan, forcing them to fight under strict rules." },
+      { q: "Whose body does Sukuna take over by transferring his soul, leaving Yuji without him?",
+        options: ["Yuta Okkotsu", "Megumi Fushiguro", "Maki Zenin", "Choso"],
+        answer: 1, feedback: "Sukuna manipulates events so that he can transfer into Megumi's body using the Ten Shadows Technique." },
+      { q: "Who finally manages to release Gojo from the Prison Realm?",
+        options: ["Yuji", "Yuta", "Hana Kurusu (using Angel's technique)", "Nanami's spirit"],
+        answer: 2, feedback: "Hana Kurusu, who carries the soul and technique of Angel, is the one who finally unseals Gojo." },
+      { q: "When Gojo finally fights Sukuna (in Megumi's body), what is the outcome?",
+        options: ["Gojo wins easily", "Gojo is defeated and killed by Sukuna", "Sukuna surrenders", "The fight is interrupted before it ends"],
+        answer: 1, feedback: "After an enormous battle, Sukuna defeats and kills Gojo — one of the most shocking moments in the manga." },
+      { q: "How is Sukuna ultimately defeated in the final battle?",
+        options: ["Yuji defeats him alone in single combat", "A combined effort by Yuji, Yuta, Maki, Hakari and others — with Yuji eventually striking the final blow", "Gojo comes back to life and finishes him", "Megumi defeats him from inside his own body"],
+        answer: 1, feedback: "It takes an enormous group effort — Yuta inhabiting Gojo's body, Maki, Hakari, Higuruma and others — with Yuji ultimately delivering the final blow." },
+      { q: "What happens to Megumi at the end of the series?",
+        options: ["He dies along with Sukuna", "He is rescued from Sukuna's body and survives, though deeply traumatised", "He becomes the new King of Curses", "He becomes the new strongest sorcerer"],
+        answer: 1, feedback: "Megumi is pulled back from Sukuna's grasp by Yuji and survives the ending, though emotionally shattered by what has happened." }
+    ]
+  },
+  {
+    id: 5,
+    icon: '🤔',
+    title: 'No Right Answer',
+    desc: 'Opinion round · what do you think?',
+    isOpinion: true,
+    questions: [
+      { q: "Who is the strongest character in the series?",
+        options: ["Satoru Gojo", "Sukuna", "Yuta Okkotsu", "Someone else"],
+        feedback: "This is the eternal Jujutsu Kaisen debate. Strong arguments exist for all of them." },
+      { q: "Which death hit you the hardest?",
+        options: ["Nanami", "Nobara (and her uncertain fate)", "Gojo", "Junpei"],
+        feedback: "Jujutsu Kaisen does not hold back with its deaths. Each one lands differently for different viewers." },
+      { q: "Which cursed technique would you most want to have?",
+        options: ["Limitless (Gojo)", "Ten Shadows (Megumi)", "Boogie Woogie (Todo)", "Cursed Speech (Inumaki)"],
+        feedback: "Each comes with its own trade-offs and rules. There's no wrong answer — only your taste." },
+      { q: "Was Sukuna a great villain — or too overpowered to be interesting?",
+        options: ["A great villain — the King of Curses lived up to his name", "Too overpowered — the fights felt one-sided", "Interesting at first, less so by the end", "He was perfect for the kind of story this is"],
+        feedback: "This is a real fan debate — Sukuna's strength is part of his appeal, but it also frustrates some readers." },
+      { q: "Which character changed the most across the story?",
+        options: ["Yuji", "Megumi", "Maki", "Gojo"],
+        feedback: "Each of them goes through enormous changes — there are good arguments for all four." },
+      { q: "Was the ending of Jujutsu Kaisen satisfying?",
+        options: ["Yes — it earned its conclusion", "Mostly — but some parts felt rushed", "No — I wanted something different", "I'm still thinking about it"],
+        feedback: "The ending is famously divisive, even among the show's biggest fans." },
+      { q: "Who is your favourite character?",
+        options: ["Gojo", "Yuji", "Megumi", "Someone else"],
+        feedback: "There are no wrong favourites in Jujutsu Kaisen — the cast is huge and almost everyone has fans." },
+      { q: "If you could change one thing about the story, would you?",
+        options: ["Yes — I'd save a character who died", "Yes — I'd change the ending", "Yes — I'd change something earlier", "No — I'd leave it exactly as it is"],
+        feedback: "Some stories hurt because of what happens. Others, fans wish had gone differently." }
+    ]
+  }
+];
+
+/* ============== STATE ============== */
+let currentSection = null;
+let current = 0;
+let score = 0;
+let answered = false;
+
+/* ============== SHUFFLE HELPERS ============== */
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function shuffleQuestionOptions(question) {
+  const indices = shuffle(question.options.map(function(_, i) { return i; }));
+  const newOptions = indices.map(function(i) { return question.options[i]; });
+  const newQuestion = {
+    q: question.q,
+    options: newOptions,
+    feedback: question.feedback
+  };
+  if (typeof question.answer === 'number') {
+    newQuestion.answer = indices.indexOf(question.answer);
+  }
+  return newQuestion;
+}
+
+function prepareSection(section) {
+  const shuffledQs = shuffle(section.questions);
+  section._questions = shuffledQs.map(shuffleQuestionOptions);
+}
+
+/* ============== PICKER ============== */
+function renderPicker() {
+  document.getElementById('picker').style.display = 'block';
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+  window.scrollTo(0, 0);
+
+  const list = document.getElementById('section-list');
+  list.innerHTML = '';
+  sections.forEach(function(s) {
+    const card = document.createElement('button');
+    card.className = 'section-card';
+    card.innerHTML =
+      '<span class="section-icon">' + s.icon + '</span>' +
+      '<span class="section-card-body">' +
+        '<div class="section-card-title">' + s.title + '</div>' +
+        '<div class="section-card-desc">' + s.desc + '</div>' +
+      '</span>';
+    card.onclick = function() { startSection(s); };
+    list.appendChild(card);
+  });
+}
+
+/* ============== START / RENDER ============== */
+function startSection(s) {
+  currentSection = s;
+  current = 0;
+  score = 0;
+  answered = false;
+  prepareSection(s);
+
+  document.getElementById('picker').style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+  document.getElementById('quiz-section-label').textContent = s.isOpinion ? 'OPINION ROUND' : 'PART ' + s.id;
+  document.getElementById('quiz-section-title').textContent = s.title;
+  document.getElementById('skip-btn').style.display = currentSection.isOpinion ? 'inline-block' : 'none';
+
+  renderQuestion();
+  window.scrollTo(0, 0);
+}
+
+function renderQuestion() {
+  answered = false;
+  const qs = currentSection._questions;
+  const q = qs[current];
+
+  document.getElementById('progress-fill').style.width = (((current) / qs.length) * 100) + '%';
+  document.getElementById('progress-text').textContent = (current + 1) + ' of ' + qs.length;
+
+  document.getElementById('question-text').textContent = q.q;
+
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  q.options.forEach(function(opt, i) {
+    const b = document.createElement('button');
+    b.className = 'option';
+    const letter = String.fromCharCode(65 + i);
+    b.innerHTML = '<span class="letter">' + letter + '</span><span>' + opt + '</span>';
+    b.onclick = function() { selectAnswer(i, b); };
+    opts.appendChild(b);
+  });
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback hidden';
+  fb.textContent = '';
+
+  document.getElementById('next-btn').classList.remove('visible');
+  document.getElementById('next-btn').textContent = (current === qs.length - 1) ? 'See result' : 'Next question';
+  document.getElementById('skip-btn').style.display = currentSection.isOpinion ? 'inline-block' : 'none';
+}
+
+/* ============== ANSWER ============== */
+function selectAnswer(i, btn) {
+  if (answered) return;
+  answered = true;
+  const q = currentSection._questions[current];
+  const opts = document.querySelectorAll('.option');
+  opts.forEach(function(o) { o.disabled = true; });
+
+  if (currentSection.isOpinion) {
+    btn.classList.add('opinion');
+    const fb = document.getElementById('feedback');
+    fb.className = 'feedback opinion';
+    fb.textContent = q.feedback;
+  } else {
+    if (i === q.answer) {
+      btn.classList.add('correct');
+      score++;
+      const fb = document.getElementById('feedback');
+      fb.className = 'feedback correct';
+      fb.textContent = "Correct! " + q.feedback;
+    } else {
+      btn.classList.add('wrong');
+      opts[q.answer].classList.add('correct');
+      const fb = document.getElementById('feedback');
+      fb.className = 'feedback wrong';
+      fb.textContent = "Not quite. " + q.feedback;
+    }
+  }
+
+  document.getElementById('skip-btn').style.display = 'none';
+  document.getElementById('next-btn').classList.add('visible');
+}
+
+function skipQuestion() {
+  // Only available in opinion round
+  if (answered) return;
+  nextQuestion();
+}
+
+function nextQuestion() {
+  current++;
+  const qs = currentSection._questions;
+  if (current >= qs.length) {
+    showResult();
+  } else {
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+/* ============== RESULT ============== */
+function showResult() {
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('result').style.display = 'block';
+  window.scrollTo(0, 0);
+
+  const qs = currentSection._questions;
+  if (currentSection.isOpinion) {
+    document.getElementById('result-score').textContent = '✓';
+    document.getElementById('result-label').textContent = 'Opinion round complete';
+    document.getElementById('result-msg').textContent = "Thanks for sharing your thoughts! There were no wrong answers — just your view of the story.";
+  } else {
+    document.getElementById('result-score').textContent = score;
+    document.getElementById('result-label').textContent = 'out of ' + qs.length;
+    let msg = '';
+    const pct = score / qs.length;
+    if (pct === 1) msg = "Perfect score! You're a true Jujutsu Sorcerer.";
+    else if (pct >= 0.8) msg = "Excellent! Special grade level knowledge.";
+    else if (pct >= 0.6) msg = "Solid work — Grade 1 sorcerer material.";
+    else if (pct >= 0.4) msg = "A respectable effort. Maybe rewatch a few episodes!";
+    else msg = "A first-year's start. Time to head back to Jujutsu High!";
+    document.getElementById('result-msg').textContent = msg;
+  }
+}
+
+function restartCurrent() {
+  if (!currentSection) return renderPicker();
+  startSection(currentSection);
+}
+
+function goHome() {
+  currentSection = null;
+  current = 0;
+  score = 0;
+  answered = false;
+  renderPicker();
+}
+
+renderPicker();
+</script>
+</body>
+</html>
