@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doctor Slump — The Quiz</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, serif; background: #f0f6fa; color: #1a1a1a; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding-bottom: 2rem; padding-top: 0; }
+
+  /* Banner — calm clinical blue/teal gradient */
+  .banner { width: 100%; max-width: 100%; height: 180px; background: linear-gradient(135deg, #d6ecf3 0%, #a8d4e2 35%, #6fb3c8 70%, #3d7a91 100%); position: relative; margin-bottom: 1.5rem; overflow: hidden; }
+  .banner::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.4) 0%, transparent 25%), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.3) 0%, transparent 30%); }
+  .banner::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 80px; background: linear-gradient(180deg, rgba(240,246,250,0) 0%, rgba(240,246,250,1) 100%); }
+  .banner-text { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -60%); color: #fff; font-family: Georgia, serif; font-style: italic; font-size: 28px; text-shadow: 0 2px 8px rgba(40,90,120,0.45); letter-spacing: 0.05em; z-index: 1; text-align: center; padding: 0 1rem; }
+
+  #app { width: 100%; max-width: 720px; padding: 0 1rem; }
+  #quiz { padding-top: 1rem; }
+
+  .title-block { text-align: center; margin-bottom: 1.5rem; }
+  .main-title { font-size: 30px; font-weight: 600; color: #1a1a1a; font-family: Arial, sans-serif; letter-spacing: 0.02em; line-height: 1.2; }
+  .main-sub { font-size: 14px; color: #5e8a9c; margin-top: 6px; font-family: Arial, sans-serif; letter-spacing: 0.1em; }
+
+  /* Section picker */
+  .picker-intro { text-align: center; font-size: 15px; color: #555; margin-bottom: 1.25rem; line-height: 1.5; font-family: Arial, sans-serif; }
+  .section-list { display: flex; flex-direction: column; gap: 10px; }
+  .section-card { background: #fff; border: 1px solid #d4e4ec; border-radius: 12px; padding: 1rem 1.25rem; cursor: pointer; text-align: left; width: 100%; font-family: Arial, sans-serif; transition: background 0.15s, border-color 0.15s, transform 0.1s; }
+  .section-card:hover { background: #f0f6fa; border-color: #3d7a91; }
+  .section-card:active { transform: translateY(1px); }
+  .section-card-top { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .section-card-num { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #5e8a9c; }
+  .section-card-title { font-size: 17px; font-weight: 600; color: #1a1a1a; }
+  .section-card-desc { font-size: 13px; color: #888; line-height: 1.4; }
+
+  /* Quiz screen */
+  .section-label { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #5e8a9c; margin-bottom: 6px; font-family: Arial, sans-serif; }
+  .section-title { font-size: 24px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; font-family: Arial, sans-serif; }
+  .progress-row { display: flex; align-items: center; gap: 10px; margin: 1.25rem 0 1.5rem; }
+  .progress-bar { flex: 1; height: 4px; background: #d4e4ec; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #3d7a91; border-radius: 2px; transition: width 0.3s ease; }
+  .progress-text { font-size: 13px; color: #5e8a9c; white-space: nowrap; font-family: Arial, sans-serif; }
+
+  /* Question card */
+  .question-card { background: #fff; border: 1px solid #d4e4ec; border-radius: 14px; padding: 2rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(61,122,145,0.08); }
+  .question-text { font-size: 22px; font-weight: 600; color: #1a1a1a; line-height: 1.4; margin-bottom: 1.75rem; font-family: Arial, sans-serif; }
+
+  .options { display: flex; flex-direction: column; gap: 12px; }
+  .option { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 2px solid #d4e4ec; border-radius: 10px; cursor: pointer; font-size: 17px; font-weight: 500; color: #1a1a1a; background: #fff; text-align: left; width: 100%; transition: background 0.15s, border-color 0.15s; font-family: Arial, sans-serif; line-height: 1.4; }
+  .option:hover:not(:disabled) { background: #f0f6fa; border-color: #3d7a91; }
+  .option.correct { background: #EAF3DE; border-color: #639922; color: #27500A; }
+  .option.wrong { background: #FCEBEB; border-color: #E24B4A; color: #791F1F; }
+  .option.opinion { background: #EEF1F8; border-color: #6A8AC4; color: #1F3A6E; }
+  .option:disabled { cursor: default; }
+  .letter { font-size: 14px; font-weight: 700; color: #5e8a9c; min-width: 20px; }
+  .option.correct .letter { color: #3B6D11; }
+  .option.wrong .letter { color: #A32D2D; }
+  .option.opinion .letter { color: #2A4D8C; }
+
+  .feedback { font-size: 15px; margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-family: Arial, sans-serif; line-height: 1.5; }
+  .feedback.correct { background: #EAF3DE; color: #27500A; }
+  .feedback.wrong { background: #FCEBEB; color: #791F1F; }
+  .feedback.opinion { background: #EEF1F8; color: #1F3A6E; }
+  .feedback.hidden { display: none; }
+
+  .next-btn, .back-btn { margin-top: 14px; padding: 12px 26px; border: 1px solid #3d7a91; border-radius: 8px; background: #3d7a91; color: #fff; font-size: 15px; font-weight: 500; cursor: pointer; font-family: Arial, sans-serif; transition: background 0.15s, opacity 0.3s; }
+  .next-btn { display: none; }
+  .next-btn.visible { display: inline-block; }
+  .next-btn:hover:not(:disabled) { background: #2f6376; }
+  .skip-btn { margin-top: 14px; margin-right: 8px; padding: 12px 22px; border: 1px solid #d4e4ec; border-radius: 8px; background: #fff; color: #5e8a9c; font-size: 14px; font-weight: 500; cursor: pointer; font-family: Arial, sans-serif; transition: background 0.15s, color 0.15s; }
+  .skip-btn:hover { background: #f0f6fa; color: #1a1a1a; }
+  .back-btn { background: transparent; border: none; color: #5e8a9c; padding: 0; margin-bottom: 1rem; font-size: 13px; }
+  .back-btn:hover { color: #1a1a1a; text-decoration: underline; }
+
+  /* Result */
+  .result { text-align: center; padding: 2rem 0; }
+  .result-score { font-size: 56px; font-weight: 600; color: #3d7a91; margin-bottom: 8px; font-family: Arial, sans-serif; }
+  .result-label { font-size: 15px; color: #5e8a9c; margin-bottom: 1rem; font-family: Arial, sans-serif; }
+  .result-msg { font-size: 17px; color: #1a1a1a; margin-bottom: 2rem; font-family: Arial, sans-serif; line-height: 1.5; }
+  .result-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 11px 28px; border: 1px solid #3d7a91; border-radius: 8px; background: #fff; color: #3d7a91; font-size: 14px; cursor: pointer; font-family: Arial, sans-serif; transition: background 0.15s; }
+  .restart-btn:hover { background: #f0f6fa; }
+
+  @media (max-width: 600px) {
+    .banner { height: 150px; }
+    .banner-text { font-size: 22px; }
+    .main-title { font-size: 24px; }
+    .question-card { padding: 1.5rem; }
+    .question-text { font-size: 19px; }
+    .option { font-size: 16px; padding: 14px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="banner" id="banner">
+  <div class="banner-text">Doctor Slump</div>
+</div>
+
+<div id="app">
+
+  <!-- SECTION PICKER -->
+  <div id="picker">
+    <div class="title-block">
+      <div class="main-title">DOCTOR SLUMP</div>
+      <div class="main-sub">THE QUIZ · 닥터슬럼프</div>
+    </div>
+    <p class="picker-intro">Choose a section to begin. You can come back and try the others any time.</p>
+    <div class="section-list" id="section-list"></div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz" style="display:none">
+    <button class="back-btn" onclick="goHome()">← Back to sections</button>
+    <p class="section-label" id="quiz-section-label"></p>
+    <p class="section-title" id="quiz-section-title"></p>
+    <div class="progress-row">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <span class="progress-text" id="progress-text"></span>
+    </div>
+    <div class="question-card">
+      <p class="question-text" id="question-text"></p>
+      <div class="options" id="options"></div>
+      <div class="feedback hidden" id="feedback"></div>
+      <button class="skip-btn" id="skip-btn" onclick="skipQuestion()" style="display:none">Skip this one →</button>
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next question</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result" style="display:none">
+    <div class="result">
+      <div class="result-score" id="result-score"></div>
+      <div class="result-label" id="result-label">out of 6</div>
+      <div class="result-msg" id="result-msg"></div>
+      <div class="result-buttons">
+        <button class="restart-btn" onclick="restartCurrent()">Try again</button>
+        <button class="restart-btn" onclick="goHome()">Back to sections</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============== SECTIONS ============== */
+const sections = [
+  {
+    id: 1,
+    icon: '📖',
+    title: 'Plot',
+    desc: 'What happens in the story',
+    questions: [
+      { q: "How did Yeo Jeong-woo and Nam Ha-neul know each other in high school?",
+        options: ["They were best friends from childhood", "They were academic rivals competing for top of the class", "They were in the same study group", "They had never met until adulthood"],
+        answer: 1, feedback: "In high school they were fierce rivals — both top students who couldn't stand each other." },
+      { q: "What is Jeong-woo's specialty as a doctor at the start of the drama?",
+        options: ["Cardiology", "Plastic surgery", "Paediatrics", "Emergency medicine"],
+        answer: 1, feedback: "Jeong-woo is a star plastic surgeon — talented, famous, and very confident." },
+      { q: "What event causes Jeong-woo's career to suddenly collapse?",
+        options: ["He fails an important exam", "A patient dies during his operation and he is accused of malpractice", "He is fired for being late", "He moves to a different country"],
+        answer: 1, feedback: "A patient dies during surgery and Jeong-woo becomes the centre of a malpractice scandal that destroys his career." },
+      { q: "Why does Ha-neul quit her job as an anaesthesiologist?",
+        options: ["She wins the lottery", "She is burnt out, depressed, and exhausted by hospital politics and bullying", "She gets a better offer overseas", "She wants to start her own clinic"],
+        answer: 1, feedback: "After years of overwork, harassment from a senior doctor, and severe depression, she walks away from the hospital." },
+      { q: "Where do the two main characters end up living next to each other?",
+        options: ["A luxury apartment building", "On the rooftop / top floor of Ha-neul's mother's house", "A university dormitory", "A seaside hotel"],
+        answer: 1, feedback: "Jeong-woo rents the rooftop room at the house owned by Ha-neul's mother — making them neighbours." },
+      { q: "What is the main emotional journey the drama follows?",
+        options: ["Two doctors compete to become hospital director", "Two burnt-out doctors heal from depression and find love again", "A doctor solves a medical mystery", "A doctor travels back in time"],
+        answer: 1, feedback: "The show is about two people in a 'slump' — burnt out and broken — slowly healing together." }
+    ]
+  },
+  {
+    id: 2,
+    icon: '👥',
+    title: 'Characters',
+    desc: 'The people around Jeong-woo and Ha-neul',
+    questions: [
+      { q: "Who plays Yeo Jeong-woo?",
+        options: ["Park Bo-gum", "Park Hyung-sik", "Park Seo-joon", "Lee Min-ho"],
+        answer: 1, feedback: "Park Hyung-sik plays Jeong-woo — the once-famous plastic surgeon whose life falls apart." },
+      { q: "Who plays Nam Ha-neul?",
+        options: ["Park Shin-hye", "Song Hye-kyo", "Bae Suzy", "IU"],
+        answer: 0, feedback: "Park Shin-hye plays Ha-neul — the brilliant but exhausted anaesthesiologist." },
+      { q: "Who is Nam Ba-da to Ha-neul?",
+        options: ["Her father", "Her younger brother — who lives at home and dreams of being a YouTuber", "Her boss", "Her ex-boyfriend"],
+        answer: 1, feedback: "Ba-da is Ha-neul's slightly lazy younger brother who provides much of the drama's comedy." },
+      { q: "Who is Hong-ran in the story?",
+        options: ["Jeong-woo's sister", "Ha-neul's best friend, a single mother and fellow doctor", "Jeong-woo's lawyer", "Ha-neul's old high school teacher"],
+        answer: 1, feedback: "Hong-ran is Ha-neul's best friend and a doctor herself — a single mum with her own quiet love story." },
+      { q: "Who is Min Kyung-min, the senior doctor in Ha-neul's life?",
+        options: ["A kind mentor who supports her", "Her former senior who appears caring but is actually a major source of her trauma", "Her cousin", "A patient she once treated"],
+        answer: 1, feedback: "Kyung-min seems gentle on the surface but turns out to be one of the people who hurt Ha-neul most deeply." },
+      { q: "What kind of mother is Ha-neul's mum?",
+        options: ["Cold and distant", "Loud, funny, sometimes pushy, but deeply loving", "A famous doctor herself", "Strict and silent"],
+        answer: 1, feedback: "Ha-neul's mum runs the household with energy and humour — and quietly worries about her daughter all the time." }
+    ]
+  },
+  {
+    id: 3,
+    icon: '💬',
+    title: 'Quotes & Moments',
+    desc: 'Memorable scenes and themes',
+    questions: [
+      { q: "What does the word 'slump' mean in the title 'Doctor Slump'?",
+        options: ["A medical injury", "A long period of feeling stuck, low, or unable to perform — a depression or burnout", "A type of operation", "A nickname for a hospital"],
+        answer: 1, feedback: "A 'slump' is a low patch in life — both characters are doctors stuck in one." },
+      { q: "What surprising thing do Jeong-woo and Ha-neul discover when they meet again as adults?",
+        options: ["They are distant cousins", "They are now neighbours, both jobless and depressed at the same time", "They work at the same hospital", "They have the same birthday"],
+        answer: 1, feedback: "The old rivals meet again at rock bottom — both burnt out, both back home." },
+      { q: "What is one of the drama's gentlest messages about mental health?",
+        options: ["Just work harder and you'll feel better", "It's okay to rest, to fall down, and to ask for help", "Doctors should never show weakness", "Friends can fix everything on their own"],
+        answer: 1, feedback: "The show treats burnout and depression with real care — rest and connection matter." },
+      { q: "What food becomes a small symbol of comfort between Jeong-woo and Ha-neul?",
+        options: ["Pizza", "Late-night meals shared on the rooftop (chicken, ramen, beer)", "School cafeteria lunches", "Birthday cake"],
+        answer: 1, feedback: "Their late-night rooftop meals — fried chicken, ramen, beer — become a quiet ritual of healing." },
+      { q: "What does Ha-neul slowly learn about her own life choices?",
+        options: ["She wishes she had become a teacher", "She studied so hard for so long that she forgot how to be happy", "She regrets all her friendships", "She wants to leave Korea forever"],
+        answer: 1, feedback: "Ha-neul realises she chased success at the cost of her own happiness — and starts to live for herself." },
+      { q: "By the end of the drama, what kind of love story is it?",
+        options: ["A tragic, doomed romance", "A quiet, healing romance between two people who help each other recover", "A love triangle with no resolution", "A one-sided love story"],
+        answer: 1, feedback: "Their romance is gentle and healing — they grow stronger together, not louder." }
+    ]
+  },
+  {
+    id: 4,
+    icon: '🤔',
+    title: 'No Right Answer',
+    desc: 'Opinion round · what do you think?',
+    isOpinion: true,
+    questions: [
+      { q: "Which character do you relate to the most?",
+        options: ["Jeong-woo — confident on the outside, broken on the inside", "Ha-neul — high-achieving but exhausted", "Ba-da — the easygoing younger sibling", "Hong-ran — quietly carrying a lot on her own"],
+        feedback: "Each character carries something different — the one you choose often says something about you." },
+      { q: "What was the saddest part of the drama for you?",
+        options: ["Jeong-woo's malpractice scandal", "Ha-neul's depression and breakdown", "The truth about Min Kyung-min", "The family struggles in the background"],
+        feedback: "The show has many sad layers — different viewers feel each one most strongly." },
+      { q: "Do you think the drama shows depression and burnout in a realistic way?",
+        options: ["Yes — very honest and gentle", "Mostly yes, but a bit softened for TV", "Not really — real life is harder", "I'm not sure — it's hard to judge"],
+        feedback: "Many viewers praise the show for handling these topics with care, but opinions differ." },
+      { q: "Which is more important in this story — the romance or the friendship?",
+        options: ["The romance between Jeong-woo and Ha-neul", "Their old rivalry turning into deep friendship", "Both are equally important", "The family relationships matter most"],
+        feedback: "For some viewers the love story is the heart of it; for others, it's the friendship that holds everything together." },
+      { q: "Whose family did you enjoy watching more?",
+        options: ["Ha-neul's loud, warm, messy family", "Jeong-woo's quieter, more painful family situation", "Both, equally", "Neither — I preferred the friendships"],
+        feedback: "The two families show very different versions of love — both are true to life." },
+      { q: "What is the strongest message you take from Doctor Slump?",
+        options: ["It's okay to rest when you fall down", "Old rivals can become your closest support", "Success is not the same as happiness", "Healing happens slowly, with the right people"],
+        feedback: "The drama is loved for all of these messages — there's no single 'right' one." }
+    ]
+  }
+];
+
+/* ============== STATE ============== */
+let currentSection = null;
+let current = 0;
+let score = 0;
+let answered = false;
+
+/* ============== PICKER ============== */
+function renderPicker() {
+  document.getElementById('banner').style.display = 'block';
+  document.getElementById('picker').style.display = 'block';
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+  window.scrollTo(0, 0);
+
+  const list = document.getElementById('section-list');
+  list.innerHTML = '';
+  sections.forEach(function(s) {
+    const card = document.createElement('button');
+    card.className = 'section-card';
+    card.onclick = function() { startSection(s.id); };
+    card.innerHTML = `
+      <div class="section-card-top">
+        <span class="section-card-num">Section ${s.id}</span>
+      </div>
+      <div class="section-card-title">${s.icon} ${s.title}</div>
+      <div class="section-card-desc">${s.desc}</div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function goHome() {
+  renderPicker();
+}
+
+/* ============== QUIZ ============== */
+function startSection(id) {
+  currentSection = sections.find(function(s) { return s.id === id; });
+  current = 0;
+  score = 0;
+  answered = false;
+  document.getElementById('picker').style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+  document.getElementById('quiz-section-label').textContent = `Section ${currentSection.id}`;
+  document.getElementById('quiz-section-title').textContent = `${currentSection.icon} ${currentSection.title}`;
+  showQuestion();
+  window.scrollTo(0, 0);
+}
+
+function restartCurrent() {
+  startSection(currentSection.id);
+}
+
+function showQuestion() {
+  answered = false;
+  const q = currentSection.questions[current];
+  document.getElementById('question-text').textContent = q.q;
+
+  const total = currentSection.questions.length;
+  const pct = (current / total) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `${current + 1} / ${total}`;
+
+  const optsBox = document.getElementById('options');
+  optsBox.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  q.options.forEach(function(opt, i) {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = `<span class="letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = function() { selectOption(i, btn); };
+    optsBox.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback hidden';
+  fb.textContent = '';
+  document.getElementById('next-btn').className = 'next-btn';
+  document.getElementById('next-btn').textContent = (current === total - 1) ? 'See your score' : 'Next question';
+
+  // Show skip button only for opinion sections (and only before they answer)
+  document.getElementById('skip-btn').style.display = currentSection.isOpinion ? 'inline-block' : 'none';
+}
+
+function selectOption(idx, btn) {
+  if (answered) return;
+  answered = true;
+
+  // Hide skip button once they've engaged with a question
+  document.getElementById('skip-btn').style.display = 'none';
+
+  const q = currentSection.questions[current];
+  const allBtns = document.querySelectorAll('.option');
+  const fb = document.getElementById('feedback');
+
+  if (currentSection.isOpinion) {
+    // Opinion round — every answer is "valid"
+    allBtns.forEach(function(b, i) {
+      b.disabled = true;
+      if (i === idx) b.classList.add('opinion');
+    });
+    score++;
+    fb.className = 'feedback opinion';
+    fb.textContent = '💭 ' + q.feedback;
+  } else {
+    allBtns.forEach(function(b, i) {
+      b.disabled = true;
+      if (i === q.answer) b.classList.add('correct');
+      else if (i === idx) b.classList.add('wrong');
+    });
+
+    if (idx === q.answer) {
+      score++;
+      fb.className = 'feedback correct';
+      fb.textContent = '✓ Correct! ' + q.feedback;
+    } else {
+      fb.className = 'feedback wrong';
+      fb.textContent = '✗ ' + q.feedback;
+    }
+  }
+
+  document.getElementById('next-btn').className = 'next-btn visible';
+
+  // Smoothly scroll the Next button into view so students don't miss it
+  setTimeout(function() {
+    document.getElementById('next-btn').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= currentSection.questions.length) {
+    showResult();
+  } else {
+    showQuestion();
+  }
+}
+
+function skipQuestion() {
+  // Skip just moves on without affecting score (opinion sections only)
+  nextQuestion();
+}
+
+/* ============== RESULT ============== */
+function showResult() {
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('result').style.display = 'block';
+  const total = currentSection.questions.length;
+  document.getElementById('result-score').textContent = score;
+  document.getElementById('result-label').textContent = `out of ${total}`;
+
+  let msg = '';
+  if (currentSection.isOpinion) {
+    msg = "Thanks for sharing your thoughts! There are no wrong answers in this section.";
+  } else {
+    const pct = (score / total) * 100;
+    if (pct === 100) msg = "Perfect score! You're a true Doctor Slump expert. 🩺";
+    else if (pct >= 75) msg = "Great work — you really know this drama!";
+    else if (pct >= 50) msg = "Not bad! You remember the main story well.";
+    else if (pct >= 25) msg = "Time for a rewatch? It's a quiet, healing one.";
+    else msg = "Maybe you haven't seen it yet — give it a try!";
+  }
+  document.getElementById('result-msg').textContent = msg;
+
+  window.scrollTo(0, 0);
+}
+
+/* ============== INIT ============== */
+renderPicker();
+</script>
+
+</body>
+</html>
