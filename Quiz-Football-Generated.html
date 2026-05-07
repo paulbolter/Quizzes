@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Football Test — Superfan Quiz</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --grass: #2e7d4f;
+    --grass-light: #4caf78;
+    --grass-pale: #e8f5ee;
+    --pitch: #f0f7f3;
+    --pitch-mid: #ddeee6;
+    --gold: #e8a020;
+    --gold-dim: #c4851a;
+    --gold-pale: #fef3e0;
+    --dark: #1a2e22;
+    --text: #2a3d30;
+    --grey: #7a9485;
+    --red: #c0392b;
+    --red-pale: #fdecea;
+    --card: #ffffff;
+    --border: #c8dfd3;
+    --border-strong: #a8c8b8;
+    --shadow: rgba(46,125,79,0.10);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--pitch);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(46,125,79,0.04) 49px, rgba(46,125,79,0.04) 50px),
+      repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(46,125,79,0.04) 49px, rgba(46,125,79,0.04) 50px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header {
+    text-align: center;
+    padding: 40px 0 32px;
+    border-bottom: 2px solid var(--border-strong);
+    margin-bottom: 36px;
+  }
+
+  .header .badge {
+    display: inline-block;
+    background: var(--grass);
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    padding: 4px 14px;
+    margin-bottom: 16px;
+    border-radius: 2px;
+  }
+
+  .header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 10vw, 80px);
+    line-height: 0.9;
+    letter-spacing: 2px;
+    color: var(--dark);
+  }
+
+  .header h1 span {
+    color: var(--grass);
+    display: block;
+  }
+
+  .header p {
+    margin-top: 16px;
+    color: var(--grey);
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── CATEGORY GRID (single select) ── */
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .cat-btn {
+    background: var(--card);
+    border: 2px solid var(--border);
+    color: var(--text);
+    padding: 16px 12px;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: center;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.4px;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px var(--shadow);
+  }
+
+  .cat-btn:hover { border-color: var(--grass-light); color: var(--grass); background: var(--grass-pale); }
+
+  .cat-btn.selected {
+    background: var(--grass);
+    border-color: var(--grass);
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(46,125,79,0.25);
+  }
+
+  .cat-btn .flag { display: block; font-size: 24px; margin-bottom: 7px; }
+
+  /* ── DIFFICULTY ── */
+  .difficulty-row { display: flex; gap: 10px; margin-bottom: 28px; }
+
+  .diff-btn {
+    flex: 1;
+    background: var(--card);
+    border: 2px solid var(--border);
+    color: var(--text);
+    padding: 14px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.18s;
+    text-align: center;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px var(--shadow);
+  }
+
+  .diff-btn .diff-sub { font-size: 11px; color: var(--grey); font-weight: 300; display: block; margin-top: 3px; }
+
+  .diff-btn.selected {
+    background: var(--grass);
+    border-color: var(--grass);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(46,125,79,0.25);
+  }
+
+  .diff-btn.selected .diff-sub { color: rgba(255,255,255,0.75); }
+  .diff-btn:hover:not(.selected) { border-color: var(--grass-light); color: var(--grass); }
+
+  /* ── START BUTTON ── */
+  .start-btn {
+    width: 100%;
+    background: var(--grass);
+    color: #fff;
+    border: none;
+    padding: 18px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+    box-shadow: 0 3px 12px rgba(46,125,79,0.3);
+  }
+
+  .start-btn:hover { background: var(--grass-light); transform: translateY(-1px); box-shadow: 0 5px 16px rgba(46,125,79,0.35); }
+  .start-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* ── SECTION LABELS ── */
+  .section-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--grass);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border-strong); }
+
+  /* ── LOADING ── */
+  .loading-screen { text-align: center; padding: 80px 20px; }
+
+  .spinner {
+    width: 48px; height: 48px;
+    border: 3px solid var(--border);
+    border-top-color: var(--grass);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 24px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-screen p { color: var(--grey); font-size: 14px; letter-spacing: 1px; }
+  .loading-screen .loading-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--dark); margin-bottom: 8px; letter-spacing: 2px; }
+
+  /* ── QUIZ ── */
+  .quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--border-strong);
+  }
+
+  .q-counter { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; color: var(--grey); }
+  .q-counter span { color: var(--grass); font-size: 22px; }
+  .score-display { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; color: var(--grey); }
+  .score-display span { color: var(--grass); font-size: 22px; }
+
+  .progress-bar { height: 4px; background: var(--border); margin-bottom: 32px; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--grass), var(--grass-light)); transition: width 0.4s ease; border-radius: 2px; }
+
+  .question-box {
+    background: var(--card);
+    border: 2px solid var(--border);
+    padding: 28px 24px;
+    margin-bottom: 20px;
+    position: relative;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+
+  .question-box::before {
+    content: attr(data-num);
+    position: absolute;
+    top: -14px; left: 20px;
+    background: var(--grass);
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    padding: 2px 12px;
+    border-radius: 2px;
+  }
+
+  .question-text { font-size: 18px; font-weight: 500; line-height: 1.5; color: var(--dark); }
+
+  .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+
+  @media (max-width: 500px) { .options-grid { grid-template-columns: 1fr; } }
+
+  .option-btn {
+    background: var(--card);
+    border: 2px solid var(--border);
+    color: var(--text);
+    padding: 16px 18px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    text-align: left;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    line-height: 1.4;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+
+  .option-btn:hover:not(:disabled) { border-color: var(--grass-light); background: var(--grass-pale); color: var(--dark); }
+  .option-btn .opt-letter { font-family: 'Bebas Neue', sans-serif; font-size: 16px; color: var(--grass); min-width: 20px; }
+  .option-btn.correct { background: var(--grass-pale); border-color: var(--grass); color: var(--grass); }
+  .option-btn.correct .opt-letter { color: var(--grass); }
+  .option-btn.wrong { background: var(--red-pale); border-color: var(--red); color: var(--red); }
+  .option-btn.wrong .opt-letter { color: var(--red); }
+  .option-btn:disabled { cursor: default; }
+
+  /* ── FEEDBACK ── */
+  .feedback-box {
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.6;
+    display: none;
+    border-left: 4px solid var(--grass);
+    background: var(--grass-pale);
+    color: var(--text);
+    border-radius: 0 4px 4px 0;
+  }
+
+  .feedback-box.show { display: block; }
+  .feedback-box.correct-fb { border-color: var(--grass); background: var(--grass-pale); }
+  .feedback-box.wrong-fb { border-color: var(--red); background: var(--red-pale); }
+
+  /* ── NEXT BUTTON ── */
+  .next-btn {
+    width: 100%;
+    background: transparent;
+    border: 2px solid var(--grass);
+    color: var(--grass);
+    padding: 14px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: none;
+    border-radius: 4px;
+  }
+
+  .next-btn.show { display: block; }
+  .next-btn:hover { background: var(--grass); color: #fff; }
+
+  /* ── RESULTS ── */
+  .results-screen { text-align: center; padding: 20px 0; }
+
+  .results-score {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 110px;
+    line-height: 1;
+    color: var(--grass);
+  }
+
+  .results-score .denom { font-size: 48px; color: var(--grey); }
+
+  .results-verdict {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+    color: var(--dark);
+  }
+
+  .results-sub {
+    color: var(--grey);
+    font-size: 14px;
+    margin-bottom: 36px;
+    line-height: 1.7;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .play-again-btn {
+    background: var(--grass);
+    color: #fff;
+    border: none;
+    padding: 16px 48px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+    box-shadow: 0 3px 12px rgba(46,125,79,0.3);
+  }
+
+  .play-again-btn:hover { background: var(--grass-light); transform: translateY(-1px); }
+
+  /* ── ERROR ── */
+  .error-box {
+    background: var(--red-pale);
+    border: 2px solid var(--red);
+    padding: 16px 20px;
+    color: var(--red);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    border-radius: 4px;
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="badge">⚽ SUPERFAN QUIZ</div>
+    <h1>THE<span>FOOTBALL</span>TEST</h1>
+    <p>Legends, transfers, managers, iconic moments. How well do you really know the game?</p>
+  </div>
+
+  <!-- SETUP -->
+  <div id="setup-screen">
+
+    <div class="section-label">CHOOSE A CATEGORY</div>
+    <div class="category-grid">
+      <button class="cat-btn selected" data-cat="Premier League">
+        <span class="flag">🏴󠁧󠁢󠁥󠁮󠁧󠁿</span>Premier League
+      </button>
+      <button class="cat-btn" data-cat="Champions League">
+        <span class="flag">⭐</span>Champions League
+      </button>
+      <button class="cat-btn" data-cat="La Liga">
+        <span class="flag">🇪🇸</span>La Liga
+      </button>
+      <button class="cat-btn" data-cat="World Football">
+        <span class="flag">🌍</span>Ligue 1 · Serie A · Bundesliga
+      </button>
+      <button class="cat-btn" data-cat="Classic Football">
+        <span class="flag">🏆</span>Classic Football
+      </button>
+    </div>
+
+    <div class="section-label">DIFFICULTY</div>
+    <div class="difficulty-row">
+      <button class="diff-btn selected" data-diff="fan">
+        Fan
+        <span class="diff-sub">You follow the big stories</span>
+      </button>
+      <button class="diff-btn" data-diff="serious">
+        Serious Fan
+        <span class="diff-sub">You know the details</span>
+      </button>
+    </div>
+
+    <div id="error-msg" class="error-box hidden"></div>
+    <button class="start-btn" id="start-btn">⚽ KICK OFF</button>
+  </div>
+
+  <!-- LOADING -->
+  <div id="loading-screen" class="loading-screen hidden">
+    <div class="spinner"></div>
+    <div class="loading-title">GENERATING QUESTIONS</div>
+    <p>Picking the ones that separate fans from tourists...</p>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz-screen" class="hidden">
+    <div class="quiz-header">
+      <div class="q-counter">QUESTION <span id="q-num">1</span> / 8</div>
+      <div class="score-display">SCORE <span id="score-num">0</span></div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="question-box" id="question-box" data-num="Q1">
+      <div class="question-text" id="question-text"></div>
+    </div>
+    <div class="options-grid" id="options-grid"></div>
+    <div class="feedback-box" id="feedback-box"></div>
+    <button class="next-btn" id="next-btn">NEXT QUESTION →</button>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results-screen" class="results-screen hidden">
+    <div class="results-score" id="final-score">0<span class="denom">/8</span></div>
+    <div class="results-verdict" id="results-verdict"></div>
+    <div class="results-sub" id="results-sub"></div>
+    <button class="play-again-btn" onclick="resetQuiz()">PLAY AGAIN</button>
+  </div>
+
+</div>
+
+<script>
+  const PROXY = 'https://claude-proxy-zeta-six.vercel.app/api/proxy';
+
+  const categoryDescriptions = {
+    'Premier League': 'the English Premier League — its clubs, managers, legendary players, famous transfers, iconic matches and recent seasons',
+    'Champions League': 'the UEFA Champions League — legendary nights, famous scorelines, iconic players, great managers, and recent campaigns',
+    'La Liga': 'Spanish La Liga — Real Madrid, Barcelona, Atletico Madrid, legendary players like Messi and Ronaldo, famous El Clasico matches, and key transfers',
+    'World Football': 'Ligue 1, Serie A, and the Bundesliga — covering French, Italian, and German football, their clubs, legendary players, managers, transfers, and famous matches',
+    'Classic Football': 'classic football from 1990 onwards — the golden era of great players, iconic managers, legendary matches and unforgettable moments in the history of the game'
+  };
+
+  let selectedCat = 'Premier League';
+  let selectedDiff = 'fan';
+  let questions = [];
+  let currentQ = 0;
+  let score = 0;
+  let answered = false;
+
+  // Single-select category
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedCat = btn.dataset.cat;
+    });
+  });
+
+  // Single-select difficulty
+  document.querySelectorAll('.diff-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedDiff = btn.dataset.diff;
+    });
+  });
+
+  document.getElementById('start-btn').addEventListener('click', startQuiz);
+
+  async function startQuiz() {
+    const err = document.getElementById('error-msg');
+    err.classList.add('hidden');
+    show('loading-screen');
+    hide('setup-screen');
+
+    const diffLabel = selectedDiff === 'fan'
+      ? 'a regular fan who follows the big stories, famous players and major moments — not a statistician, but someone who genuinely loves the game'
+      : 'a serious, dedicated football fan who knows transfer details, managerial decisions, season stats, squad depth, and specific match details beyond just the headlines';
+
+    const catDesc = categoryDescriptions[selectedCat];
+
+    const prompt = `You are a football quiz master. Generate exactly 8 multiple-choice quiz questions about ${catDesc}.
+
+Target audience: ${diffLabel}.
+
+QUESTION STYLE — focus on these themes:
+- Legendary and famous players: their clubs, achievements, famous moments
+- High-profile transfers: who moved where — especially recent or iconic ones
+- Famous managers: their clubs, trophies, famous decisions
+- Iconic match scorelines — only the most famous games
+- Hat-tricks by famous players in notable matches
+- Current players and recent seasons (up to mid-2025)
+
+TIME RANGE: Mix questions across eras, but lean towards recent football (2020–2025). Roughly half the questions should be about the last 5 years. Classic era questions (1990s, 2000s) are welcome but should be the minority.
+
+QUESTION WRITING RULES — very important:
+- Keep every question SHORT and DIRECT. Maximum 2 sentences, ideally just one.
+- No background story, no long setup. Get straight to the question.
+- Bad example: "During the 2019-20 season, when Liverpool were dominating English football and winning their first league title in 30 years, which player finished as the club's top scorer?"
+- Good example: "Who was Liverpool's top scorer in their 2019-20 title-winning season?"
+- The question should be easy to read and understand quickly.
+
+AVOID:
+- Long introductory clauses before the actual question
+- Unnecessary context or scene-setting
+- Obscure statistics or exact dates
+- Dry trivia — every question should spark a reaction
+
+Make the four answer options plausible — wrong answers should be real players/clubs/people, not obvious fakes.
+
+Return ONLY a JSON array with exactly 8 objects. No preamble, no markdown, no backticks. Each object:
+{"question":"...","options":["A) ...","B) ...","C) ...","D) ..."],"correct":0,"explanation":"One lively sentence explaining the correct answer, adding a small interesting detail if possible."}
+
+"correct" is the 0-based index of the right answer.`;
+
+    try {
+      const res = await fetch(PROXY, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 2000,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+
+      const raw = data.content.map(b => b.text || '').join('').trim()
+        .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+
+      questions = JSON.parse(raw);
+      if (!Array.isArray(questions) || questions.length < 5) throw new Error('Unexpected response format');
+
+      currentQ = 0; score = 0;
+      show('quiz-screen');
+      hide('loading-screen');
+      renderQuestion();
+
+    } catch (e) {
+      show('setup-screen');
+      hide('loading-screen');
+      err.textContent = '⚠ Could not load questions. Check your connection and try again. (' + e.message + ')';
+      err.classList.remove('hidden');
+    }
+  }
+
+  function renderQuestion() {
+    const q = questions[currentQ];
+    answered = false;
+
+    document.getElementById('q-num').textContent = currentQ + 1;
+    document.getElementById('score-num').textContent = score;
+    document.getElementById('progress-fill').style.width = ((currentQ / questions.length) * 100) + '%';
+
+    const qBox = document.getElementById('question-box');
+    qBox.setAttribute('data-num', 'Q' + (currentQ + 1));
+    document.getElementById('question-text').textContent = q.question;
+
+    const grid = document.getElementById('options-grid');
+    grid.innerHTML = '';
+    const letters = ['A', 'B', 'C', 'D'];
+
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      const text = opt.replace(/^[ABCD]\)\s*/i, '');
+      btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${text}</span>`;
+      btn.addEventListener('click', () => handleAnswer(i));
+      grid.appendChild(btn);
+    });
+
+    const fb = document.getElementById('feedback-box');
+    fb.className = 'feedback-box';
+    fb.textContent = '';
+    document.getElementById('next-btn').classList.remove('show');
+  }
+
+  function handleAnswer(chosen) {
+    if (answered) return;
+    answered = true;
+
+    const q = questions[currentQ];
+    const correct = q.correct;
+    const btns = document.querySelectorAll('.option-btn');
+
+    btns.forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === correct) btn.classList.add('correct');
+      else if (i === chosen) btn.classList.add('wrong');
+    });
+
+    const fb = document.getElementById('feedback-box');
+    if (chosen === correct) {
+      score++;
+      document.getElementById('score-num').textContent = score;
+      fb.classList.add('show', 'correct-fb');
+      fb.textContent = '✓ Correct! ' + q.explanation;
+    } else {
+      fb.classList.add('show', 'wrong-fb');
+      fb.textContent = q.explanation;
+    }
+
+    const nextBtn = document.getElementById('next-btn');
+    nextBtn.classList.add('show');
+    nextBtn.textContent = currentQ < questions.length - 1 ? 'NEXT QUESTION →' : 'SEE RESULTS →';
+  }
+
+  document.getElementById('next-btn').addEventListener('click', () => {
+    currentQ++;
+    if (currentQ >= questions.length) showResults();
+    else renderQuestion();
+  });
+
+  function showResults() {
+    hide('quiz-screen');
+    show('results-screen');
+
+    const total = questions.length;
+    document.getElementById('final-score').innerHTML = score + '<span class="denom">/' + total + '</span>';
+    document.getElementById('progress-fill').style.width = '100%';
+
+    const pct = score / total;
+    let verdict, sub;
+
+    if (pct >= 0.875) {
+      verdict = '⚽ FOOTBALL ENCYCLOPAEDIA';
+      sub = "Remarkable. You don't just watch football — you live it. Transfer windows, legendary managers, iconic scorelines... you've absorbed it all. Respect.";
+    } else if (pct >= 0.625) {
+      verdict = '🔥 PROPER FAN';
+      sub = "You clearly love this game. You know your legends, your transfers, your big moments. A few gaps, but overall you absolutely know your stuff.";
+    } else if (pct >= 0.375) {
+      verdict = '👀 INTERESTED OBSERVER';
+      sub = "You follow the highlights and the big stories. But there are depths to this game — the players, the moments, the drama — that you haven't fully explored yet.";
+    } else {
+      verdict = '🤷 FOOTBALL TOURIST';
+      sub = "It's okay. Football is a big world. Maybe start with the greatest players and iconic matches, and work your way up from there.";
+    }
+
+    document.getElementById('results-verdict').textContent = verdict;
+    document.getElementById('results-sub').textContent = sub;
+  }
+
+  function resetQuiz() {
+    hide('results-screen');
+    show('setup-screen');
+    questions = []; currentQ = 0; score = 0;
+  }
+
+  function show(id) { document.getElementById(id).classList.remove('hidden'); }
+  function hide(id) { document.getElementById(id).classList.add('hidden'); }
+</script>
+</body>
+</html>

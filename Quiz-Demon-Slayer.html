@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demon Slayer — The Quiz · 鬼滅の刃</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, serif; background: #f5f4f0; color: #1a1a1a; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding-bottom: 2rem; padding-top: 0; }
+
+  /* Banner */
+  .banner { width: 100%; max-width: 100%; height: 220px; background-image: url('demon-slayer-banner.jpg'); background-size: cover; background-position: center 40%; position: relative; margin-bottom: 1.5rem; }
+  .banner::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 80px; background: linear-gradient(180deg, rgba(245,244,240,0) 0%, rgba(245,244,240,1) 100%); }
+
+  #app { width: 100%; max-width: 720px; padding: 0 1rem; }
+  #quiz { padding-top: 1rem; }
+
+  .title-block { text-align: center; margin-bottom: 1.5rem; }
+  .main-title { font-size: 32px; font-weight: 600; color: #1a1a1a; font-family: Arial, sans-serif; letter-spacing: 0.02em; }
+  .main-sub { font-size: 14px; color: #888; font-family: Arial, sans-serif; margin-top: 4px; letter-spacing: 0.05em; }
+
+  /* Section picker */
+  .picker-intro { text-align: center; font-size: 15px; color: #555; margin-bottom: 1.25rem; line-height: 1.5; font-family: Arial, sans-serif; }
+  .section-list { display: flex; flex-direction: column; gap: 10px; }
+  .section-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 1rem 1.25rem; cursor: pointer; text-align: left; width: 100%; font-family: Arial, sans-serif; transition: background 0.15s, border-color 0.15s, transform 0.1s; }
+  .section-card:hover { background: #fafaf7; border-color: #bbb; }
+  .section-card:active { transform: translateY(1px); }
+  .section-card-top { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .section-card-num { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #888; }
+  .section-card-title { font-size: 17px; font-weight: 600; color: #1a1a1a; }
+  .section-card-desc { font-size: 13px; color: #888; line-height: 1.4; }
+
+  /* Quiz screen */
+  .section-label { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #888; margin-bottom: 6px; font-family: Arial, sans-serif; }
+  .section-title { font-size: 24px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; font-family: Arial, sans-serif; }
+  .progress-row { display: flex; align-items: center; gap: 10px; margin: 1.25rem 0 1.5rem; }
+  .progress-bar { flex: 1; height: 4px; background: #ddd; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #1a1a1a; border-radius: 2px; transition: width 0.3s ease; }
+  .progress-text { font-size: 13px; color: #888; white-space: nowrap; font-family: Arial, sans-serif; }
+
+  .question-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 14px; padding: 2rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .question-text { font-size: 22px; font-weight: 600; color: #1a1a1a; line-height: 1.4; margin-bottom: 1.75rem; font-family: Arial, sans-serif; }
+
+  .options { display: flex; flex-direction: column; gap: 12px; }
+  .option { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 2px solid #e0e0e0; border-radius: 10px; cursor: pointer; font-size: 17px; font-weight: 500; color: #1a1a1a; background: #fff; text-align: left; width: 100%; transition: background 0.15s, border-color 0.15s; font-family: Arial, sans-serif; line-height: 1.4; }
+  .option:hover:not(:disabled) { background: #f5f4f0; border-color: #bbb; }
+  .option.correct { background: #EAF3DE; border-color: #639922; color: #27500A; }
+  .option.wrong { background: #FCEBEB; border-color: #E24B4A; color: #791F1F; }
+  .option.opinion { background: #EEF1F8; border-color: #6A8AC4; color: #1F3A6E; }
+  .option:disabled { cursor: default; }
+  .letter { font-size: 14px; font-weight: 700; color: #aaa; min-width: 20px; }
+  .option.correct .letter { color: #3B6D11; }
+  .option.wrong .letter { color: #A32D2D; }
+  .option.opinion .letter { color: #2A4D8C; }
+
+  .feedback { font-size: 15px; margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-family: Arial, sans-serif; line-height: 1.5; }
+  .feedback.correct { background: #EAF3DE; color: #27500A; }
+  .feedback.wrong { background: #FCEBEB; color: #791F1F; }
+  .feedback.opinion { background: #EEF1F8; color: #1F3A6E; }
+  .feedback.hidden { display: none; }
+
+  .next-btn, .back-btn { margin-top: 14px; padding: 12px 26px; border: 1px solid #ccc; border-radius: 8px; background: #fff; color: #1a1a1a; font-size: 15px; font-weight: 500; cursor: pointer; font-family: Arial, sans-serif; transition: background 0.15s, opacity 0.3s; }
+  .next-btn { display: none; }
+  .next-btn.visible { display: inline-block; }
+  .next-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .next-btn:hover:not(:disabled) { background: #f5f4f0; }
+  .skip-btn { margin-top: 14px; margin-left: 10px; padding: 12px 22px; border: 1px solid #ddd; border-radius: 8px; background: transparent; color: #888; font-size: 14px; font-weight: 500; cursor: pointer; font-family: Arial, sans-serif; transition: background 0.15s, color 0.15s; }
+  .skip-btn:hover { background: #f5f4f0; color: #1a1a1a; }
+  .back-btn { background: transparent; border: none; color: #888; padding: 0; margin-bottom: 1rem; font-size: 13px; }
+  .back-btn:hover { color: #1a1a1a; text-decoration: underline; }
+
+  /* Result */
+  .result { text-align: center; padding: 2rem 0; }
+  .result-score { font-size: 56px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; font-family: Arial, sans-serif; }
+  .result-label { font-size: 15px; color: #888; margin-bottom: 1rem; font-family: Arial, sans-serif; }
+  .result-msg { font-size: 17px; color: #1a1a1a; margin-bottom: 2rem; font-family: Arial, sans-serif; }
+  .result-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 11px 28px; border: 1px solid #ccc; border-radius: 8px; background: #fff; color: #1a1a1a; font-size: 14px; cursor: pointer; font-family: Arial, sans-serif; }
+  .restart-btn:hover { background: #f5f4f0; }
+
+  @media (max-width: 600px) {
+    .banner { height: 160px; }
+    .main-title { font-size: 26px; }
+    .question-card { padding: 1.5rem; }
+    .question-text { font-size: 19px; }
+    .option { font-size: 16px; padding: 14px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="banner" id="banner"></div>
+
+<div id="app">
+
+  <!-- SECTION PICKER -->
+  <div id="picker">
+    <div class="title-block">
+      <div class="main-title">DEMON SLAYER</div>
+      <div class="main-sub">THE QUIZ · 鬼滅の刃</div>
+    </div>
+    <p class="picker-intro">Choose a section to begin. You can come back and try the others any time.</p>
+    <div class="section-list" id="section-list"></div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz" style="display:none">
+    <button class="back-btn" onclick="goHome()">← Back to sections</button>
+    <p class="section-label" id="quiz-section-label"></p>
+    <p class="section-title" id="quiz-section-title"></p>
+    <div class="progress-row">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <span class="progress-text" id="progress-text"></span>
+    </div>
+    <div class="question-card">
+      <p class="question-text" id="question-text"></p>
+      <div class="options" id="options"></div>
+      <div class="feedback hidden" id="feedback"></div>
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next question</button>
+      <button class="skip-btn" id="skip-btn" onclick="skipQuestion()" style="display:none">Skip this one</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result" style="display:none">
+    <div class="result">
+      <div class="result-score" id="result-score"></div>
+      <div class="result-label" id="result-label"></div>
+      <div class="result-msg" id="result-msg"></div>
+      <div class="result-buttons">
+        <button class="restart-btn" onclick="restartCurrent()">Try again</button>
+        <button class="restart-btn" onclick="goHome()">Back to sections</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+var sections = [
+  {
+    id: 1, icon: '🗡️', title: 'The Beginning',
+    desc: 'Season 1 · Tanjiro\'s training, Final Selection, first missions',
+    questions: [
+      { q: "What happens to Tanjiro's family that starts his journey as a demon slayer?", options: ["They are killed by a demon", "They move to a new village", "They are cursed by a witch", "They disappear during a snowstorm"], answer: 0, feedback: "Muzan Kibutsuji slaughters the Kamado family, leaving only Tanjiro and Nezuko alive." },
+      { q: "What is special about Tanjiro's sister Nezuko after the attack?", options: ["She turns into a demon", "She loses her memory", "She gains the ability to speak to animals", "She becomes invisible"], answer: 0, feedback: "Nezuko is transformed into a demon but still shows human emotions and protects Tanjiro." },
+      { q: "Who is the first Demon Slayer that Tanjiro meets?", options: ["Giyu Tomioka", "Shinobu Kocho", "Kyojuro Rengoku", "Tengen Uzui"], answer: 0, feedback: "Giyu finds Tanjiro carrying Nezuko and nearly kills her, but stops when he sees her protecting Tanjiro." },
+      { q: "What does Tanjiro's trainer Urokodaki make him do to prove he is ready for Final Selection?", options: ["Slice a large boulder", "Fight 100 demons", "Climb a mountain blindfolded", "Swim across a frozen lake"], answer: 0, feedback: "Tanjiro must cut a massive boulder with his sword — he succeeds after learning from Sabito and Makomo." },
+      { q: "Who are Sabito and Makomo?", options: ["Spirits of Urokodaki's dead students", "Tanjiro's childhood friends", "Demons pretending to be human", "Hashira in disguise"], answer: 0, feedback: "They are ghosts of former students who were killed during Final Selection and appear to help Tanjiro train." },
+      { q: "What is Final Selection?", options: ["A survival test on a demon-filled mountain", "A written exam about demon history", "A tournament between students", "A test where you must track a demon through a city"], answer: 0, feedback: "Candidates must survive seven days on Mount Fujikasane, which is filled with trapped demons." },
+      { q: "What does Tanjiro carry Nezuko in during his travels?", options: ["A wooden box on his back", "A large suitcase", "A woven basket", "A coffin"], answer: 0, feedback: "Nezuko sleeps in a special wooden box during the day to avoid sunlight." }
+    ]
+  },
+  {
+    id: 2, icon: '🕷️', title: 'Natagumo Mountain',
+    desc: 'Season 1 · Asakusa, Spider Demons, the Hashira',
+    questions: [
+      { q: "In Asakusa, Tanjiro meets two demons who are actually helpful. What is the female demon's name?", options: ["Tamayo", "Daki", "Susamaru", "Shinobu"], answer: 0, feedback: "Tamayo is a demon doctor who broke free from Muzan's control and is researching a cure." },
+      { q: "What is the name of the mountain covered in spider webs where Tanjiro fights a 'family' of demons?", options: ["Mount Natagumo", "Mount Fujikasane", "Mount Kumotori", "Mount Swordsmith"], answer: 0, feedback: "The Spider Demon family controls the mountain, using threads to manipulate other demon slayers like puppets." },
+      { q: "What breathing technique does Tanjiro use?", options: ["Water Breathing", "Flame Breathing", "Thunder Breathing", "Wind Breathing"], answer: 0, feedback: "Tanjiro learns Water Breathing from Urokodaki, though he later discovers a connection to a different style." },
+      { q: "What is Zenitsu's biggest character trait when we first meet him?", options: ["He is extremely cowardly and afraid", "He is arrogant and rude", "He is silent and mysterious", "He is always hungry"], answer: 0, feedback: "Zenitsu is terrified of everything, but becomes incredibly powerful when he falls asleep." },
+      { q: "What is unusual about Inosuke's appearance?", options: ["He wears a boar's head as a mask", "He has demon markings on his face", "He has white hair", "He is missing an arm"], answer: 0, feedback: "Inosuke wears the head of the boar that raised him and is surprisingly handsome underneath." },
+      { q: "What are the Hashira?", options: ["The strongest swordsmen in the Demon Slayer Corps", "A group of demons who fight other demons", "The government leaders of Japan", "Tanjiro's family ancestors"], answer: 0, feedback: "There are nine Hashira, each specialising in a different breathing style." },
+      { q: "Why do most of the Hashira want to kill Nezuko when they first meet her?", options: ["Because she is a demon and Corps rules say all demons must die", "Because she attacked a human", "Because Muzan ordered them to", "Because she refused to join the Corps"], answer: 0, feedback: "Carrying a demon is against every rule — it takes a letter from Urokodaki and a test to convince them." }
+    ]
+  },
+  {
+    id: 3, icon: '🔥', title: 'Mugen Train',
+    desc: 'Season 2 Part 1 · Rengoku, Enmu, Akaza',
+    questions: [
+      { q: "Which Hashira joins Tanjiro's group on the Mugen Train mission?", options: ["Rengoku (Flame Hashira)", "Giyu (Water Hashira)", "Tengen (Sound Hashira)", "Shinobu (Insect Hashira)"], answer: 0, feedback: "Kyojuro Rengoku is investigating demon activity on the train and immediately befriends the group." },
+      { q: "What does the demon Enmu do to the passengers on the train?", options: ["Puts them into a deep sleep with dreams", "Turns them into demons", "Poisons their food", "Makes them fight each other"], answer: 0, feedback: "Enmu uses his Blood Demon Art to trap everyone in pleasant dreams so they won't wake up." },
+      { q: "How does Tanjiro escape from Enmu's dream?", options: ["He kills himself inside the dream to wake up", "Nezuko bites him awake", "He uses Water Breathing", "Rengoku breaks the spell"], answer: 0, feedback: "Tanjiro realises the dream isn't real and slits his own throat within the dream, which forces him awake." },
+      { q: "What does Enmu merge with during the battle?", options: ["The entire train", "The other passengers", "Rengoku's sword", "The train tracks"], answer: 0, feedback: "Enmu fuses his body with the Mugen Train itself, making the whole vehicle part of his demon body." },
+      { q: "Which Upper Rank demon appears after Enmu is defeated?", options: ["Akaza (Upper Rank 3)", "Daki (Upper Rank 6)", "Kokushibo (Upper Rank 1)", "Gyokko (Upper Rank 5)"], answer: 0, feedback: "Akaza arrives out of nowhere and immediately challenges Rengoku to a fight." },
+      { q: "What does Akaza offer Rengoku during their fight?", options: ["To become a demon", "To join Muzan's army as a human", "A chance to surrender", "Information about Muzan's location"], answer: 0, feedback: "Akaza respects Rengoku's strength and repeatedly offers to turn him into a demon so he can grow stronger forever." },
+      { q: "What happens to Rengoku at the end of the Mugen Train arc?", options: ["He dies from his injuries", "He becomes a demon", "He retires from the Corps", "He defeats Akaza"], answer: 0, feedback: "Rengoku is fatally wounded by Akaza but holds him until sunrise, forcing Akaza to flee. He dies at dawn." }
+    ]
+  },
+  {
+    id: 4, icon: '🏮', title: 'Entertainment District',
+    desc: 'Season 2 Part 2 · Tengen Uzui, Daki & Gyutaro',
+    questions: [
+      { q: "Which Hashira leads the Entertainment District mission?", options: ["Tengen Uzui (Sound Hashira)", "Mitsuri (Love Hashira)", "Obanai (Serpent Hashira)", "Sanemi (Wind Hashira)"], answer: 0, feedback: "Tengen is investigating the disappearance of his three wives who were working undercover." },
+      { q: "How many wives does Tengen Uzui have?", options: ["Three", "One", "Two", "Four"], answer: 0, feedback: "Makio, Suma, and Hinatsuru — all three are trained kunoichi (female ninja)." },
+      { q: "What do Tanjiro, Zenitsu, and Inosuke disguise themselves as to enter the district?", options: ["Girls / courtesans", "Merchants", "Musicians", "Samurai"], answer: 0, feedback: "They dress as women to infiltrate the entertainment houses — with mixed results." },
+      { q: "What is the name of the Upper Rank demon hiding in the Entertainment District?", options: ["Daki", "Tamayo", "Susamaru", "Mukago"], answer: 0, feedback: "Daki is Upper Rank 6 and has been hiding as a beautiful oiran (courtesan) for many years." },
+      { q: "What surprising thing do we learn about Daki during the battle?", options: ["She shares her Upper Rank position with her brother Gyutaro", "She is actually Muzan in disguise", "She was once a Hashira", "She is Nezuko's relative"], answer: 0, feedback: "Gyutaro lives inside Daki's body — they share the Upper Rank 6 title, and both must be beheaded simultaneously to die." },
+      { q: "What dramatic new ability does Nezuko show during this arc?", options: ["Her blood can burn demons with pink flames", "She can speak again", "She can use a sword", "She can turn other people into demons"], answer: 0, feedback: "Nezuko's Blood Demon Art creates powerful flames that burn demon poison but don't harm humans." },
+      { q: "What must happen to defeat Daki and Gyutaro?", options: ["Both must be beheaded at the same time", "Only Gyutaro needs to be killed", "They must be exposed to sunlight", "Their blood must be drained"], answer: 0, feedback: "If only one is beheaded, the other regenerates. The group must coordinate to cut both heads simultaneously." }
+    ]
+  },
+  {
+    id: 5, icon: '⚔️', title: 'Swordsmith Village & Hashira Training',
+    desc: 'Seasons 3–4 · Upper Moons attack, preparing for war',
+    questions: [
+      { q: "Why is the Swordsmith Village kept secret?", options: ["It's where all Demon Slayer swords are made", "It's Muzan's birthplace", "It's where demons are imprisoned", "It's where the Hashira live"], answer: 0, feedback: "If demons found the village, they could destroy the Corps' ability to make Nichirin swords." },
+      { q: "Which two Hashira are present during the Swordsmith Village attack?", options: ["Mitsuri (Love) and Muichiro (Mist)", "Giyu (Water) and Shinobu (Insect)", "Rengoku (Flame) and Tengen (Sound)", "Obanai (Serpent) and Sanemi (Wind)"], answer: 0, feedback: "Both happen to be at the village when Upper Rank demons Hantengu and Gyokko attack." },
+      { q: "What makes the Upper Rank demon Hantengu unusual?", options: ["He splits into multiple demons with different emotions", "He is invisible", "He can control time", "He is the smallest demon ever"], answer: 0, feedback: "Hantengu divides into separate bodies representing joy, anger, sorrow, and pleasure." },
+      { q: "What ancient weapon does Tanjiro discover in the village?", options: ["A 300-year-old sword from a training doll", "A crossbow hidden in a temple", "A demon-killing spear", "Muzan's original weapon"], answer: 0, feedback: "The mechanical training doll Yoriichi Type Zero contains a hidden sword from the Sengoku era." },
+      { q: "What important thing does Nezuko achieve at the end of the Swordsmith Village arc?", options: ["She conquers sunlight", "She becomes fully human again", "She learns to talk", "She becomes a Hashira"], answer: 0, feedback: "Nezuko becomes the first demon in history to survive in sunlight, which changes everything." },
+      { q: "What is the purpose of the Hashira Training arc?", options: ["To prepare all demon slayers for the final battle", "To choose a new leader", "To test which Hashira is strongest", "To train Nezuko to fight"], answer: 0, feedback: "Each Hashira runs a brutal training course to strengthen the entire Corps for the coming war against Muzan." },
+      { q: "Why does Muzan want to find Nezuko after the Swordsmith Village arc?", options: ["Because she conquered sunlight and he wants that power", "Because she stole his sword", "Because she knows his weakness", "Because she killed one of his Upper Ranks"], answer: 0, feedback: "Muzan has been searching for centuries for a way to exist in sunlight — Nezuko's blood could be the key." }
+    ]
+  },
+  {
+    id: 6, icon: '🤔', title: 'No Right Answer',
+    desc: 'Opinion round · No correct answers, just your take',
+    isOpinion: true,
+    questions: [
+      { q: "Which Hashira is the coolest?", options: ["Rengoku", "Giyu", "Tengen", "Shinobu"], feedback: "Every Hashira has their fans — there's no wrong answer here!" },
+      { q: "Which is the saddest moment in the series?", options: ["Rengoku's death", "Tanjiro's family being killed", "Gyutaro and Daki's backstory", "Kyojuro's final words to Tanjiro"], feedback: "Demon Slayer knows how to hit you right in the feelings." },
+      { q: "Who would you most want as a teammate?", options: ["Zenitsu", "Inosuke", "Nezuko", "Kanao"], feedback: "Each one brings something different to the team!" },
+      { q: "Which breathing style would you want to learn?", options: ["Water", "Flame", "Thunder", "Sound"], feedback: "All breathing styles are powerful — it's about what suits you." },
+      { q: "Which villain is the most interesting?", options: ["Akaza", "Muzan", "Gyutaro", "Enmu"], feedback: "The best villains are the ones you almost feel sorry for." },
+      { q: "Which arc has the best fights?", options: ["Mugen Train", "Entertainment District", "Swordsmith Village", "Natagumo Mountain"], feedback: "Ufotable really outdid themselves every single time." },
+      { q: "If you could save one character from dying, who would it be?", options: ["Rengoku", "Someone else", "No one — the story is better as it is", "I haven't decided yet"], feedback: "Some deaths hurt more than others — but they all mean something." },
+      { q: "Would you join the Demon Slayer Corps if it were real?", options: ["Absolutely!", "Maybe, if I had a breathing technique", "No way — too dangerous", "Only if I could be a Hashira"], feedback: "Brave answers all round — but let's be honest, most of us would be Zenitsu." }
+    ]
+  }
+];
+
+/* ============== STATE ============== */
+var currentSection = null;
+var current = 0;
+var score = 0;
+var answered = false;
+
+/* ============== SHUFFLE ============== */
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+  }
+  return a;
+}
+
+function prepareSection(sec) {
+  var qs = shuffle(sec.questions);
+  sec._questions = qs.map(function(q) {
+    if (sec.isOpinion) {
+      return { q: q.q, options: shuffle(q.options), feedback: q.feedback };
+    }
+    var correct = q.options[q.answer];
+    var shuffled = shuffle(q.options);
+    return { q: q.q, options: shuffled, answer: shuffled.indexOf(correct), feedback: q.feedback };
+  });
+}
+
+/* ============== PICKER ============== */
+function renderPicker() {
+  document.getElementById('banner').style.display = 'block';
+  document.getElementById('picker').style.display = 'block';
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+  window.scrollTo(0, 0);
+
+  var list = document.getElementById('section-list');
+  list.innerHTML = '';
+  sections.forEach(function(s) {
+    var card = document.createElement('button');
+    card.className = 'section-card';
+    card.onclick = function() { startSection(s.id); };
+    card.innerHTML =
+      '<div class="section-card-top">' +
+        '<span class="section-card-num">Section ' + s.id + '</span>' +
+      '</div>' +
+      '<div class="section-card-title">' + s.icon + ' ' + s.title + '</div>' +
+      '<div class="section-card-desc">' + s.desc + '</div>';
+    list.appendChild(card);
+  });
+}
+
+/* ============== QUIZ ============== */
+function startSection(id) {
+  currentSection = sections.find(function(s) { return s.id === id; });
+  prepareSection(currentSection);
+  current = 0;
+  score = 0;
+  answered = false;
+  document.getElementById('banner').style.display = 'none';
+  document.getElementById('picker').style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+  window.scrollTo(0, 0);
+  document.getElementById('quiz-section-label').textContent = 'Section ' + currentSection.id;
+  document.getElementById('quiz-section-title').textContent = currentSection.icon + ' ' + currentSection.title;
+  render();
+}
+
+function render() {
+  var q = currentSection._questions[current];
+  var total = currentSection._questions.length;
+  document.getElementById('question-text').textContent = q.q;
+  document.getElementById('progress-text').textContent = (current + 1) + ' of ' + total;
+  document.getElementById('progress-fill').style.width = ((current / total) * 100) + '%';
+  var opts = document.getElementById('options');
+  opts.innerHTML = '';
+  var letters = ['A', 'B', 'C', 'D'];
+  q.options.forEach(function(opt, i) {
+    var btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = '<span class="letter">' + letters[i] + '</span>' + opt;
+    btn.onclick = function() { choose(i); };
+    opts.appendChild(btn);
+  });
+  document.getElementById('feedback').className = 'feedback hidden';
+  document.getElementById('feedback').textContent = '';
+  var nextBtn = document.getElementById('next-btn');
+  nextBtn.className = 'next-btn';
+  nextBtn.disabled = false;
+  var skipBtn = document.getElementById('skip-btn');
+  skipBtn.style.display = currentSection.isOpinion ? 'inline-block' : 'none';
+  answered = false;
+}
+
+function choose(i) {
+  if (answered) return;
+  answered = true;
+  var q = currentSection._questions[current];
+  var btns = document.querySelectorAll('.option');
+  btns.forEach(function(b) { b.disabled = true; });
+  var fb = document.getElementById('feedback');
+
+  if (currentSection.isOpinion) {
+    btns[i].classList.add('opinion');
+    fb.className = 'feedback opinion';
+  } else if (i === q.answer) {
+    btns[i].classList.add('correct');
+    fb.className = 'feedback correct';
+    score++;
+  } else {
+    btns[i].classList.add('wrong');
+    btns[q.answer].classList.add('correct');
+    fb.className = 'feedback wrong';
+  }
+  fb.textContent = q.feedback;
+
+  var nextBtn = document.getElementById('next-btn');
+  nextBtn.className = 'next-btn visible';
+  nextBtn.disabled = true;
+  setTimeout(function() { nextBtn.disabled = false; }, 500);
+  document.getElementById('skip-btn').style.display = 'none';
+}
+
+function skipQuestion() {
+  nextQuestion();
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= currentSection._questions.length) {
+    showResult();
+  } else {
+    render();
+  }
+}
+
+function showResult() {
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('result').style.display = 'block';
+  var total = currentSection._questions.length;
+
+  if (currentSection.isOpinion) {
+    document.getElementById('result-score').textContent = '✓';
+    document.getElementById('result-label').textContent = 'No score — just opinions';
+    document.getElementById('result-msg').textContent = "Thanks for sharing your views. There are no right or wrong answers in this section.";
+  } else {
+    document.getElementById('result-score').textContent = score + '/' + total;
+    document.getElementById('result-label').textContent = 'out of ' + total;
+    var msgs = ["Keep watching!", "Not bad — a few details slipped by.", "Good knowledge of this part of the story.", "Very good — you really know this section.", "Perfect score — true Demon Slayer Corps material!"];
+    var pct = score / total;
+    var idx = pct < 0.25 ? 0 : pct < 0.5 ? 1 : pct < 0.75 ? 2 : pct < 1 ? 3 : 4;
+    document.getElementById('result-msg').textContent = msgs[idx];
+  }
+}
+
+function restartCurrent() {
+  prepareSection(currentSection);
+  current = 0;
+  score = 0;
+  answered = false;
+  document.getElementById('quiz').style.display = 'block';
+  document.getElementById('result').style.display = 'none';
+  render();
+}
+
+function goHome() {
+  currentSection = null;
+  current = 0;
+  score = 0;
+  answered = false;
+  renderPicker();
+}
+
+renderPicker();
+</script>
+</body>
+</html>

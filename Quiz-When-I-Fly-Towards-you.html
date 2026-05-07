@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>When I Fly Towards You — The Quiz</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, serif; background: #fdf6f0; color: #1a1a1a; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding-bottom: 2rem; padding-top: 0; }
+
+  /* Banner — soft warm gradient */
+  .banner { width: 100%; max-width: 100%; height: 180px; background: linear-gradient(135deg, #ffd6e0 0%, #ffb4c8 35%, #ff8aa8 70%, #d96a8a 100%); position: relative; margin-bottom: 1.5rem; overflow: hidden; }
+  .banner::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.4) 0%, transparent 25%), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.3) 0%, transparent 30%); }
+  .banner::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 80px; background: linear-gradient(180deg, rgba(253,246,240,0) 0%, rgba(253,246,240,1) 100%); }
+  .banner-text { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -60%); color: #fff; font-family: Georgia, serif; font-style: italic; font-size: 28px; text-shadow: 0 2px 8px rgba(160,40,80,0.4); letter-spacing: 0.05em; z-index: 1; text-align: center; padding: 0 1rem; }
+
+  #app { width: 100%; max-width: 720px; padding: 0 1rem; }
+  #quiz { padding-top: 1rem; }
+
+  .title-block { text-align: center; margin-bottom: 1.5rem; }
+  .main-title { font-size: 30px; font-weight: 600; color: #1a1a1a; font-family: Arial, sans-serif; letter-spacing: 0.02em; line-height: 1.2; }
+  .main-sub { font-size: 14px; color: #b08090; margin-top: 6px; font-family: Arial, sans-serif; letter-spacing: 0.1em; }
+
+  /* Section picker */
+  .picker-intro { text-align: center; font-size: 15px; color: #555; margin-bottom: 1.25rem; line-height: 1.5; font-family: Arial, sans-serif; }
+  .section-list { display: flex; flex-direction: column; gap: 10px; }
+  .section-card { background: #fff; border: 1px solid #f0d8e0; border-radius: 12px; padding: 1rem 1.25rem; cursor: pointer; text-align: left; width: 100%; font-family: Arial, sans-serif; transition: background 0.15s, border-color 0.15s, transform 0.1s; }
+  .section-card:hover { background: #fdf6f0; border-color: #d96a8a; }
+  .section-card:active { transform: translateY(1px); }
+  .section-card-top { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .section-card-num { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #b08090; }
+  .section-card-title { font-size: 17px; font-weight: 600; color: #1a1a1a; }
+  .section-card-desc { font-size: 13px; color: #888; line-height: 1.4; }
+
+  /* Quiz screen */
+  .section-label { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #b08090; margin-bottom: 6px; font-family: Arial, sans-serif; }
+  .section-title { font-size: 24px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; font-family: Arial, sans-serif; }
+  .progress-row { display: flex; align-items: center; gap: 10px; margin: 1.25rem 0 1.5rem; }
+  .progress-bar { flex: 1; height: 4px; background: #f0d8e0; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #d96a8a; border-radius: 2px; transition: width 0.3s ease; }
+  .progress-text { font-size: 13px; color: #b08090; white-space: nowrap; font-family: Arial, sans-serif; }
+
+  /* Question card */
+  .question-card { background: #fff; border: 1px solid #f0d8e0; border-radius: 14px; padding: 2rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(217,106,138,0.08); }
+  .question-text { font-size: 22px; font-weight: 600; color: #1a1a1a; line-height: 1.4; margin-bottom: 1.75rem; font-family: Arial, sans-serif; }
+
+  .options { display: flex; flex-direction: column; gap: 12px; }
+  .option { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border: 2px solid #f0d8e0; border-radius: 10px; cursor: pointer; font-size: 17px; font-weight: 500; color: #1a1a1a; background: #fff; text-align: left; width: 100%; transition: background 0.15s, border-color 0.15s; font-family: Arial, sans-serif; line-height: 1.4; }
+  .option:hover:not(:disabled) { background: #fdf6f0; border-color: #d96a8a; }
+  .option.correct { background: #EAF3DE; border-color: #639922; color: #27500A; }
+  .option.wrong { background: #FCEBEB; border-color: #E24B4A; color: #791F1F; }
+  .option.opinion { background: #EEF1F8; border-color: #6A8AC4; color: #1F3A6E; }
+  .option:disabled { cursor: default; }
+  .letter { font-size: 14px; font-weight: 700; color: #b08090; min-width: 20px; }
+  .option.correct .letter { color: #3B6D11; }
+  .option.wrong .letter { color: #A32D2D; }
+  .option.opinion .letter { color: #2A4D8C; }
+
+  .feedback { font-size: 15px; margin-top: 14px; padding: 12px 16px; border-radius: 10px; font-family: Arial, sans-serif; line-height: 1.5; }
+  .feedback.correct { background: #EAF3DE; color: #27500A; }
+  .feedback.wrong { background: #FCEBEB; color: #791F1F; }
+  .feedback.opinion { background: #EEF1F8; color: #1F3A6E; }
+  .feedback.hidden { display: none; }
+
+  /* Sticky action bar — keeps Next button always visible at bottom of screen */
+  .action-bar { position: sticky; bottom: 0; left: 0; right: 0; padding: 12px 1rem 14px; background: linear-gradient(180deg, rgba(253,246,240,0) 0%, rgba(253,246,240,0.95) 30%, rgba(253,246,240,1) 100%); margin: 0 -1rem -2rem; display: flex; gap: 8px; justify-content: flex-end; align-items: center; min-height: 0; transition: min-height 0.2s; z-index: 10; }
+  .action-bar.has-buttons { min-height: 60px; }
+  .next-btn, .back-btn { padding: 12px 26px; border: 1px solid #d96a8a; border-radius: 8px; background: #d96a8a; color: #fff; font-size: 15px; font-weight: 500; cursor: pointer; font-family: Arial, sans-serif; transition: background 0.15s, opacity 0.3s; }
+  .next-btn { display: none; box-shadow: 0 2px 8px rgba(217,106,138,0.25); }
+  .next-btn.visible { display: inline-block; }
+  .next-btn:hover:not(:disabled) { background: #c25577; }
+  .skip-btn { padding: 12px 22px; border: 1px solid #f0d8e0; border-radius: 8px; background: #fff; color: #b08090; font-size: 14px; font-weight: 500; cursor: pointer; font-family: Arial, sans-serif; transition: background 0.15s, color 0.15s; }
+  .skip-btn:hover { background: #fdf6f0; color: #1a1a1a; }
+  .back-btn { background: transparent; border: none; color: #b08090; padding: 0; margin-bottom: 1rem; font-size: 13px; }
+  .back-btn:hover { color: #1a1a1a; text-decoration: underline; }
+
+  /* Result */
+  .result { text-align: center; padding: 2rem 0; }
+  .result-score { font-size: 56px; font-weight: 600; color: #d96a8a; margin-bottom: 8px; font-family: Arial, sans-serif; }
+  .result-label { font-size: 15px; color: #b08090; margin-bottom: 1rem; font-family: Arial, sans-serif; }
+  .result-msg { font-size: 17px; color: #1a1a1a; margin-bottom: 2rem; font-family: Arial, sans-serif; line-height: 1.5; }
+  .result-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 11px 28px; border: 1px solid #d96a8a; border-radius: 8px; background: #fff; color: #d96a8a; font-size: 14px; cursor: pointer; font-family: Arial, sans-serif; transition: background 0.15s; }
+  .restart-btn:hover { background: #fdf6f0; }
+
+  @media (max-width: 600px) {
+    .banner { height: 150px; }
+    .banner-text { font-size: 22px; }
+    .main-title { font-size: 24px; }
+    .question-card { padding: 1.5rem; }
+    .question-text { font-size: 19px; }
+    .option { font-size: 16px; padding: 14px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="banner" id="banner">
+  <div class="banner-text">When I Fly Towards You</div>
+</div>
+
+<div id="app">
+
+  <!-- SECTION PICKER -->
+  <div id="picker">
+    <div class="title-block">
+      <div class="main-title">WHEN I FLY TOWARDS YOU</div>
+      <div class="main-sub">THE QUIZ · 当我飞奔向你</div>
+    </div>
+    <p class="picker-intro">Choose a section to begin. You can come back and try the others any time.</p>
+    <div class="section-list" id="section-list"></div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz" style="display:none">
+    <button class="back-btn" onclick="goHome()">← Back to sections</button>
+    <p class="section-label" id="quiz-section-label"></p>
+    <p class="section-title" id="quiz-section-title"></p>
+    <div class="progress-row">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <span class="progress-text" id="progress-text"></span>
+    </div>
+    <div class="question-card">
+      <p class="question-text" id="question-text"></p>
+      <div class="options" id="options"></div>
+      <div class="feedback hidden" id="feedback"></div>
+    </div>
+    <div class="action-bar" id="action-bar">
+      <button class="skip-btn" id="skip-btn" onclick="skipQuestion()" style="display:none">Skip this one →</button>
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next question</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result" style="display:none">
+    <div class="result">
+      <div class="result-score" id="result-score"></div>
+      <div class="result-label" id="result-label">out of 6</div>
+      <div class="result-msg" id="result-msg"></div>
+      <div class="result-buttons">
+        <button class="restart-btn" onclick="restartCurrent()">Try again</button>
+        <button class="restart-btn" onclick="goHome()">Back to sections</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============== SECTIONS ============== */
+const sections = [
+  {
+    id: 1,
+    icon: '📖',
+    title: 'Plot',
+    desc: 'What happens in the story',
+    questions: [
+      { q: "What year does Su Zai-zai transfer to Jiangyi (Yucai) High School?",
+        options: ["2008", "2010", "2012", "2015"],
+        answer: 2, feedback: "The story begins in the early autumn of 2012." },
+      { q: "Where do Su Zai-zai and Zhang Lu-rang first see each other?",
+        options: ["In the school cafeteria", "At a supermarket / convenience store on a rainy day", "On the school bus", "At the entrance to the classroom"],
+        answer: 1, feedback: "She sees him walking calmly through the rain when she takes shelter at a corner shop." },
+      { q: "What event soon after the start of school brings the friend group together?",
+        options: ["A school exam", "Military training camp", "A football match", "A trip to Beijing"],
+        answer: 1, feedback: "First-year students attend military training camp, where the group of five really starts to bond." },
+      { q: "Why does Lu-rang refuse the new English tutor that his mother hires?",
+        options: ["He doesn't want to study English", "He says he already has a tutor (Su Zai-zai)", "The tutor is too expensive", "His uncle disagrees with the decision"],
+        answer: 1, feedback: "After meeting the arrogant Ms. Chen, he tells his mother he already has a tutor — meaning Su Zai-zai." },
+      { q: "Around which episode does Gu Ran finally confess his feelings for Jiang Jia?",
+        options: ["Episode 5", "Episode 12", "Episode 19", "Episode 24"],
+        answer: 2, feedback: "Gu Ran confesses to Jiang Jia in episode 19, after a long stretch of bickering and hidden feelings." },
+      { q: "By the end of the drama, where are Lu-rang and Su Zai-zai in their lives?",
+        options: ["They have broken up", "They are still in high school", "They have grown up — moving from high school into university and adulthood together", "They have moved to different countries"],
+        answer: 2, feedback: "The drama follows their journey from high school into university and adulthood, staying together throughout." }
+    ]
+  },
+  {
+    id: 2,
+    icon: '👥',
+    title: 'Characters',
+    desc: 'The five friends and their world',
+    questions: [
+      { q: "Who is Zhang Lu-li?",
+        options: ["Lu-rang's best friend", "Lu-rang's younger brother and a child genius", "Lu-rang's cousin", "Su Zai-zai's tutor"],
+        answer: 1, feedback: "Lu-li is Lu-rang's younger brother — a prodigy who has even skipped grades." },
+      { q: "Why does Lu-rang feel so much pressure at home?",
+        options: ["His parents want him to become a doctor", "His mother constantly compares him to his genius younger brother", "He has to take care of his sick father", "He failed an important exam"],
+        answer: 1, feedback: "His mother openly favours his younger brother and compares the two, leaving Lu-rang full of self-doubt." },
+      { q: "Who lives with his grandmother and brings humour to the friend group, but doesn't have a romantic storyline?",
+        options: ["Gu Ran", "Guan Fang", "Shen Qian-yu", "Lu-li"],
+        answer: 1, feedback: "Guan Fang is the loyal, funny heart of the group. He lives with his grandmother." },
+      { q: "Who is Lin Mao to Zhang Lu-rang?",
+        options: ["His father", "His older brother", "His maternal uncle (and his maths teacher)", "His next-door neighbour"],
+        answer: 2, feedback: "Lin Mao is Lu-rang's uncle — and also the maths teacher / homeroom teacher of his class." },
+      { q: "Who does Jiang Jia have a crush on at the start of the story?",
+        options: ["Gu Ran", "Guan Fang", "Shen Qian-yu, the senior who plays guitar", "Lu-rang"],
+        answer: 2, feedback: "Jiang Jia first crushes on Shen Qian-yu, the senior and Drama Society president, before her feelings for Gu Ran develop." },
+      { q: "How does Lu-li actually feel about his older brother Lu-rang?",
+        options: ["He looks down on him", "He admires him and feels guilty about the pressure his own success creates", "He is jealous of him", "He barely knows him"],
+        answer: 1, feedback: "Despite being the favoured son, Lu-li admires Lu-rang and feels bad that his success makes life harder for his brother." }
+    ]
+  },
+  {
+    id: 3,
+    icon: '💬',
+    title: 'Quotes & Moments',
+    desc: 'Memorable scenes and themes',
+    questions: [
+      { q: "When Gu Ran asks Lu-rang to describe his ideal partner, who does Lu-rang really seem to be describing?",
+        options: ["Su Zai-zai", "His pet golden retriever", "A famous actress", "His younger brother"],
+        answer: 1, feedback: "He describes his golden retriever — though many of the traits (round eyes, clingy, full of energy) also fit Su Zai-zai!" },
+      { q: "What kind of moment marks Su Zai-zai's first 'confession' at military training camp?",
+        options: ["She writes a love letter to Lu-rang", "She accidentally confesses to the wrong person (Gu Ran)", "She sings a song on stage", "She refuses to speak to him for a week"],
+        answer: 1, feedback: "She confuses Gu Ran with Lu-rang and confesses to the wrong boy — which catches Lu-rang's interest." },
+      { q: "Which line is closest to one of the drama's most-loved messages from Lu-rang to himself?",
+        options: ["\"Only the strongest survive.\"", "\"Every person's existence is meaningful — don't easily dismiss yourself.\"", "\"Love is a battlefield.\"", "\"Friends come and go.\""],
+        answer: 1, feedback: "This idea — that everyone's existence is meaningful — is one of the most quoted lines from the show." },
+      { q: "Lu-rang tells Su Zai-zai he wants to be 'responsible' for her in what way?",
+        options: ["Just for the school year", "Until she finishes university", "Until the very end / for the rest of their lives", "Only while they live in the same city"],
+        answer: 2, feedback: "He promises he will be responsible for her 'to the end' — one of the show's sweetest moments." },
+      { q: "In one famous line, Lu-rang says a girl doesn't need a prince to be a princess. What does he say instead?",
+        options: ["She just needs herself", "Every girl can be a princess in front of the one she loves", "Princesses are out of fashion", "Her parents make her a princess"],
+        answer: 1, feedback: "His full line: every girl can be a princess in the eyes of the one who loves her — a fan favourite." },
+      { q: "The title 'When I Fly Towards You' connects to which image in the drama?",
+        options: ["A bird flying south for winter", "When I fly towards the moon, the moon is also learning to run for me", "An aeroplane crossing the sea", "A paper plane in a classroom"],
+        answer: 1, feedback: "A poetic line from the show: when one person flies towards the other, the other is also moving to meet them." }
+    ]
+  },
+  {
+    id: 4,
+    icon: '🤔',
+    title: 'No Right Answer',
+    desc: 'Opinion round · what do you think?',
+    isOpinion: true,
+    questions: [
+      { q: "Which couple do you enjoy watching more?",
+        options: ["Lu-rang and Su Zai-zai (the main couple)", "Gu Ran and Jiang Jia (the bickering couple)", "I love them both equally", "I prefer the friendships to the romance"],
+        feedback: "Many fans actually say Gu Ran and Jiang Jia's love story stole the show — there's no wrong answer." },
+      { q: "Which character do you relate to the most?",
+        options: ["Su Zai-zai — bubbly and brave", "Lu-rang — quiet and full of self-doubt", "Jiang Jia — bold and outgoing", "Guan Fang — loyal and funny"],
+        feedback: "All four are written with care — your favourite often says something about how you see yourself." },
+      { q: "Was Lu-rang's mother's behaviour fair to him?",
+        options: ["Yes — she just wanted the best for him", "No — comparing siblings is harmful", "It depends on the culture and pressure she faced too", "She means well, but doesn't realise the damage"],
+        feedback: "This is a great topic to discuss — many viewers see her as both a product of her environment and a source of real harm." },
+      { q: "What makes this drama special compared to other school romances?",
+        options: ["The visuals and music", "The healthy communication between the leads", "The funny side characters", "All of the above"],
+        feedback: "Fans most often praise the trust and communication between the characters — but all of these matter." },
+      { q: "If you could be friends with one of the five, who would it be?",
+        options: ["Su Zai-zai", "Lu-rang", "Gu Ran", "Jiang Jia or Guan Fang"],
+        feedback: "Each one would bring something different to a friendship — what would you want most?" },
+      { q: "What's the strongest message you take from the drama?",
+        options: ["First love can last", "Friends help us become ourselves", "Don't compare yourself to others", "Communication is the key to any relationship"],
+        feedback: "The drama is loved for all of these messages — and there's no single 'right' one." }
+    ]
+  }
+];
+
+/* ============== STATE ============== */
+let currentSection = null;
+let current = 0;
+let score = 0;
+let answered = false;
+
+/* ============== PICKER ============== */
+function renderPicker() {
+  document.getElementById('banner').style.display = 'block';
+  document.getElementById('picker').style.display = 'block';
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+  window.scrollTo(0, 0);
+
+  const list = document.getElementById('section-list');
+  list.innerHTML = '';
+  sections.forEach(function(s) {
+    const card = document.createElement('button');
+    card.className = 'section-card';
+    card.onclick = function() { startSection(s.id); };
+    card.innerHTML = `
+      <div class="section-card-top">
+        <span class="section-card-num">Section ${s.id}</span>
+      </div>
+      <div class="section-card-title">${s.icon} ${s.title}</div>
+      <div class="section-card-desc">${s.desc}</div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function goHome() {
+  renderPicker();
+}
+
+/* ============== QUIZ ============== */
+function startSection(id) {
+  currentSection = sections.find(function(s) { return s.id === id; });
+  current = 0;
+  score = 0;
+  answered = false;
+  document.getElementById('picker').style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+  document.getElementById('quiz-section-label').textContent = `Section ${currentSection.id}`;
+  document.getElementById('quiz-section-title').textContent = `${currentSection.icon} ${currentSection.title}`;
+  showQuestion();
+  window.scrollTo(0, 0);
+}
+
+function restartCurrent() {
+  startSection(currentSection.id);
+}
+
+function showQuestion() {
+  answered = false;
+  const q = currentSection.questions[current];
+  document.getElementById('question-text').textContent = q.q;
+
+  const total = currentSection.questions.length;
+  const pct = (current / total) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `${current + 1} / ${total}`;
+
+  const optsBox = document.getElementById('options');
+  optsBox.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  q.options.forEach(function(opt, i) {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = `<span class="letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = function() { selectOption(i, btn); };
+    optsBox.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback hidden';
+  fb.textContent = '';
+  document.getElementById('next-btn').className = 'next-btn';
+  document.getElementById('next-btn').textContent = (current === total - 1) ? 'See your score' : 'Next question';
+
+  // Show skip button only for opinion sections (and only before they answer)
+  const skipVisible = currentSection.isOpinion;
+  document.getElementById('skip-btn').style.display = skipVisible ? 'inline-block' : 'none';
+
+  // Action bar shows its background only if buttons are showing
+  const bar = document.getElementById('action-bar');
+  if (skipVisible) bar.classList.add('has-buttons');
+  else bar.classList.remove('has-buttons');
+}
+
+function selectOption(idx, btn) {
+  if (answered) return;
+  answered = true;
+
+  // Hide skip button once they've engaged with a question
+  document.getElementById('skip-btn').style.display = 'none';
+
+  const q = currentSection.questions[current];
+  const allBtns = document.querySelectorAll('.option');
+  const fb = document.getElementById('feedback');
+
+  if (currentSection.isOpinion) {
+    // Opinion round — every answer is "valid"
+    allBtns.forEach(function(b, i) {
+      b.disabled = true;
+      if (i === idx) b.classList.add('opinion');
+    });
+    score++;
+    fb.className = 'feedback opinion';
+    fb.textContent = '💭 ' + q.feedback;
+  } else {
+    allBtns.forEach(function(b, i) {
+      b.disabled = true;
+      if (i === q.answer) b.classList.add('correct');
+      else if (i === idx) b.classList.add('wrong');
+    });
+
+    if (idx === q.answer) {
+      score++;
+      fb.className = 'feedback correct';
+      fb.textContent = '✓ Correct! ' + q.feedback;
+    } else {
+      fb.className = 'feedback wrong';
+      fb.textContent = '✗ ' + q.feedback;
+    }
+  }
+
+  document.getElementById('next-btn').className = 'next-btn visible';
+  document.getElementById('action-bar').classList.add('has-buttons');
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= currentSection.questions.length) {
+    showResult();
+  } else {
+    showQuestion();
+  }
+}
+
+function skipQuestion() {
+  // Skip just moves on without affecting score (opinion sections only)
+  nextQuestion();
+}
+
+/* ============== RESULT ============== */
+function showResult() {
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('result').style.display = 'block';
+  const total = currentSection.questions.length;
+  document.getElementById('result-score').textContent = score;
+  document.getElementById('result-label').textContent = `out of ${total}`;
+
+  let msg = '';
+  if (currentSection.isOpinion) {
+    msg = "Thanks for sharing your thoughts! There are no wrong answers in this section.";
+  } else {
+    const pct = (score / total) * 100;
+    if (pct === 100) msg = "Perfect score! You're a true Lu-rang and Zai-zai expert. 💕";
+    else if (pct >= 75) msg = "Great work — you really know this drama!";
+    else if (pct >= 50) msg = "Not bad! You remember the main story well.";
+    else if (pct >= 25) msg = "Time for a rewatch? It's a sweet one.";
+    else msg = "Maybe you haven't seen it yet — give it a try!";
+  }
+  document.getElementById('result-msg').textContent = msg;
+
+  window.scrollTo(0, 0);
+}
+
+/* ============== INIT ============== */
+renderPicker();
+</script>
+
+</body>
+</html>

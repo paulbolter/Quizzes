@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The K-pop Test — Ultimate Stan Quiz</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #fdf8f2;
+    --bg2: #fff5f8;
+    --cream: #f7f0e6;
+    --pink: #f4a7b9;
+    --pink-deep: #e07a95;
+    --pink-light: #fde8ef;
+    --gold: #c9933a;
+    --gold-light: #f5d98e;
+    --gold-pale: #fdf3dc;
+    --text: #2a1a24;
+    --text-mid: #7a5a68;
+    --text-light: #b8a0aa;
+    --card: rgba(255,255,255,0.7);
+    --border: rgba(200,150,170,0.25);
+    --shadow: rgba(180,100,130,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 10% 20%, rgba(244,167,185,0.18) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 80%, rgba(201,147,58,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(253,233,220,0.3) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    padding: 44px 0 36px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 36px;
+  }
+
+  .header .badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--pink), var(--pink-deep));
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(44px, 10vw, 78px);
+    line-height: 0.92;
+    color: var(--text);
+    font-style: italic;
+  }
+
+  .header h1 span {
+    color: var(--pink-deep);
+    display: block;
+    font-style: normal;
+    font-weight: 900;
+  }
+
+  .header p {
+    margin-top: 16px;
+    color: var(--text-mid);
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+  }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* GROUP BUTTONS */
+  .group-section { margin-bottom: 28px; }
+
+  .group-sublabel {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    color: var(--text-light);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    margin-top: 16px;
+  }
+
+  .group-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+  }
+
+  .group-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    padding: 14px 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px var(--shadow);
+    backdrop-filter: blur(4px);
+  }
+
+  .group-btn:hover { border-color: var(--pink); color: var(--pink-deep); background: var(--pink-light); }
+  .group-btn.selected { background: linear-gradient(135deg, var(--pink-light), #fce4ec); border-color: var(--pink-deep); color: var(--pink-deep); font-weight: 600; box-shadow: 0 4px 16px rgba(224,122,149,0.25); }
+
+  .group-btn .emoji { display: block; font-size: 22px; margin-bottom: 6px; }
+
+  .group-btn.all-btn { background: linear-gradient(135deg, var(--gold-pale), #fff8e8); border-color: var(--gold-light); }
+  .group-btn.all-btn:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-pale); }
+  .group-btn.all-btn.selected { background: linear-gradient(135deg, var(--gold-pale), #fff3cc); border-color: var(--gold); color: var(--gold); box-shadow: 0 4px 16px rgba(201,147,58,0.2); }
+
+  .group-btn.boy-btn { background: linear-gradient(135deg, #f0f4ff, #e8eeff); border-color: #c0caf5; }
+  .group-btn.boy-btn:hover { border-color: #7b8fe0; color: #5060c0; background: #eaeeff; }
+  .group-btn.boy-btn.selected { background: linear-gradient(135deg, #e8eeff, #dce4ff); border-color: #7b8fe0; color: #5060c0; font-weight: 600; box-shadow: 0 4px 16px rgba(100,120,220,0.2); }
+
+  /* DIFFICULTY */
+  .difficulty-row { display: flex; gap: 10px; margin-bottom: 28px; }
+
+  .diff-btn {
+    flex: 1;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text-mid);
+    padding: 13px 10px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    text-align: center;
+    border-radius: 10px;
+    backdrop-filter: blur(4px);
+  }
+
+  .diff-btn .diff-emoji { display: block; font-size: 18px; margin-bottom: 4px; }
+  .diff-btn:hover { border-color: var(--pink); background: var(--pink-light); }
+  .diff-btn.selected { background: linear-gradient(135deg, var(--pink-light), #fce4ec); border-color: var(--pink-deep); color: var(--pink-deep); font-weight: 600; }
+
+  /* START BUTTON */
+  .start-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--pink), var(--pink-deep));
+    color: #fff;
+    border: none;
+    padding: 18px;
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-style: italic;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 12px;
+    box-shadow: 0 6px 24px rgba(224,122,149,0.35);
+  }
+
+  .start-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(224,122,149,0.45); }
+  .start-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* LOADING */
+  .loading-screen { text-align: center; padding: 80px 20px; }
+
+  .spinner {
+    width: 48px; height: 48px;
+    border: 3px solid var(--border);
+    border-top-color: var(--pink-deep);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 24px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-screen p { color: var(--text-light); font-size: 14px; letter-spacing: 0.5px; }
+  .loading-screen .loading-title { font-family: 'Playfair Display', serif; font-size: 26px; color: var(--pink-deep); margin-bottom: 8px; font-style: italic; }
+
+  /* QUIZ SCREEN */
+  .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+
+  .q-counter { font-size: 13px; font-weight: 500; letter-spacing: 1px; color: var(--text-mid); }
+  .q-counter span { color: var(--pink-deep); font-size: 20px; font-family: 'Playfair Display', serif; font-weight: 700; }
+  .score-display { font-size: 13px; font-weight: 500; letter-spacing: 1px; color: var(--text-mid); }
+  .score-display span { color: var(--gold); font-size: 20px; font-family: 'Playfair Display', serif; font-weight: 700; }
+
+  .progress-bar { height: 4px; background: var(--border); margin-bottom: 28px; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--pink), var(--pink-deep)); transition: width 0.4s ease; border-radius: 2px; }
+
+  .question-box {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    padding: 28px 24px;
+    margin-bottom: 18px;
+    position: relative;
+    border-radius: 14px;
+    box-shadow: 0 4px 20px var(--shadow);
+    backdrop-filter: blur(8px);
+  }
+
+  .question-box::before {
+    content: attr(data-num);
+    position: absolute;
+    top: -13px; left: 20px;
+    background: linear-gradient(135deg, var(--pink), var(--pink-deep));
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    padding: 3px 12px;
+    border-radius: 10px;
+  }
+
+  .question-text { font-size: 17px; font-weight: 500; line-height: 1.55; color: var(--text); }
+
+  .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+  @media (max-width: 500px) { .options-grid { grid-template-columns: 1fr; } }
+
+  .option-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    padding: 15px 16px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    text-align: left;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    line-height: 1.4;
+    border-radius: 10px;
+    backdrop-filter: blur(4px);
+  }
+
+  .option-btn:hover:not(:disabled) { border-color: var(--pink-deep); background: var(--pink-light); }
+  .option-btn .opt-letter { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--pink-deep); min-width: 20px; }
+  .option-btn.correct { background: rgba(200,240,210,0.6); border-color: #6dbf7e; color: #2a6b38; }
+  .option-btn.correct .opt-letter { color: #2a6b38; }
+  .option-btn.wrong { background: rgba(244,167,185,0.25); border-color: var(--pink-deep); color: #b03060; }
+  .option-btn.wrong .opt-letter { color: #b03060; }
+  .option-btn:disabled { cursor: default; }
+
+  .feedback-box {
+    display: none;
+    border-left: 3px solid var(--gold);
+    background: var(--gold-pale);
+    color: var(--text);
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    font-size: 14px;
+    line-height: 1.55;
+    border-radius: 0 10px 10px 0;
+  }
+  .feedback-box.show { display: block; }
+  .feedback-box.correct-fb { border-color: #6dbf7e; background: rgba(200,240,210,0.35); }
+  .feedback-box.wrong-fb { border-color: var(--pink-deep); background: rgba(253,232,239,0.5); }
+
+  .next-btn {
+    width: 100%;
+    background: transparent;
+    border: 1.5px solid var(--pink-deep);
+    color: var(--pink-deep);
+    padding: 14px;
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-style: italic;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: none;
+    border-radius: 10px;
+  }
+  .next-btn.show { display: block; }
+  .next-btn:hover { background: linear-gradient(135deg, var(--pink), var(--pink-deep)); color: #fff; border-color: var(--pink-deep); transform: translateY(-1px); }
+
+  /* RESULTS */
+  .results-screen { text-align: center; padding: 20px 0; }
+  .results-score { font-family: 'Playfair Display', serif; font-size: 100px; line-height: 1; color: var(--pink-deep); font-weight: 900; }
+  .results-score .denom { font-size: 40px; color: var(--text-light); }
+  .results-verdict { font-family: 'Playfair Display', serif; font-size: 28px; font-style: italic; font-weight: 700; margin: 12px 0; color: var(--text); }
+  .results-sub { color: var(--text-mid); font-size: 14px; margin-bottom: 36px; line-height: 1.7; max-width: 480px; margin-left: auto; margin-right: auto; }
+
+  .play-again-btn {
+    background: linear-gradient(135deg, var(--pink), var(--pink-deep));
+    color: #fff;
+    border: none;
+    padding: 16px 48px;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-style: italic;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(224,122,149,0.3);
+  }
+  .play-again-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(224,122,149,0.45); }
+
+  .error-box {
+    background: rgba(244,167,185,0.2);
+    border: 1.5px solid var(--pink-deep);
+    padding: 16px 20px;
+    color: #b03060;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    border-radius: 10px;
+  }
+
+  .hidden { display: none !important; }
+
+  /* divider between girl / boy sections */
+  .group-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0 16px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="badge">✨ Ultimate Stan Quiz</div>
+    <h1>The<span>K-pop Test</span></h1>
+    <p>Songs, members, drama — how well do you really know your faves?</p>
+  </div>
+
+  <!-- SETUP -->
+  <div id="setup-screen">
+
+    <div class="section-label">CHOOSE YOUR GROUP</div>
+    <div class="group-section">
+      <div class="group-grid" id="group-grid">
+        <button class="group-btn selected" data-group="BLACKPINK" data-type="girl"><span class="emoji">🖤</span>BLACKPINK</button>
+        <button class="group-btn" data-group="TWICE" data-type="girl"><span class="emoji">💗</span>TWICE</button>
+        <button class="group-btn" data-group="NewJeans" data-type="girl"><span class="emoji">🎵</span>NewJeans</button>
+        <button class="group-btn" data-group="IVE" data-type="girl"><span class="emoji">💜</span>IVE</button>
+        <button class="group-btn" data-group="aespa" data-type="girl"><span class="emoji">🤖</span>aespa</button>
+        <button class="group-btn all-btn" data-group="All Girl Groups" data-type="allgirl"><span class="emoji">🌸</span>All Girl Groups</button>
+        <button class="group-btn boy-btn" data-group="Boy Groups" data-type="boy"><span class="emoji">🎤</span>Boy Groups</button>
+      </div>
+    </div>
+
+    <div class="section-label">DIFFICULTY</div>
+    <div class="difficulty-row">
+      <button class="diff-btn" data-diff="casual"><span class="diff-emoji">👂</span>Casual Listener</button>
+      <button class="diff-btn selected" data-diff="fan"><span class="diff-emoji">💕</span>Real Fan</button>
+      <button class="diff-btn" data-diff="stan"><span class="diff-emoji">🔥</span>Full Stan</button>
+    </div>
+
+    <div id="error-msg" class="error-box hidden"></div>
+    <button class="start-btn" id="start-btn">✨ Start the Quiz</button>
+  </div>
+
+  <!-- LOADING -->
+  <div id="loading-screen" class="loading-screen hidden">
+    <div class="spinner"></div>
+    <div class="loading-title">Generating your questions...</div>
+    <p>Getting the tea ready ☕</p>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz-screen" class="hidden">
+    <div class="quiz-header">
+      <div class="q-counter">QUESTION <span id="q-num">1</span> / 8</div>
+      <div class="score-display">SCORE <span id="score-num">0</span></div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="question-box" id="question-box" data-num="Q1">
+      <div class="question-text" id="question-text"></div>
+    </div>
+    <div class="options-grid" id="options-grid"></div>
+    <div class="feedback-box" id="feedback-box"></div>
+    <button class="next-btn" id="next-btn">Next Question →</button>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results-screen" class="results-screen hidden">
+    <div class="results-score" id="final-score">0<span class="denom">/10</span></div>
+    <div class="results-verdict" id="results-verdict"></div>
+    <div class="results-sub" id="results-sub"></div>
+    <button class="play-again-btn" onclick="resetQuiz()">Play Again ✨</button>
+  </div>
+
+</div>
+
+<script>
+  const PROXY = 'https://claude-proxy-zeta-six.vercel.app/api/proxy';
+
+  let selectedGroup = 'BLACKPINK';
+  let selectedGroupType = 'girl';
+  let selectedDiff = 'fan';
+  let questions = [];
+  let currentQ = 0;
+  let score = 0;
+  let answered = false;
+
+  // Group button selection — only one at a time
+  document.querySelectorAll('.group-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.group-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedGroup = btn.dataset.group;
+      selectedGroupType = btn.dataset.type;
+    });
+  });
+
+  document.querySelectorAll('.diff-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedDiff = btn.dataset.diff;
+    });
+  });
+
+  document.getElementById('start-btn').addEventListener('click', startQuiz);
+
+  function buildPrompt() {
+    const diffMap = {
+      casual: 'casual listener (knows the biggest hit songs and maybe the most famous member)',
+      fan: 'genuine fan (knows all the members, main songs, MVs, and some group history)',
+      stan: 'full stan (knows deep cuts, behind-the-scenes facts, dating rumours that went public, fandom names, sub-units, and recent news up to early 2026)'
+    };
+    const diffLabel = diffMap[selectedDiff];
+
+    let groupContext = '';
+    if (selectedGroupType === 'allgirl') {
+      groupContext = 'Mix questions equally across these K-pop girl groups: BLACKPINK, TWICE, NewJeans, IVE, and aespa.';
+    } else if (selectedGroupType === 'boy') {
+      groupContext = 'Mix questions equally across these K-pop boy groups: BTS, Stray Kids, SEVENTEEN, and EXO.';
+    } else {
+      groupContext = `Focus all questions on the K-pop group ${selectedGroup}.`;
+    }
+
+    return `You are a K-pop quiz master writing questions for teenage girls aged 12-14 who are K-pop fans.
+
+${groupContext}
+
+Difficulty level: ${diffLabel}.
+
+Question types to mix: song titles and lyrics clues, member names and roles, MV storylines or visuals, fandom names, group nicknames, debut dates (rough), well-known public gossip or drama (only things widely reported in mainstream media — e.g. member departures, known dating news), recent releases up to early 2026.
+
+IMPORTANT rules:
+- Keep language simple and fun — suitable for 12-year-olds
+- No trick questions, no extremely obscure trivia at "casual" or "fan" level
+- Wrong answer options should be plausible (other real member names, real song titles, etc.)
+- Each question should feel exciting and relevant to a teen fan
+- Do NOT ask about anything inappropriate
+
+Return ONLY a JSON array with exactly 8 objects. No preamble, no markdown, no backticks. Each object:
+{"question":"...","options":["A) ...","B) ...","C) ...","D) ..."],"correct":0,"explanation":"One fun sentence explaining the correct answer."}
+
+"correct" is the 0-based index of the right answer.`;
+  }
+
+  async function startQuiz() {
+    const err = document.getElementById('error-msg');
+    err.classList.add('hidden');
+    show('loading-screen');
+    hide('setup-screen');
+
+    try {
+      const res = await fetch(PROXY, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 2000,
+          messages: [{ role: 'user', content: buildPrompt() }]
+        })
+      });
+
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+
+      const raw = data.content.map(b => b.text || '').join('').trim()
+        .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+
+      questions = JSON.parse(raw);
+      if (!Array.isArray(questions) || questions.length < 4) throw new Error('Unexpected response format');
+
+      currentQ = 0; score = 0;
+      show('quiz-screen');
+      hide('loading-screen');
+      renderQuestion();
+
+    } catch (e) {
+      show('setup-screen');
+      hide('loading-screen');
+      err.textContent = '⚠ Could not load questions. Check your connection and try again. (' + e.message + ')';
+      err.classList.remove('hidden');
+    }
+  }
+
+  function renderQuestion() {
+    const q = questions[currentQ];
+    answered = false;
+
+    document.getElementById('q-num').textContent = currentQ + 1;
+    document.getElementById('score-num').textContent = score;
+    document.getElementById('progress-fill').style.width = ((currentQ / questions.length) * 100) + '%';
+
+    const qBox = document.getElementById('question-box');
+    qBox.setAttribute('data-num', 'Q' + (currentQ + 1));
+    document.getElementById('question-text').textContent = q.question;
+
+    const grid = document.getElementById('options-grid');
+    grid.innerHTML = '';
+    const letters = ['A', 'B', 'C', 'D'];
+
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      const text = opt.replace(/^[ABCD]\)\s*/i, '');
+      btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${text}</span>`;
+      btn.addEventListener('click', () => handleAnswer(i));
+      grid.appendChild(btn);
+    });
+
+    const fb = document.getElementById('feedback-box');
+    fb.className = 'feedback-box';
+    fb.textContent = '';
+    document.getElementById('next-btn').classList.remove('show');
+  }
+
+  function handleAnswer(chosen) {
+    if (answered) return;
+    answered = true;
+
+    const q = questions[currentQ];
+    const correct = q.correct;
+    const btns = document.querySelectorAll('.option-btn');
+
+    btns.forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === correct) btn.classList.add('correct');
+      else if (i === chosen) btn.classList.add('wrong');
+    });
+
+    const fb = document.getElementById('feedback-box');
+    if (chosen === correct) {
+      score++;
+      document.getElementById('score-num').textContent = score;
+      fb.classList.add('show', 'correct-fb');
+      fb.textContent = '✓ Correct! ' + q.explanation;
+    } else {
+      fb.classList.add('show', 'wrong-fb');
+      fb.textContent = '✗ Not quite! ' + q.explanation;
+    }
+
+    const nextBtn = document.getElementById('next-btn');
+    nextBtn.classList.add('show');
+    nextBtn.textContent = currentQ < questions.length - 1 ? 'Next Question →' : 'See Results →';
+  }
+
+  document.getElementById('next-btn').addEventListener('click', () => {
+    currentQ++;
+    if (currentQ >= questions.length) showResults();
+    else renderQuestion();
+  });
+
+  function showResults() {
+    hide('quiz-screen');
+    show('results-screen');
+
+    const total = questions.length;
+    document.getElementById('final-score').innerHTML = score + '<span class="denom">/' + total + '</span>';
+    document.getElementById('progress-fill').style.width = '100%';
+
+    const pct = score / total;
+    let verdict, sub;
+
+    if (pct >= 0.9) {
+      verdict = '🏆 Certified Stan';
+      sub = "Wow. You know EVERYTHING. Member birthdays, B-side lyrics, the drama, the lore... You are the ultimate fan. Your faves would be proud.";
+    } else if (pct >= 0.7) {
+      verdict = '💕 Real Fan Energy';
+      sub = "You clearly love your groups! You know the songs, the members, and the big moments. A few things slipped by, but overall? Very impressive.";
+    } else if (pct >= 0.5) {
+      verdict = '🎵 Casual Fan';
+      sub = "You know the hits and the famous faces, but there's a whole world of K-pop waiting for you to explore. Time to go deeper!";
+    } else if (pct >= 0.3) {
+      verdict = '👀 Still Learning';
+      sub = "You've heard the songs but the details are still new to you. Keep listening, keep watching — you'll get there!";
+    } else {
+      verdict = '🌱 Just Getting Started';
+      sub = "Everyone starts somewhere! Pick your favourite group and start exploring their music and MVs. The fandom welcomes you! 💖";
+    }
+
+    document.getElementById('results-verdict').textContent = verdict;
+    document.getElementById('results-sub').textContent = sub;
+  }
+
+  function resetQuiz() {
+    hide('results-screen');
+    show('setup-screen');
+    questions = []; currentQ = 0; score = 0;
+  }
+
+  function show(id) { document.getElementById(id).classList.remove('hidden'); }
+  function hide(id) { document.getElementById(id).classList.add('hidden'); }
+</script>
+</body>
+</html>

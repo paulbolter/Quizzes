@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anime Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f4f0;
+    --card: #ffffff;
+    --card-border: #e0e0e0;
+    --card-hover: #fafaf7;
+    --green: #639922;
+    --green-bg: #EAF3DE;
+    --green-text: #27500A;
+    --red: #E24B4A;
+    --red-bg: #FCEBEB;
+    --red-text: #791F1F;
+    --skip-bg: #fef8e8;
+    --skip-text: #7a5e14;
+    --text: #1a1a1a;
+    --muted: #888;
+    --border-strong: #ccc;
+  }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .container {
+    max-width: 640px; margin: 0 auto; padding: 1.5rem 1rem;
+    min-height: 100vh; display: flex; flex-direction: column;
+  }
+
+  /* Header */
+  .header { text-align: center; margin-bottom: 1.5rem; }
+  .header h1 {
+    font-family: 'Space Mono', monospace; font-size: clamp(28px, 6vw, 42px);
+    font-weight: 700; letter-spacing: -0.02em; color: var(--text);
+  }
+  .header p {
+    color: var(--muted); font-size: 14px; margin-top: 4px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  /* ── Anime Picker ── */
+  .anime-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px; margin-top: 1rem;
+  }
+  .anime-btn {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 12px; padding: 14px 10px; text-align: center;
+    cursor: pointer; transition: all 0.15s ease;
+    font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600;
+    color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .anime-btn:hover {
+    background: var(--card-hover); border-color: #bbb; transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  }
+  .anime-btn:active { transform: translateY(0); }
+  .anime-btn .emoji { font-size: 28px; display: block; margin-bottom: 6px; }
+
+  /* ── Loading ── */
+  .loading-screen { text-align: center; padding-top: 4rem; }
+  .loader-ring {
+    width: 48px; height: 48px; margin: 0 auto 1.5rem;
+    border: 3px solid var(--card-border); border-top-color: var(--text);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-screen p { color: var(--muted); font-size: 15px; }
+  .loading-show { font-weight: 700; color: var(--text); font-size: 18px; margin-top: 8px; }
+
+  /* ── Quiz ── */
+  .quiz-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1rem; flex-wrap: wrap; gap: 8px;
+  }
+  .quiz-show-name {
+    font-weight: 700; font-size: 15px; color: var(--text);
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .quiz-progress { font-size: 13px; color: var(--muted); font-weight: 600; }
+
+  .progress-track {
+    height: 4px; background: #ddd; border-radius: 2px;
+    overflow: hidden; margin-bottom: 1.5rem;
+  }
+  .progress-fill {
+    height: 100%; border-radius: 2px; transition: width 0.4s ease;
+    background: var(--text);
+  }
+
+  .q-card {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 14px; padding: 2rem; margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    animation: fadeUp 0.35s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .q-number {
+    font-size: 12px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px;
+  }
+  .q-text { font-size: 20px; font-weight: 600; line-height: 1.4; margin-bottom: 1.5rem; }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt-btn {
+    background: var(--card); border: 2px solid var(--card-border);
+    border-radius: 10px; padding: 14px 16px; text-align: left;
+    cursor: pointer; transition: all 0.15s ease;
+    font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 500;
+    color: var(--text); display: flex; align-items: center; gap: 12px; line-height: 1.4;
+  }
+  .opt-btn:hover:not(.locked) { background: var(--card-hover); border-color: #bbb; }
+  .opt-btn .opt-letter { font-size: 14px; font-weight: 700; color: #aaa; min-width: 20px; flex-shrink: 0; }
+  .opt-btn.correct { background: var(--green-bg); border-color: var(--green); color: var(--green-text); }
+  .opt-btn.correct .opt-letter { color: #3B6D11; }
+  .opt-btn.wrong { background: var(--red-bg); border-color: var(--red); color: var(--red-text); }
+  .opt-btn.wrong .opt-letter { color: #A32D2D; }
+  .opt-btn.locked { cursor: default; }
+  .opt-btn.locked:not(.correct):not(.wrong) { opacity: 0.5; }
+
+  .feedback {
+    margin-top: 14px; padding: 12px 16px; border-radius: 10px;
+    font-size: 15px; font-weight: 500; line-height: 1.5;
+    animation: fadeUp 0.25s ease;
+  }
+  .feedback.correct { background: var(--green-bg); color: var(--green-text); }
+  .feedback.wrong { background: var(--red-bg); color: var(--red-text); }
+  .feedback.skipped { background: var(--skip-bg); color: var(--skip-text); }
+
+  .action-row { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
+  .btn {
+    font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 15px;
+    border-radius: 8px; padding: 12px 22px; cursor: pointer; transition: all 0.15s ease;
+  }
+  .btn-skip { background: transparent; color: var(--muted); border: 1px solid #ddd; }
+  .btn-skip:hover { background: var(--card-hover); color: var(--text); }
+  .btn-next { background: var(--card); border: 1px solid var(--border-strong); color: var(--text); }
+  .btn-next:hover { background: var(--card-hover); }
+
+  /* ── Results ── */
+  .results-screen { text-align: center; padding-top: 2rem; animation: fadeUp 0.4s ease; }
+  .results-score {
+    font-family: 'Space Mono', monospace; font-size: 56px;
+    font-weight: 700; margin-bottom: 0.5rem; color: var(--text);
+  }
+  .results-msg { font-size: 17px; color: var(--text); margin-bottom: 0.5rem; }
+  .results-show { font-size: 14px; color: var(--muted); font-weight: 600; margin-bottom: 2rem; }
+  .results-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .btn-retry, .btn-home {
+    padding: 11px 28px; border: 1px solid var(--border-strong); border-radius: 8px;
+    background: var(--card); color: var(--text); font-size: 14px; cursor: pointer;
+    font-family: 'Outfit', sans-serif; font-weight: 500;
+  }
+  .btn-retry:hover, .btn-home:hover { background: var(--card-hover); }
+
+  .error-box {
+    background: var(--red-bg); border: 1px solid var(--red);
+    border-radius: 12px; padding: 1.25rem; text-align: center; color: var(--red-text);
+    font-size: 14px; line-height: 1.6; margin-bottom: 1rem;
+  }
+  .error-box .btn { margin-top: 1rem; }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 400px) {
+    .anime-grid { grid-template-columns: repeat(2, 1fr); }
+    .q-card { padding: 1.5rem; }
+    .q-text { font-size: 18px; }
+    .opt-btn { font-size: 15px; padding: 12px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>ANIME QUIZ</h1>
+    <p>Pick a show · 5 Questions · Go!</p>
+  </div>
+
+  <div id="screen-picker">
+    <div class="anime-grid" id="anime-grid"></div>
+  </div>
+
+  <div id="screen-loading" class="hidden">
+    <div class="loading-screen">
+      <div class="loader-ring"></div>
+      <p>Generating questions for...</p>
+      <div class="loading-show" id="loading-show"></div>
+    </div>
+  </div>
+
+  <div id="screen-quiz" class="hidden">
+    <div class="quiz-header">
+      <span class="quiz-show-name" id="quiz-show-name"></span>
+      <span class="quiz-progress" id="quiz-progress"></span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div id="q-area"></div>
+  </div>
+
+  <div id="screen-results" class="hidden">
+    <div class="results-screen" id="results-area"></div>
+  </div>
+</div>
+
+<script>
+const ANIME_LIST = [
+  { name: "Naruto", emoji: "🍥" },
+  { name: "One Piece", emoji: "🏴‍☠️" },
+  { name: "Attack on Titan", emoji: "⚔️" },
+  { name: "Demon Slayer", emoji: "🗡️" },
+  { name: "Jujutsu Kaisen", emoji: "👁️" },
+  { name: "My Hero Academia", emoji: "🦸" },
+  { name: "Dragon Ball Z", emoji: "🐉" },
+  { name: "Death Note", emoji: "📓" },
+  { name: "Spy x Family", emoji: "🕵️" },
+  { name: "One Punch Man", emoji: "👊" },
+  { name: "Fullmetal Alchemist", emoji: "⚙️" },
+  { name: "Hunter x Hunter", emoji: "🎯" },
+  { name: "Tokyo Ghoul", emoji: "🎭" },
+  { name: "Sword Art Online", emoji: "🎮" },
+  { name: "Haikyuu!!", emoji: "🏐" },
+  { name: "Bleach", emoji: "💀" },
+  { name: "Chainsaw Man", emoji: "🪚" },
+  { name: "Mob Psycho 100", emoji: "💫" },
+  { name: "Neon Genesis Evangelion", emoji: "🤖" },
+  { name: "Cowboy Bebop", emoji: "🚀" },
+  { name: "Sailor Moon", emoji: "🌙" },
+  { name: "Fruits Basket", emoji: "🍎" },
+  { name: "Black Clover", emoji: "🍀" },
+  { name: "Tokyo Revengers", emoji: "🏍️" },
+  { name: "Vinland Saga", emoji: "🛡️" }
+];
+
+const PROXY = 'https://claude-proxy-zeta-six.vercel.app/api/proxy';
+
+let currentShow = "";
+let questions = [];
+let currentQ = 0;
+let score = 0;
+let answered = false;
+
+const screens = {
+  picker: document.getElementById("screen-picker"),
+  loading: document.getElementById("screen-loading"),
+  quiz: document.getElementById("screen-quiz"),
+  results: document.getElementById("screen-results")
+};
+
+function showScreen(name) {
+  Object.values(screens).forEach(s => s.classList.add("hidden"));
+  screens[name].classList.remove("hidden");
+  window.scrollTo(0, 0);
+}
+
+function buildGrid() {
+  const grid = document.getElementById("anime-grid");
+  grid.innerHTML = "";
+  ANIME_LIST.forEach(a => {
+    const btn = document.createElement("button");
+    btn.className = "anime-btn";
+    btn.innerHTML = `<span class="emoji">${a.emoji}</span>${a.name}`;
+    btn.onclick = () => startQuiz(a.name);
+    grid.appendChild(btn);
+  });
+}
+
+async function generateQuestions(animeName) {
+  const prompt = `You are a quiz question writer for anime fans. Generate exactly 5 multiple-choice questions about the anime "${animeName}".
+
+Rules:
+- EASY to MEDIUM difficulty only. Focus on main characters, major plot points, and iconic moments that any viewer would know.
+- Never ask about specific episode numbers, air dates, or production details.
+- Never ask about manga-only content. Anime-only.
+- Each question must have exactly 4 options with only ONE correct answer.
+- Wrong options should be plausible but clearly wrong to someone who watched the show.
+- Keep questions fun and engaging.
+
+Return ONLY a JSON array with exactly 5 objects. No preamble, no markdown, no backticks. Each object:
+{"q":"Question text?","options":["A","B","C","D"],"answer":0,"fact":"One punchy sentence — max 12 words."}
+
+The "answer" field is the zero-based index of the correct option (0-3).`;
+
+  const res = await fetch(PROXY, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message || 'API error');
+
+  const raw = data.content.map(b => b.text || '').join('').trim()
+    .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+
+  const arrMatch = raw.match(/\[[\s\S]*\]/);
+  const text = arrMatch ? arrMatch[0] : raw;
+
+  const parsed = JSON.parse(text);
+  if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('No questions returned');
+
+  return parsed.filter(q =>
+    q.q && Array.isArray(q.options) && q.options.length === 4 &&
+    typeof q.answer === 'number' && q.answer >= 0 && q.answer <= 3
+  ).slice(0, 5);
+}
+
+async function startQuiz(animeName) {
+  currentShow = animeName;
+  currentQ = 0;
+  score = 0;
+  answered = false;
+
+  document.getElementById("loading-show").textContent = animeName;
+  showScreen("loading");
+
+  try {
+    questions = await generateQuestions(animeName);
+    if (questions.length === 0) throw new Error("No valid questions");
+    document.getElementById("quiz-show-name").textContent = animeName;
+    showScreen("quiz");
+    renderQuestion();
+  } catch (err) {
+    console.error(err);
+    showScreen("picker");
+    const prev = document.querySelector('.error-box');
+    if (prev) prev.remove();
+    const errDiv = document.createElement("div");
+    errDiv.className = "error-box";
+    errDiv.innerHTML = `<strong>Oops!</strong> Couldn't generate questions for ${escapeHtml(animeName)}.<br>
+      ${escapeHtml(err.message)}<br>
+      <button class="btn btn-next" onclick="this.parentElement.remove()">OK</button>`;
+    const grid = document.getElementById("anime-grid");
+    grid.parentElement.insertBefore(errDiv, grid);
+  }
+}
+
+function renderQuestion() {
+  answered = false;
+  const q = questions[currentQ];
+  const total = questions.length;
+
+  document.getElementById("quiz-progress").textContent = `${currentQ + 1} of ${total}`;
+  document.getElementById("progress-fill").style.width = `${((currentQ) / total) * 100}%`;
+
+  const letters = ["A", "B", "C", "D"];
+
+  let html = `<div class="q-card">
+    <div class="q-number">Question ${currentQ + 1} of ${total}</div>
+    <div class="q-text">${escapeHtml(q.q)}</div>
+    <div class="options" id="options">`;
+
+  q.options.forEach((opt, i) => {
+    html += `<button class="opt-btn" data-idx="${i}" onclick="selectAnswer(${i})">
+      <span class="opt-letter">${letters[i]}</span>
+      <span>${escapeHtml(opt)}</span>
+    </button>`;
+  });
+
+  html += `</div>
+    <div id="feedback-area"></div>
+    <div class="action-row">
+      <button class="btn btn-skip" id="btn-skip" onclick="skipQuestion()">Skip</button>
+      <button class="btn btn-next hidden" id="btn-next" onclick="nextQuestion()">Next →</button>
+    </div>
+  </div>`;
+
+  document.getElementById("q-area").innerHTML = html;
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+
+  const q = questions[currentQ];
+  const correct = q.answer;
+  const btns = document.querySelectorAll(".opt-btn");
+
+  btns.forEach(btn => {
+    const bIdx = parseInt(btn.dataset.idx);
+    btn.classList.add("locked");
+    if (bIdx === correct) btn.classList.add("correct");
+    if (bIdx === idx && idx !== correct) btn.classList.add("wrong");
+  });
+
+  const fbArea = document.getElementById("feedback-area");
+  if (idx === correct) {
+    score++;
+    fbArea.innerHTML = `<div class="feedback correct">✓ Correct! ${q.fact ? escapeHtml(q.fact) : ""}</div>`;
+  } else {
+    fbArea.innerHTML = `<div class="feedback wrong">✗ ${escapeHtml(q.options[correct])}. ${q.fact ? escapeHtml(q.fact) : ""}</div>`;
+  }
+
+  document.getElementById("btn-skip").classList.add("hidden");
+  document.getElementById("btn-next").classList.remove("hidden");
+}
+
+function skipQuestion() {
+  if (answered) return;
+  answered = true;
+
+  const q = questions[currentQ];
+  const correct = q.answer;
+  const btns = document.querySelectorAll(".opt-btn");
+
+  btns.forEach(btn => {
+    const bIdx = parseInt(btn.dataset.idx);
+    btn.classList.add("locked");
+    if (bIdx === correct) btn.classList.add("correct");
+  });
+
+  const fbArea = document.getElementById("feedback-area");
+  fbArea.innerHTML = `<div class="feedback skipped">Skipped — ${escapeHtml(q.options[correct])}.</div>`;
+
+  document.getElementById("btn-skip").classList.add("hidden");
+  document.getElementById("btn-next").classList.remove("hidden");
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= questions.length) showResults();
+  else renderQuestion();
+}
+
+function showResults() {
+  document.getElementById("progress-fill").style.width = "100%";
+  const total = questions.length;
+  const pct = score / total;
+  let msg;
+
+  if (pct === 1) msg = "Perfect score — true fan!";
+  else if (pct >= 0.8) msg = "Very good — you really know this show.";
+  else if (pct >= 0.6) msg = "Good knowledge — a few details slipped by.";
+  else if (pct >= 0.4) msg = "Not bad — maybe time for a rewatch?";
+  else msg = "Keep watching!";
+
+  document.getElementById("results-area").innerHTML = `
+    <div class="results-score">${score}/${total}</div>
+    <div class="results-msg">${msg}</div>
+    <div class="results-show">${escapeHtml(currentShow)}</div>
+    <div class="results-btns">
+      <button class="btn-retry" onclick="startQuiz('${escapeAttr(currentShow)}')">Try again</button>
+      <button class="btn-home" onclick="goHome()">Pick another</button>
+    </div>
+  `;
+  showScreen("results");
+}
+
+function goHome() { showScreen("picker"); }
+
+function escapeHtml(str) {
+  const d = document.createElement("div");
+  d.textContent = str;
+  return d.innerHTML;
+}
+function escapeAttr(str) {
+  return str.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+}
+
+buildGrid();
+</script>
+</body>
+</html>

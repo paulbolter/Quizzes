@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drama Discussion Cards · Grade 8 Speaking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg: #e8eef5;
+  --bg-2: #f4f7fb;
+  --wine: #4a7ba6;
+  --wine-bright: #6195c2;
+  --gold: #2c5575;
+  --gold-soft: #5a7a98;
+  --cream: #1a2f44;
+  --ink: #2a3f56;
+  --ink-soft: #6a7d92;
+  --shadow: rgba(74,123,166,0.18);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html,body{
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before{
+  content:"";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(97,149,194,0.18) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 90%, rgba(44,85,117,0.10) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(74,123,166,0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after{
+  content:"";
+  position: fixed;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0, transparent 2px, rgba(44,85,117,0.012) 2px, rgba(44,85,117,0.012) 3px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.wrap{
+  position: relative;
+  z-index: 2;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+/* HEADER */
+header{
+  text-align: center;
+  margin-bottom: 48px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid rgba(212,165,116,0.2);
+  position: relative;
+}
+
+.eyebrow{
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+
+h1{
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  font-size: clamp(36px, 6vw, 64px);
+  line-height: 1.05;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+h1 em{
+  font-style: italic;
+  color: var(--gold);
+  font-weight: 400;
+}
+
+.subtitle{
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--ink-soft);
+  letter-spacing: 0.02em;
+}
+
+/* FILTERS */
+.filters{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 36px;
+}
+
+.filter-btn{
+  background: transparent;
+  border: 1px solid rgba(212,165,116,0.3);
+  color: var(--ink-soft);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  padding: 10px 18px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+
+.filter-btn:hover{
+  border-color: var(--gold);
+  color: var(--cream);
+  transform: translateY(-1px);
+}
+
+.filter-btn.active{
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--bg);
+  font-weight: 600;
+}
+
+/* CARD STAGE */
+.stage{
+  position: relative;
+  min-height: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.card{
+  background: linear-gradient(135deg, var(--bg-2) 0%, #ffffff 100%);
+  border: 1px solid rgba(44,85,117,0.2);
+  border-radius: 4px;
+  padding: 56px 48px 48px;
+  width: 100%;
+  max-width: 720px;
+  position: relative;
+  box-shadow:
+    0 30px 60px var(--shadow),
+    0 0 0 1px rgba(44,85,117,0.04),
+    inset 0 1px 0 rgba(255,255,255,0.6);
+  animation: cardIn 0.5s ease;
+}
+
+@keyframes cardIn{
+  from{opacity: 0; transform: translateY(20px) scale(0.98);}
+  to{opacity: 1; transform: translateY(0) scale(1);}
+}
+
+.card::before{
+  content: "";
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid rgba(212,165,116,0.15);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.card-corner{
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: var(--gold);
+}
+
+.card-corner.tl{top: 8px; left: 8px; border-top: 2px solid; border-left: 2px solid;}
+.card-corner.tr{top: 8px; right: 8px; border-top: 2px solid; border-right: 2px solid;}
+.card-corner.bl{bottom: 8px; left: 8px; border-bottom: 2px solid; border-left: 2px solid;}
+.card-corner.br{bottom: 8px; right: 8px; border-bottom: 2px solid; border-right: 2px solid;}
+
+.card-meta{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.card-num{
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.card-type{
+  color: var(--ink-soft);
+  font-style: italic;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  letter-spacing: 0.15em;
+  text-transform: none;
+}
+
+.card-drama{
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 16px;
+  color: var(--gold-soft);
+  margin-bottom: 8px;
+  letter-spacing: 0.02em;
+}
+
+.card-flag{
+  font-size: 14px;
+  margin-right: 6px;
+}
+
+.card-question{
+  font-family: 'Playfair Display', serif;
+  font-weight: 400;
+  font-size: clamp(22px, 3.2vw, 30px);
+  line-height: 1.35;
+  color: var(--cream);
+  margin: 24px 0 32px;
+}
+
+.card-question .highlight{
+  color: var(--gold);
+  font-style: italic;
+}
+
+.card-prompts{
+  border-top: 1px dashed rgba(212,165,116,0.2);
+  padding-top: 24px;
+  margin-top: 24px;
+}
+
+.prompts-label{
+  font-size: 10px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+
+.prompts-list{
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.prompts-list li{
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 17px;
+  color: var(--ink-soft);
+  padding-left: 20px;
+  position: relative;
+  line-height: 1.4;
+}
+
+.prompts-list li::before{
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--gold);
+}
+
+/* CONTROLS */
+.controls{
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.btn{
+  background: var(--wine);
+  border: 1px solid var(--wine-bright);
+  color: var(--cream);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 14px 28px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn:hover{
+  background: var(--wine-bright);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(155,37,71,0.3);
+}
+
+.btn:active{
+  transform: translateY(0);
+}
+
+.btn.gold{
+  background: var(--gold);
+  color: var(--bg);
+  border-color: var(--gold);
+}
+
+.btn.gold:hover{
+  background: var(--cream);
+  border-color: var(--cream);
+  box-shadow: 0 8px 16px rgba(212,165,116,0.3);
+}
+
+.btn.ghost{
+  background: transparent;
+  border-color: rgba(212,165,116,0.3);
+  color: var(--ink);
+}
+
+.btn.ghost:hover{
+  background: rgba(212,165,116,0.08);
+  border-color: var(--gold);
+}
+
+/* PROGRESS */
+.progress{
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-top: 16px;
+}
+
+.progress strong{
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* HELP NOTE */
+.note{
+  margin-top: 48px;
+  padding: 24px;
+  background: rgba(0,0,0,0.2);
+  border-left: 2px solid var(--gold);
+  border-radius: 2px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+.note strong{
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.note ul{
+  list-style: none;
+  margin-top: 8px;
+}
+
+.note li{
+  padding: 4px 0;
+  padding-left: 16px;
+  position: relative;
+}
+
+.note li::before{
+  content: "·";
+  position: absolute;
+  left: 0;
+  color: var(--gold);
+  font-weight: bold;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px){
+  .wrap{padding: 24px 16px 60px;}
+  .card{padding: 40px 24px 32px;}
+  .card::before{top: 12px; left: 12px; right: 12px; bottom: 12px;}
+  .card-meta{flex-direction: column; gap: 8px; align-items: flex-start;}
+  .controls{flex-direction: column; align-items: stretch;}
+  .btn{justify-content: center;}
+}
+
+/* EMPTY STATE */
+.empty{
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--ink-soft);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 18px;
+}
+
+/* WELCOME STATE */
+.welcome{
+  text-align: center;
+  padding: 100px 20px;
+  animation: cardIn 0.5s ease;
+}
+
+.welcome-mark{
+  font-size: 48px;
+  color: var(--gold);
+  margin-bottom: 24px;
+  opacity: 0.7;
+  animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse{
+  0%, 100%{opacity: 0.5; transform: scale(1);}
+  50%{opacity: 0.9; transform: scale(1.05);}
+}
+
+.welcome-title{
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: clamp(24px, 4vw, 32px);
+  color: var(--cream);
+  margin-bottom: 12px;
+  font-weight: 400;
+}
+
+.welcome-sub{
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 17px;
+  color: var(--ink-soft);
+  letter-spacing: 0.02em;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Drama <em>Discussion</em> Cards</h1>
+  <p class="subtitle">No right answers — only good arguments.</p>
+</header>
+
+<div class="filters" id="filters">
+  <button class="filter-btn" data-drama="all">All Dramas</button>
+  <button class="filter-btn" data-drama="business">Business Proposal</button>
+  <button class="filter-btn" data-drama="truebeauty">True Beauty</button>
+  <button class="filter-btn" data-drama="hidden">Hidden Love</button>
+  <button class="filter-btn" data-drama="demon">My Demon</button>
+</div>
+
+<div class="stage" id="stage">
+  <!-- card injected here -->
+</div>
+
+<div class="controls">
+  <button class="btn gold" id="nextBtn">
+    Next Card →
+  </button>
+  <button class="btn ghost" id="shuffleBtn">
+    🔀 Shuffle Deck
+  </button>
+  <button class="btn ghost" id="resetBtn">
+    ↺ Reset
+  </button>
+</div>
+
+<div class="progress" id="progress">Card <strong>0</strong> of <strong>0</strong></div>
+
+</div>
+
+<script>
+const CARDS = [
+  // ============ BUSINESS PROPOSAL ============
+  {
+    drama: "business",
+    title: "Business Proposal",
+    flag: "🇰🇷",
+    type: "Character Judgment",
+    question: "Was Shin Ha-ri <span class='highlight'>wrong</span> to pretend to be Jin Young-seo on the blind date with Kang Tae-mu?",
+    prompts: [
+      "Was she helping her friend or being dishonest?",
+      "What would have happened if she had said no?",
+      "Should friends say no to favours like this?"
+    ]
+  },
+  {
+    drama: "business",
+    title: "Business Proposal",
+    flag: "🇰🇷",
+    type: "Decision Dilemma",
+    question: "Should Tae-mu have <span class='highlight'>fired Ha-ri</span> when he discovered she had been lying to him about her identity?",
+    prompts: [
+      "Was it a workplace issue or a personal one?",
+      "Could he be objective as her boss after that?",
+      "Should personal feelings affect business decisions?"
+    ]
+  },
+  {
+    drama: "business",
+    title: "Business Proposal",
+    flag: "🇰🇷",
+    type: "Motive Analysis",
+    question: "Why do you think Young-seo refused to meet the men her father chose for her — even rich, successful men like Tae-mu?",
+    prompts: [
+      "Is arranged dating disrespectful in the modern world?",
+      "Was she rebelling, or protecting herself?",
+      "Could her father have had good intentions?"
+    ]
+  },
+  {
+    drama: "business",
+    title: "Business Proposal",
+    flag: "🇰🇷",
+    type: "What Would You Do",
+    question: "If you were Ha-ri, would you have <span class='highlight'>told Tae-mu the truth</span> on the first date — or kept the lie going like she did?",
+    prompts: [
+      "Which choice takes more courage?",
+      "Which one would have a worse ending?",
+      "Is a small lie ever the kind option?"
+    ]
+  },
+  {
+    drama: "business",
+    title: "Business Proposal",
+    flag: "🇰🇷",
+    type: "Character Comparison",
+    question: "Who is the <span class='highlight'>better partner</span> — Kang Tae-mu (serious, traditional, intense) or Cha Sung-hoon (gentle, loyal, calm)?",
+    prompts: [
+      "What does each man bring to a relationship?",
+      "Which type works better in real life?",
+      "Which would you actually want as a friend?"
+    ]
+  },
+  {
+    drama: "business",
+    title: "Business Proposal",
+    flag: "🇰🇷",
+    type: "Character Judgment",
+    question: "Was Tae-mu's grandfather <span class='highlight'>right or wrong</span> to push so hard for Tae-mu to marry quickly?",
+    prompts: [
+      "Was he being controlling or caring?",
+      "Do older relatives know what is best for us?",
+      "When does family pressure cross the line?"
+    ]
+  },
+  {
+    drama: "business",
+    title: "Business Proposal",
+    flag: "🇰🇷",
+    type: "Motive Analysis",
+    question: "Why did Tae-mu fall for Ha-ri <span class='highlight'>before</span> learning her real identity? What did he see in 'fake Young-seo'?",
+    prompts: [
+      "Was it her honesty? Her energy? Something else?",
+      "Could it really be love after only one date?",
+      "What does this say about first impressions?"
+    ]
+  },
+  {
+    drama: "business",
+    title: "Business Proposal",
+    flag: "🇰🇷",
+    type: "Decision Dilemma",
+    question: "Should Ha-ri have <span class='highlight'>told Young-seo</span> immediately when she realised her fake date was actually her boss?",
+    prompts: [
+      "Why did she keep it secret for so long?",
+      "Did Young-seo deserve to know sooner?",
+      "Would you tell your best friend right away?"
+    ]
+  },
+
+  // ============ TRUE BEAUTY ============
+  {
+    drama: "truebeauty",
+    title: "True Beauty",
+    flag: "🇰🇷",
+    type: "Character Judgment",
+    question: "Was Lim Ju-gyeong <span class='highlight'>wrong</span> to hide her real face behind makeup at school?",
+    prompts: [
+      "Was it self-protection or dishonesty?",
+      "Should anyone have to show their 'real' face?",
+      "Is wearing makeup the same as wearing a mask?"
+    ]
+  },
+  {
+    drama: "truebeauty",
+    title: "True Beauty",
+    flag: "🇰🇷",
+    type: "Decision Dilemma",
+    question: "Should Lee Su-ho have <span class='highlight'>told Ju-gyeong</span> sooner that he had seen her without makeup?",
+    prompts: [
+      "Was hiding it a kindness or a betrayal?",
+      "Would she have trusted him more if he had told her?",
+      "When does keeping a secret stop being polite?"
+    ]
+  },
+  {
+    drama: "truebeauty",
+    title: "True Beauty",
+    flag: "🇰🇷",
+    type: "Character Comparison",
+    question: "Who deserved Ju-gyeong more — <span class='highlight'>Lee Su-ho or Han Seo-jun</span>? Why?",
+    prompts: [
+      "Who understood her better?",
+      "Who treated her with more respect?",
+      "Did she choose with her heart or her head?"
+    ]
+  },
+  {
+    drama: "truebeauty",
+    title: "True Beauty",
+    flag: "🇰🇷",
+    type: "Motive Analysis",
+    question: "Why were Ju-gyeong's classmates so cruel to her <span class='highlight'>before</span> she learned to do makeup?",
+    prompts: [
+      "Why does appearance matter so much at school?",
+      "Were the bullies insecure themselves?",
+      "Could anyone have stopped it earlier?"
+    ]
+  },
+  {
+    drama: "truebeauty",
+    title: "True Beauty",
+    flag: "🇰🇷",
+    type: "What Would You Do",
+    question: "If you were Ju-gyeong and had Su-ho's number, would you have <span class='highlight'>texted him</span> first — or waited?",
+    prompts: [
+      "Is making the first move embarrassing or brave?",
+      "Should girls always wait for boys to text first?",
+      "What's the worst that could happen if you text first?"
+    ]
+  },
+  {
+    drama: "truebeauty",
+    title: "True Beauty",
+    flag: "🇰🇷",
+    type: "Character Judgment",
+    question: "Was Seo-jun <span class='highlight'>right</span> to leave for Japan instead of staying and fighting for Ju-gyeong?",
+    prompts: [
+      "Was leaving the noble choice or the cowardly one?",
+      "Should you fight for love, or accept it ends?",
+      "Did Su-ho really 'win', or did Seo-jun just give up?"
+    ]
+  },
+  {
+    drama: "truebeauty",
+    title: "True Beauty",
+    flag: "🇰🇷",
+    type: "Decision Dilemma",
+    question: "Should Su-ho have <span class='highlight'>broken up</span> with Ju-gyeong to protect her, or fought through his trauma with her?",
+    prompts: [
+      "Is leaving someone 'for their own good' really kind?",
+      "Should couples face problems together or apart?",
+      "Did he think about what SHE wanted?"
+    ]
+  },
+  {
+    drama: "truebeauty",
+    title: "True Beauty",
+    flag: "🇰🇷",
+    type: "Motive Analysis",
+    question: "Why did Ju-gyeong feel she <span class='highlight'>had to</span> wear makeup — even after she had real friends and a boyfriend who knew her?",
+    prompts: [
+      "Is confidence built from outside or inside?",
+      "Can love alone heal that kind of fear?",
+      "Why is it so hard to feel beautiful without help?"
+    ]
+  },
+
+  // ============ HIDDEN LOVE ============
+  {
+    drama: "hidden",
+    title: "Hidden Love",
+    flag: "🇨🇳",
+    type: "Character Judgment",
+    question: "Was Sang Zhi <span class='highlight'>wrong</span> to choose her university just to be near Duan Jia Xu?",
+    prompts: [
+      "Was it romantic or unhealthy?",
+      "Should you change your life plans for a crush?",
+      "What if she had chosen differently — would they still have ended up together?"
+    ]
+  },
+  {
+    drama: "hidden",
+    title: "Hidden Love",
+    flag: "🇨🇳",
+    type: "Decision Dilemma",
+    question: "Should Duan Jia Xu have <span class='highlight'>kept his distance</span> longer because of the age gap and his friendship with her brother?",
+    prompts: [
+      "Was the age gap really a problem?",
+      "Did her brother have the right to be angry?",
+      "When does 'protecting' someone become hurting them?"
+    ]
+  },
+  {
+    drama: "hidden",
+    title: "Hidden Love",
+    flag: "🇨🇳",
+    type: "Motive Analysis",
+    question: "Why do you think Sang Zhi kept her crush <span class='highlight'>hidden</span> for so many years?",
+    prompts: [
+      "Was she afraid of rejection — or something else?",
+      "Did hiding it make her feelings stronger?",
+      "Should she have confessed earlier?"
+    ]
+  },
+  {
+    drama: "hidden",
+    title: "Hidden Love",
+    flag: "🇨🇳",
+    type: "Character Judgment",
+    question: "Was Sang Zhi's brother <span class='highlight'>fair</span> to be angry when he found out about the relationship?",
+    prompts: [
+      "Was he protecting his sister or his friendship?",
+      "Did he have a right to choose for her?",
+      "Was his anger really about her — or about himself?"
+    ]
+  },
+  {
+    drama: "hidden",
+    title: "Hidden Love",
+    flag: "🇨🇳",
+    type: "What Would You Do",
+    question: "If you had a long-term crush like Sang Zhi's, would you <span class='highlight'>confess</span> or stay silent and protect the friendship?",
+    prompts: [
+      "Which choice would you regret more?",
+      "Is silent love really love at all?",
+      "What if the friendship was destroyed forever?"
+    ]
+  },
+  {
+    drama: "hidden",
+    title: "Hidden Love",
+    flag: "🇨🇳",
+    type: "Character Comparison",
+    question: "Was Duan Jia Xu a <span class='highlight'>good role model</span> for how an older partner should behave with a younger one?",
+    prompts: [
+      "Did he respect her independence?",
+      "Did he wait until she was ready?",
+      "What did he do well — and what was problematic?"
+    ]
+  },
+  {
+    drama: "hidden",
+    title: "Hidden Love",
+    flag: "🇨🇳",
+    type: "Decision Dilemma",
+    question: "Should couples in real life follow the 'wait for the right time' rule like Sang Zhi and Jia Xu — or <span class='highlight'>act</span> on feelings immediately?",
+    prompts: [
+      "Is patience romantic or wasteful?",
+      "Can timing really make or break a relationship?",
+      "Are 'right times' real, or just excuses?"
+    ]
+  },
+  {
+    drama: "hidden",
+    title: "Hidden Love",
+    flag: "🇨🇳",
+    type: "Motive Analysis",
+    question: "Why is the 'long-time crush' story so popular in dramas? What does it <span class='highlight'>say</span> about how we want love to work?",
+    prompts: [
+      "Do we want love to be fated or earned?",
+      "Is it more romantic if it took years?",
+      "Does real love look like this — or is it fantasy?"
+    ]
+  },
+
+  // ============ MY DEMON ============
+  {
+    drama: "demon",
+    title: "My Demon",
+    flag: "🇰🇷",
+    type: "Character Judgment",
+    question: "Was Do Do-hee <span class='highlight'>wrong</span> to propose a contract marriage to Jeong Gu-won, a complete stranger?",
+    prompts: [
+      "Was she desperate or clever?",
+      "Could a contract marriage ever lead to real love?",
+      "Was she using him?"
+    ]
+  },
+  {
+    drama: "demon",
+    title: "My Demon",
+    flag: "🇰🇷",
+    type: "Decision Dilemma",
+    question: "Should Gu-won have <span class='highlight'>helped Do-hee</span> when his powers were on the line, or protected himself first?",
+    prompts: [
+      "Should you sacrifice everything for someone you just met?",
+      "Was it really love, or just need?",
+      "When does helping become losing yourself?"
+    ]
+  },
+  {
+    drama: "demon",
+    title: "My Demon",
+    flag: "🇰🇷",
+    type: "Motive Analysis",
+    question: "Why did Gu-won <span class='highlight'>start to care</span> about humans after 200 years of seeing them as just contracts?",
+    prompts: [
+      "Was it Do-hee specifically, or being human-like?",
+      "Can someone really change after centuries?",
+      "What made HER different from all the others?"
+    ]
+  },
+  {
+    drama: "demon",
+    title: "My Demon",
+    flag: "🇰🇷",
+    type: "Character Judgment",
+    question: "Was Noh Suk-min <span class='highlight'>truly evil</span>, or was he a victim of his terrible family?",
+    prompts: [
+      "Does a bad childhood excuse bad choices?",
+      "Could he have chosen differently?",
+      "When do we stop blaming the past?"
+    ]
+  },
+  {
+    drama: "demon",
+    title: "My Demon",
+    flag: "🇰🇷",
+    type: "What Would You Do",
+    question: "If you were a demon like Gu-won and could make any deal, would you <span class='highlight'>give up immortality</span> for one human you loved?",
+    prompts: [
+      "Is mortal life with love better than forever alone?",
+      "What would you miss most about being immortal?",
+      "Is love really worth that price?"
+    ]
+  },
+  {
+    drama: "demon",
+    title: "My Demon",
+    flag: "🇰🇷",
+    type: "Decision Dilemma",
+    question: "Should Do-hee have <span class='highlight'>told Gu-won</span> about her past — the adoption, the trauma, all of it — earlier?",
+    prompts: [
+      "Do new partners deserve to know everything?",
+      "Is some pain too private to share?",
+      "Does honesty always make love stronger?"
+    ]
+  },
+  {
+    drama: "demon",
+    title: "My Demon",
+    flag: "🇰🇷",
+    type: "Motive Analysis",
+    question: "Why did Do-hee's adoptive mother choose her as the heir instead of her own children?",
+    prompts: [
+      "Did she see something the others lacked?",
+      "Was it fair to her biological children?",
+      "Should family or ability decide who inherits?"
+    ]
+  },
+  {
+    drama: "demon",
+    title: "My Demon",
+    flag: "🇰🇷",
+    type: "Character Comparison",
+    question: "Was Gu-won a <span class='highlight'>better person</span> as a demon — or after he started becoming human?",
+    prompts: [
+      "Was demon-Gu-won honest about who he was?",
+      "Did becoming human make him weaker or stronger?",
+      "Which version had more freedom?"
+    ]
+  }
+];
+
+// ============ STATE ============
+let currentFilter = null;
+let deck = [];
+let currentIndex = -1;
+let seenInRound = new Set();
+
+// ============ INIT ============
+function init(){
+  showWelcome();
+  setupListeners();
+}
+
+function showWelcome(){
+  document.getElementById("stage").innerHTML = `
+    <div class="welcome">
+      <div class="welcome-mark">✦</div>
+      <div class="welcome-title">Choose a drama to begin</div>
+      <div class="welcome-sub">Select a category above to draw your first card</div>
+    </div>
+  `;
+  document.getElementById("progress").innerHTML = `Card <strong>0</strong> of <strong>0</strong>`;
+}
+
+function buildDeck(){
+  if(currentFilter === "all"){
+    deck = CARDS.map((_,i) => i);
+  }else{
+    deck = CARDS.map((c,i) => c.drama === currentFilter ? i : -1).filter(i => i !== -1);
+  }
+  seenInRound.clear();
+  currentIndex = -1;
+}
+
+function nextRandomIndex(){
+  // get cards from deck that haven't been seen yet
+  const remaining = deck.filter(i => !seenInRound.has(i));
+  if(remaining.length === 0){
+    // round complete - reset
+    seenInRound.clear();
+    return nextRandomIndex();
+  }
+  const pick = remaining[Math.floor(Math.random() * remaining.length)];
+  seenInRound.add(pick);
+  return pick;
+}
+
+function showCard(index){
+  if(index === -1 || !CARDS[index]){
+    document.getElementById("stage").innerHTML = '<div class="empty">No cards in this deck. Try another drama.</div>';
+    updateProgress();
+    return;
+  }
+  currentIndex = index;
+  const c = CARDS[index];
+  const promptsHTML = c.prompts.map(p => `<li>${p}</li>`).join("");
+  document.getElementById("stage").innerHTML = `
+    <div class="card">
+      <span class="card-corner tl"></span>
+      <span class="card-corner tr"></span>
+      <span class="card-corner bl"></span>
+      <span class="card-corner br"></span>
+      <div class="card-meta">
+        <span class="card-num">№ ${String(seenInRound.size).padStart(2,"0")} / ${String(deck.length).padStart(2,"0")}</span>
+        <span class="card-type">${c.type}</span>
+      </div>
+      <div class="card-drama"><span class="card-flag">${c.flag}</span>${c.title}</div>
+      <div class="card-question">${c.question}</div>
+      <div class="card-prompts">
+        <div class="prompts-label">Discussion</div>
+        <ul class="prompts-list">${promptsHTML}</ul>
+      </div>
+    </div>
+  `;
+  updateProgress();
+}
+
+function updateProgress(){
+  document.getElementById("progress").innerHTML =
+    `Card <strong>${seenInRound.size}</strong> of <strong>${deck.length}</strong>`;
+}
+
+function setupListeners(){
+  document.getElementById("nextBtn").addEventListener("click", () => {
+    if(currentFilter === null) return;
+    showCard(nextRandomIndex());
+  });
+
+  document.getElementById("shuffleBtn").addEventListener("click", () => {
+    if(currentFilter === null) return;
+    seenInRound.clear();
+    showCard(nextRandomIndex());
+    flashButton("shuffleBtn");
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    currentFilter = null;
+    deck = [];
+    seenInRound.clear();
+    currentIndex = -1;
+    showWelcome();
+    flashButton("resetBtn");
+  });
+
+  document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentFilter = btn.dataset.drama;
+      buildDeck();
+      showCard(nextRandomIndex());
+    });
+  });
+
+  // keyboard: spacebar or right arrow for next
+  document.addEventListener("keydown", (e) => {
+    if(e.key === " " || e.key === "ArrowRight"){
+      if(currentFilter === null) return;
+      e.preventDefault();
+      showCard(nextRandomIndex());
+    }
+  });
+}
+
+function flashButton(id){
+  const btn = document.getElementById(id);
+  btn.style.transform = "scale(0.95)";
+  setTimeout(() => btn.style.transform = "", 150);
+}
+
+init();
+</script>
+</body>
+</html>

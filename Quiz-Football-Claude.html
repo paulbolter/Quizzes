@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Football Test — Superfan Quiz</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --grass: #2e7d4f;
+    --grass-light: #4caf78;
+    --grass-pale: #e8f5ee;
+    --pitch: #f0f7f3;
+    --pitch-mid: #ddeee6;
+    --gold: #e8a020;
+    --gold-dim: #c4851a;
+    --gold-pale: #fef3e0;
+    --dark: #1a2e22;
+    --text: #2a3d30;
+    --grey: #7a9485;
+    --red: #c0392b;
+    --red-pale: #fdecea;
+    --card: #ffffff;
+    --border: #c8dfd3;
+    --border-strong: #a8c8b8;
+    --shadow: rgba(46,125,79,0.10);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--pitch);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(46,125,79,0.04) 49px, rgba(46,125,79,0.04) 50px),
+      repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(46,125,79,0.04) 49px, rgba(46,125,79,0.04) 50px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header {
+    text-align: center;
+    padding: 40px 0 32px;
+    border-bottom: 2px solid var(--border-strong);
+    margin-bottom: 36px;
+  }
+
+  .header .badge {
+    display: inline-block;
+    background: var(--grass);
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    padding: 4px 14px;
+    margin-bottom: 16px;
+    border-radius: 2px;
+  }
+
+  .header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 10vw, 80px);
+    line-height: 0.9;
+    letter-spacing: 2px;
+    color: var(--dark);
+  }
+
+  .header h1 span {
+    color: var(--grass);
+    display: block;
+  }
+
+  .header p {
+    margin-top: 16px;
+    color: var(--grey);
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── CATEGORY GRID ── */
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .cat-btn {
+    background: var(--card);
+    border: 2px solid var(--border);
+    color: var(--text);
+    padding: 16px 12px;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: center;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.4px;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px var(--shadow);
+  }
+
+  .cat-btn:hover { border-color: var(--grass-light); color: var(--grass); background: var(--grass-pale); }
+
+  .cat-btn.selected {
+    background: var(--grass);
+    border-color: var(--grass);
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(46,125,79,0.25);
+  }
+
+  .cat-btn .flag { display: block; font-size: 24px; margin-bottom: 7px; }
+
+  /* ── START BUTTON ── */
+  .start-btn {
+    width: 100%;
+    background: var(--grass);
+    color: #fff;
+    border: none;
+    padding: 18px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+    box-shadow: 0 3px 12px rgba(46,125,79,0.3);
+  }
+
+  .start-btn:hover { background: var(--grass-light); transform: translateY(-1px); box-shadow: 0 5px 16px rgba(46,125,79,0.35); }
+
+  /* ── SECTION LABELS ── */
+  .section-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--grass);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border-strong); }
+
+  /* ── QUIZ ── */
+  .quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--border-strong);
+  }
+
+  .q-counter { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; color: var(--grey); }
+  .q-counter span { color: var(--grass); font-size: 22px; }
+  .score-display { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; color: var(--grey); }
+  .score-display span { color: var(--grass); font-size: 22px; }
+
+  .progress-bar { height: 4px; background: var(--border); margin-bottom: 32px; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--grass); transition: width 0.3s; }
+
+  .question-box {
+    background: var(--card);
+    padding: 28px 24px;
+    margin-bottom: 20px;
+    position: relative;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 10px var(--shadow);
+  }
+
+  .question-box::before {
+    content: attr(data-num);
+    position: absolute;
+    top: -10px;
+    left: 18px;
+    background: var(--gold);
+    color: #fff;
+    padding: 3px 12px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    border-radius: 2px;
+  }
+
+  .question-text {
+    font-size: 18px;
+    line-height: 1.5;
+    font-weight: 500;
+    color: var(--dark);
+  }
+
+  .options-grid { display: grid; gap: 10px; margin-bottom: 24px; }
+
+  .option-btn {
+    background: var(--card);
+    border: 2px solid var(--border);
+    color: var(--text);
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--grass-light);
+    background: var(--grass-pale);
+    transform: translateX(2px);
+  }
+
+  .option-btn .opt-letter {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    color: var(--grass);
+    min-width: 22px;
+  }
+
+  .option-btn.correct {
+    background: var(--grass);
+    border-color: var(--grass);
+    color: #fff;
+  }
+
+  .option-btn.correct .opt-letter { color: #fff; }
+
+  .option-btn.wrong {
+    background: var(--red-pale);
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .option-btn.wrong .opt-letter { color: var(--red); }
+
+  .option-btn:disabled { cursor: default; }
+
+  .feedback-box {
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    font-size: 15px;
+    line-height: 1.55;
+    border-radius: 4px;
+    display: none;
+  }
+
+  .feedback-box.show { display: block; }
+
+  .feedback-box.correct-fb {
+    background: var(--grass-pale);
+    border-left: 4px solid var(--grass);
+    color: var(--dark);
+  }
+
+  .feedback-box.wrong-fb {
+    background: var(--gold-pale);
+    border-left: 4px solid var(--gold);
+    color: var(--dark);
+  }
+
+  .next-btn {
+    width: 100%;
+    background: var(--grass);
+    color: #fff;
+    border: none;
+    padding: 16px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+    display: none;
+    box-shadow: 0 3px 12px rgba(46,125,79,0.3);
+  }
+
+  .next-btn.show { display: block; }
+  .next-btn:hover { background: var(--grass-light); transform: translateY(-1px); }
+
+  /* ── RESULTS ── */
+  .results-screen {
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .results-score {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(80px, 18vw, 140px);
+    color: var(--grass);
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  .results-score .denom { color: var(--grey); font-size: 0.5em; }
+
+  .results-verdict {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--dark);
+    margin-bottom: 16px;
+  }
+
+  .results-sub {
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .play-again-btn {
+    background: var(--grass);
+    color: #fff;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+    box-shadow: 0 3px 12px rgba(46,125,79,0.3);
+  }
+
+  .play-again-btn:hover { background: var(--grass-light); transform: translateY(-1px); }
+
+  .test-banner {
+    background: var(--gold-pale);
+    border: 1px dashed var(--gold);
+    color: var(--gold-dim);
+    padding: 10px 14px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    text-align: center;
+    border-radius: 4px;
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="badge">⚽ SUPERFAN QUIZ</div>
+    <h1>THE<span>FOOTBALL</span>TEST</h1>
+    <p>Legends, transfers, managers, iconic moments. How well do you really know the game?</p>
+  </div>
+
+  <!-- SETUP -->
+  <div id="setup-screen">
+
+    <div class="test-banner">
+      🧪 TEST VERSION — La Liga &amp; Champions League only
+    </div>
+
+    <div class="section-label">CHOOSE A CATEGORY</div>
+    <div class="category-grid">
+      <button class="cat-btn selected" data-cat="La Liga">
+        <span class="flag">🇪🇸</span>La Liga
+      </button>
+      <button class="cat-btn" data-cat="Champions League">
+        <span class="flag">⭐</span>Champions League
+      </button>
+    </div>
+
+    <button class="start-btn" id="start-btn">⚽ KICK OFF</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz-screen" class="hidden">
+    <div class="quiz-header">
+      <div class="q-counter">QUESTION <span id="q-num">1</span> / 8</div>
+      <div class="score-display">SCORE <span id="score-num">0</span></div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="question-box" id="question-box" data-num="Q1">
+      <div class="question-text" id="question-text"></div>
+    </div>
+    <div class="options-grid" id="options-grid"></div>
+    <div class="feedback-box" id="feedback-box"></div>
+    <button class="next-btn" id="next-btn">NEXT QUESTION →</button>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results-screen" class="results-screen hidden">
+    <div class="results-score" id="final-score">0<span class="denom">/8</span></div>
+    <div class="results-verdict" id="results-verdict"></div>
+    <div class="results-sub" id="results-sub"></div>
+    <button class="play-again-btn" onclick="resetQuiz()">PLAY AGAIN</button>
+  </div>
+
+</div>
+
+<script>
+  // ─────────────────────────────────────────────
+  // QUESTION BANK
+  // ─────────────────────────────────────────────
+  const QUESTION_BANK = {
+    'La Liga': [
+      {question:"Which club won La Liga in the 2023-24 season?",options:["Barcelona","Real Madrid","Atlético Madrid","Girona"],correct:1,explanation:"Real Madrid won by 10 points, their 36th title."},
+      {question:"Where did Jude Bellingham join Real Madrid from in 2023?",options:["Manchester City","Bayern Munich","Borussia Dortmund","Chelsea"],correct:2,explanation:"Madrid paid about €103m for the England midfielder."},
+      {question:"Who scored Real Madrid's second goal in the 2024 Champions League final at Wembley?",options:["Jude Bellingham","Vinícius Júnior","Rodrygo","Joselu"],correct:1,explanation:"Madrid beat Dortmund 2-0 to win their 15th European Cup."},
+      {question:"Kylian Mbappé joined Real Madrid in 2024 on what kind of transfer?",options:["A €200m world record fee","A free transfer","A loan deal from PSG","A swap deal involving Rodrygo"],correct:1,explanation:"His PSG contract had ended, so Madrid paid no fee."},
+      {question:"Who was La Liga's top scorer in the 2024-25 season?",options:["Robert Lewandowski","Vinícius Júnior","Kylian Mbappé","Lamine Yamal"],correct:2,explanation:"Mbappé won the top scorer prize in his first Spanish season."},
+      {question:"Which manager led Real Madrid to the 2023-24 La Liga and Champions League double?",options:["Zinedine Zidane","Carlo Ancelotti","Xavi Hernández","Diego Simeone"],correct:1,explanation:"It was Ancelotti's third La Liga and fifth Champions League as a manager."},
+      {question:"Who took over as Barcelona manager in summer 2024, replacing Xavi?",options:["Hansi Flick","Thiago Motta","Luis Enrique","Rafa Márquez"],correct:0,explanation:"Flick won the treble with Bayern in 2020, then guided Barça to the 2024-25 La Liga title in his first season."},
+      {question:"Lionel Messi left Barcelona in 2021 to join which club?",options:["Manchester City","Inter Miami","Paris Saint-Germain","Al-Hilal"],correct:2,explanation:"Barcelona had money problems, so Messi joined PSG for free. He later moved to Inter Miami in 2023."},
+      {question:"Cristiano Ronaldo's nine-year spell at Real Madrid ended in 2018 when he joined which club?",options:["Manchester United","Juventus","Al-Nassr","Paris Saint-Germain"],correct:1,explanation:"Madrid sold him to Juventus for about €100m after 450 goals in 438 games."},
+      {question:"Diego Simeone has been the long-serving manager of which La Liga club since 2011?",options:["Sevilla","Atlético Madrid","Valencia","Real Sociedad"],correct:1,explanation:"\"Cholo\" Simeone has won two La Liga titles with Atlético (2014 and 2021)."},
+      {question:"Which club broke the Real Madrid–Barcelona duopoly by winning La Liga in 2020-21?",options:["Sevilla","Atlético Madrid","Valencia","Villarreal"],correct:1,explanation:"Atlético won on the final day, with ex-Barça striker Suárez scoring the winning goal."},
+      {question:"Luis Suárez left Barcelona for Atlético Madrid in 2020 for a transfer fee of roughly:",options:["€0 (free transfer)","Around €6m","Around €40m","Around €80m"],correct:1,explanation:"Barcelona almost gave Suárez away — he then scored 21 goals to help Atlético win the title."},
+      {question:"Robert Lewandowski joined Barcelona in 2022 from which club?",options:["Borussia Dortmund","Bayern Munich","Real Madrid","Manchester City"],correct:1,explanation:"Bayern sold him for about €45m after 8 amazing years."},
+      {question:"Vinícius Júnior joined Real Madrid in 2018 from which Brazilian club?",options:["Santos","Flamengo","Palmeiras","Corinthians"],correct:1,explanation:"Madrid agreed the deal in 2017 when Vinícius was 16, paying about €45m."},
+      {question:"Who was Real Madrid's manager when they won three Champions League titles in a row from 2016 to 2018?",options:["Carlo Ancelotti","Zinedine Zidane","José Mourinho","Julen Lopetegui"],correct:1,explanation:"No manager had won three Champions Leagues in a row in modern times."},
+      {question:"Antoine Griezmann moved from Atlético Madrid to Barcelona in 2019 for around €120m. Where did he end up after that move didn't quite work out?",options:["Real Madrid","Atlético Madrid","Paris Saint-Germain","Manchester United"],correct:1,explanation:"Griezmann returned to Atlético on loan in 2021, then signed permanently."},
+      {question:"Sergio Ramos left Real Madrid in 2021 after 16 years at the club. Where did he go next?",options:["Manchester United","Sevilla","Paris Saint-Germain","Inter Milan"],correct:2,explanation:"Ramos joined PSG for free, later returning to his boyhood club Sevilla."},
+      {question:"Pep Guardiola's legendary Barcelona side won La Liga three times in a row from 2008-09 to 2010-11. He then took a year off before joining which club?",options:["Bayern Munich","Manchester City","Chelsea","Juventus"],correct:0,explanation:"Guardiola took the Bayern job in 2013 and won three Bundesligas before joining Manchester City in 2016."},
+      {question:"Which Belgian goalkeeper did Real Madrid sign from Chelsea in 2018?",options:["Simon Mignolet","Thibaut Courtois","Mile Svilar","Koen Casteels"],correct:1,explanation:"Courtois cost about €35m and is now one of the world's best, winning the 2022 Champions League with a man-of-the-match performance."},
+      {question:"Lamine Yamal, Barcelona's teenage star, made his senior debut at what age?",options:["14","15","16","17"],correct:1,explanation:"Yamal was Barça's youngest ever player when he debuted in April 2023, then won Euro 2024 with Spain at just 17."},
+      {question:"Who replaced Carlo Ancelotti as Real Madrid manager in summer 2025?",options:["Raúl","Xabi Alonso","Mikel Arteta","Santiago Solari"],correct:1,explanation:"Alonso came from Bayer Leverkusen, where he'd won the Bundesliga unbeaten in 2024 — but his Madrid spell ended in January 2026."},
+      {question:"Who finished as La Liga's top scorer in the 2024-25 season?",options:["Robert Lewandowski","Vinícius Júnior","Kylian Mbappé","Lamine Yamal"],correct:2,explanation:"Mbappé won the top scorer prize in his first Spanish season — Real Madrid's highest-scoring player ever in a debut year."},
+      {question:"Hansi Flick was previously manager of which club before joining Barcelona in 2024?",options:["Borussia Dortmund","RB Leipzig","Bayern Munich","Germany national team"],correct:2,explanation:"Flick won the Bundesliga and Champions League with Bayern in 2020 before a difficult time as Germany boss."},
+      {question:"Lamine Yamal won which major international trophy with Spain in summer 2024 at the age of 16?",options:["The Nations League","Euro 2024","The Copa América","The Olympics"],correct:1,explanation:"Yamal scored a stunning curler against France and became the youngest player ever in a Euros final."},
+      {question:"Which goalkeeper came out of retirement to play for Barcelona in 2024-25?",options:["Iker Casillas","Wojciech Szczęsny","David de Gea","Manuel Neuer"],correct:1,explanation:"Szczęsny had retired in summer 2024 but came back when Marc-André ter Stegen got a long-term knee injury."},
+      {question:"How did Barcelona clinch the 2024-25 La Liga title?",options:["With a 2-0 win over Espanyol","With a Clásico win over Real Madrid","With a final-day draw at Athletic Bilbao","With a hat-trick from Lewandowski against Sevilla"],correct:0,explanation:"Yamal scored and assisted in the derby win, sealing Barça's 28th league title in Flick's first season."},
+      {question:"Which Spanish midfielder did Barcelona sign from RB Leipzig in summer 2024?",options:["Dani Olmo","Marco Asensio","Mikel Merino","Álex Baena"],correct:0,explanation:"Olmo's registration as a Barça player became a long story because of the club's money problems."},
+      {question:"In the 4-0 Clásico at the Bernabéu in October 2024, which player scored a hat-trick for Barcelona?",options:["Lamine Yamal","Raphinha","Robert Lewandowski","Pedri"],correct:1,explanation:"Raphinha's three goals showed Barça's new strength under Flick."},
+      {question:"Which Brazilian winger did Real Madrid sign from Santos in 2024 as a long-term Vinícius understudy?",options:["Rodrygo","Endrick","Reinier","Vitor Roque"],correct:1,explanation:"Madrid agreed the deal in 2022 but had to wait until Endrick turned 18 in July 2024."},
+      {question:"Who beat Real Madrid 3-2 in the Spanish Super Cup final in January 2026?",options:["Atlético Madrid","Barcelona","Athletic Bilbao","Sevilla"],correct:1,explanation:"The defeat ended Xabi Alonso's short, troubled time at Real Madrid the very next day."}
+    ],
+    'Champions League': [
+      {question:"Which club won their first ever Champions League title in 2025, beating Inter Milan 5-0 in the final?",options:["Bayer Leverkusen","Paris Saint-Germain","Atlético Madrid","Borussia Dortmund"],correct:1,explanation:"PSG's 5-0 win in Munich was the biggest margin in any European Cup or Champions League final."},
+      {question:"Who scored the only goal of the 2023 Champions League final, giving Manchester City their first European Cup?",options:["Erling Haaland","Kevin De Bruyne","Rodri","Bernardo Silva"],correct:2,explanation:"Rodri's calm finish in the 68th minute beat Inter in Istanbul and completed City's treble."},
+      {question:"Real Madrid's 2024 Champions League final win at Wembley was their how many-th European Cup?",options:["13th","14th","15th","16th"],correct:2,explanation:"Goals from Carvajal and Vinícius beat Borussia Dortmund 2-0, making Madrid Europe's most successful club."},
+      {question:"Who managed Paris Saint-Germain to their first Champions League title in 2025?",options:["Mauricio Pochettino","Christophe Galtier","Luis Enrique","Thomas Tuchel"],correct:2,explanation:"Luis Enrique became only the second manager (after Pep Guardiola) to win the treble at two different clubs."},
+      {question:"Erling Haaland joined Manchester City in summer 2022 from which club?",options:["Red Bull Salzburg","Borussia Dortmund","Bayern Munich","Molde"],correct:1,explanation:"City paid about £51m; Haaland scored 12 Champions League goals in the treble-winning season."},
+      {question:"Which striker scored a hat-trick for Real Madrid in their famous 6-1 quarter-final comeback against Wolfsburg in 2016?",options:["Karim Benzema","Cristiano Ronaldo","Gareth Bale","James Rodríguez"],correct:1,explanation:"Trailing 2-0 from the first leg, Ronaldo's hat-trick saved Madrid and powered them to the title."},
+      {question:"Who is the Champions League's all-time top scorer?",options:["Lionel Messi","Robert Lewandowski","Cristiano Ronaldo","Karim Benzema"],correct:2,explanation:"Ronaldo has scored over 140 Champions League goals, well clear of Messi in second."},
+      {question:"Which English club shocked Barcelona by winning 4-0 at Anfield to overturn a 3-0 deficit in the 2019 semi-final?",options:["Manchester City","Tottenham","Liverpool","Manchester United"],correct:2,explanation:"Origi and Wijnaldum each scored twice on one of Anfield's most legendary nights."},
+      {question:"Who has won the most Champions League titles as a manager?",options:["Pep Guardiola","Carlo Ancelotti","Sir Alex Ferguson","Zinedine Zidane"],correct:1,explanation:"Two with Milan (2003, 2007) and three with Real Madrid (2014, 2022, 2024)."},
+      {question:"Who scored Liverpool's winning goals in their famous 4-0 second leg against Barcelona in 2019?",options:["Mohamed Salah and Sadio Mané","Roberto Firmino and Sadio Mané","Divock Origi and Georginio Wijnaldum","Jordan Henderson and Trent Alexander-Arnold"],correct:2,explanation:"Origi's quick corner for the fourth — taken brilliantly by Trent — is one of the most replayed moments ever."},
+      {question:"Which goalkeeper was named man of the match in the 2022 Champions League final after a string of saves to deny Liverpool?",options:["Alisson Becker","Thibaut Courtois","Manuel Neuer","Keylor Navas"],correct:1,explanation:"Courtois made nine saves as Madrid beat Liverpool 1-0, with Vinícius scoring the winner."},
+      {question:"Jürgen Klopp won his first Champions League with Liverpool by beating which English side in the 2019 final?",options:["Manchester City","Arsenal","Chelsea","Tottenham"],correct:3,explanation:"Salah scored a penalty after just two minutes and Origi sealed it late as Liverpool won 2-0 in Madrid."},
+      {question:"Real Madrid's \"remontadas\" run to the 2022 Champions League title featured stunning comebacks against PSG, Chelsea, and which side in the semi-final?",options:["Bayern Munich","Manchester City","Atlético Madrid","Juventus"],correct:1,explanation:"Trailing 5-3 with 90 minutes played, Rodrygo scored twice in two minutes, then Benzema's penalty in extra time stunned City."},
+      {question:"Who scored Real Madrid's only goal in the 2022 Champions League final?",options:["Karim Benzema","Luka Modrić","Vinícius Júnior","Rodrygo"],correct:2,explanation:"Vinícius tucked in Federico Valverde's low cross — his first goal in a major final."},
+      {question:"Bayern Munich's 8-2 thrashing of Barcelona in 2020 came in which stage of the Champions League?",options:["Round of 16","Quarter-final","Semi-final","Final"],correct:1,explanation:"The COVID-era one-leg quarter-final in Lisbon was a huge embarrassment for Barcelona; Bayern went on to win the trophy."},
+      {question:"Which young French forward inspired PSG's 2025 Champions League final win with two goals against Inter?",options:["Bradley Barcola","Désiré Doué","Randal Kolo Muani","Warren Zaïre-Emery"],correct:1,explanation:"The 19-year-old Doué scored twice in the 5-0 win, helping fill the gap left by Mbappé."},
+      {question:"Real Madrid's Champions League three-peat from 2016 to 2018 was managed by:",options:["José Mourinho","Carlo Ancelotti","Zinedine Zidane","Rafa Benítez"],correct:2,explanation:"Zidane was the first manager in modern times to win three European Cups in a row, then resigned weeks after the 2018 final."},
+      {question:"Who scored the famous overhead-kick goal for Real Madrid in the 2018 Champions League final against Liverpool?",options:["Cristiano Ronaldo","Karim Benzema","Gareth Bale","Marco Asensio"],correct:2,explanation:"Bale came off the bench and scored a stunning overhead kick, then added a second to seal a 3-1 win."},
+      {question:"Which English club lost the 2021 Champions League final 1-0 to Chelsea in Porto?",options:["Liverpool","Manchester United","Arsenal","Manchester City"],correct:3,explanation:"Kai Havertz scored the only goal as Thomas Tuchel beat Pep Guardiola in his first season at Chelsea."},
+      {question:"Who scored a 17-minute second-half hat-trick to knock PSG out of the 2022 Champions League round of 16?",options:["Vinícius Júnior","Karim Benzema","Cristiano Ronaldo","Sergio Ramos"],correct:1,explanation:"Trailing 2-0, Benzema's three goals at the Bernabéu started Madrid's amazing run to the trophy."},
+      {question:"Bayern Munich won the 2020 Champions League final 1-0 against PSG. Who scored the winner — a former PSG academy player?",options:["Robert Lewandowski","Thomas Müller","Kingsley Coman","Serge Gnabry"],correct:2,explanation:"Coman's second-half header in the empty Lisbon stadium gave Bayern their sixth European Cup."},
+      {question:"Who scored a hat-trick for Tottenham in Amsterdam to send them to the 2019 Champions League final on away goals?",options:["Harry Kane","Heung-Min Son","Lucas Moura","Christian Eriksen"],correct:2,explanation:"Spurs were 3-0 down on aggregate at half-time; Moura's late goal completed an unforgettable comeback in Ajax's stadium."},
+      {question:"Mohamed Salah joined Liverpool in 2017 from which club?",options:["Chelsea","Roma","Fiorentina","Basel"],correct:1,explanation:"Liverpool paid Roma about £37m — now seen as one of the great transfer bargains of the decade."},
+      {question:"Pep Guardiola has won the Champions League three times — twice with Barcelona and once with Manchester City. In which year did he win his first?",options:["2008","2009","2010","2011"],correct:1,explanation:"Guardiola's first season as Barça manager ended in a treble, beating Manchester United 2-0 in Rome."},
+      {question:"Harry Kane left Tottenham in 2023 to join which Champions League club?",options:["Real Madrid","Manchester City","Bayern Munich","Paris Saint-Germain"],correct:2,explanation:"Bayern paid about €100m for Kane, who is still chasing his first major trophy."},
+      {question:"Lionel Messi's last Champions League title with Barcelona came in which year?",options:["2009","2011","2015","2017"],correct:2,explanation:"The famous front three of Messi, Suárez and Neymar beat Juventus 3-1 in Berlin."},
+      {question:"Who scored Real Madrid's two stoppage-time goals against Manchester City in the 2022 semi-final to force extra time?",options:["Karim Benzema","Vinícius Júnior","Rodrygo","Marco Asensio"],correct:2,explanation:"Rodrygo struck in the 90th and 91st minutes; Benzema then scored the extra-time penalty."},
+      {question:"Which Norwegian striker scored 12 goals as Manchester City won the 2022-23 Champions League?",options:["Erling Haaland","Martin Ødegaard","Joshua King","Alexander Sørloth"],correct:0,explanation:"Haaland's debut City season ended with a treble, though he didn't score in the final — Rodri's goal won it."},
+      {question:"Inter Milan won the 2010 Champions League under José Mourinho, beating which side 2-0 in the final?",options:["Barcelona","Bayern Munich","Manchester United","Chelsea"],correct:1,explanation:"Diego Milito scored both goals in Madrid as Inter completed an Italian-record treble."},
+      {question:"PSG's 2025 Champions League–winning manager Luis Enrique had previously won the trophy with which club?",options:["Real Madrid","Roma","Barcelona","Bayern Munich"],correct:2,explanation:"Luis Enrique won the 2015 final with Barcelona's famous MSN front three."}
+    ]
+  };
+
+  // ─────────────────────────────────────────────
+  // QUIZ STATE
+  // ─────────────────────────────────────────────
+  const QUESTIONS_PER_QUIZ = 8;
+  let selectedCat = 'La Liga';
+  let questions = [];
+  let currentQ = 0;
+  let score = 0;
+  let answered = false;
+
+  // Fisher–Yates shuffle
+  function shuffle(array) {
+    const a = array.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // Single-select category
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedCat = btn.dataset.cat;
+    });
+  });
+
+  document.getElementById('start-btn').addEventListener('click', startQuiz);
+
+  function startQuiz() {
+    const pool = QUESTION_BANK[selectedCat];
+    questions = shuffle(pool).slice(0, QUESTIONS_PER_QUIZ);
+
+    currentQ = 0;
+    score = 0;
+    document.getElementById('setup-screen').classList.add('hidden');
+    document.getElementById('quiz-screen').classList.remove('hidden');
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    const q = questions[currentQ];
+    answered = false;
+
+    document.getElementById('q-num').textContent = currentQ + 1;
+    document.getElementById('score-num').textContent = score;
+    document.getElementById('progress-fill').style.width = ((currentQ / questions.length) * 100) + '%';
+
+    const qBox = document.getElementById('question-box');
+    qBox.setAttribute('data-num', 'Q' + (currentQ + 1));
+    document.getElementById('question-text').textContent = q.question;
+
+    const grid = document.getElementById('options-grid');
+    grid.innerHTML = '';
+    const letters = ['A', 'B', 'C', 'D'];
+
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      // Strip any leading "A) " etc. just in case
+      const text = opt.replace(/^[ABCD]\)\s*/i, '');
+      btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${text}</span>`;
+      btn.addEventListener('click', () => handleAnswer(i));
+      grid.appendChild(btn);
+    });
+
+    const fb = document.getElementById('feedback-box');
+    fb.className = 'feedback-box';
+    fb.textContent = '';
+    document.getElementById('next-btn').classList.remove('show');
+  }
+
+  function handleAnswer(chosen) {
+    if (answered) return;
+    answered = true;
+
+    const q = questions[currentQ];
+    const correct = q.correct;
+    const btns = document.querySelectorAll('.option-btn');
+
+    btns.forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === correct) btn.classList.add('correct');
+      else if (i === chosen) btn.classList.add('wrong');
+    });
+
+    const fb = document.getElementById('feedback-box');
+    if (chosen === correct) {
+      score++;
+      document.getElementById('score-num').textContent = score;
+      fb.classList.add('show', 'correct-fb');
+      fb.textContent = '✓ Correct! ' + q.explanation;
+    } else {
+      fb.classList.add('show', 'wrong-fb');
+      fb.textContent = q.explanation;
+    }
+
+    const nextBtn = document.getElementById('next-btn');
+    nextBtn.classList.add('show');
+    nextBtn.textContent = currentQ < questions.length - 1 ? 'NEXT QUESTION →' : 'SEE RESULTS →';
+  }
+
+  document.getElementById('next-btn').addEventListener('click', () => {
+    currentQ++;
+    if (currentQ >= questions.length) showResults();
+    else renderQuestion();
+  });
+
+  function showResults() {
+    document.getElementById('quiz-screen').classList.add('hidden');
+    document.getElementById('results-screen').classList.remove('hidden');
+
+    const total = questions.length;
+    document.getElementById('final-score').innerHTML = score + '<span class="denom">/' + total + '</span>';
+
+    const pct = score / total;
+    let verdict, sub;
+
+    if (pct >= 0.875) {
+      verdict = '⚽ FOOTBALL ENCYCLOPAEDIA';
+      sub = "Remarkable. You don't just watch football — you live it. Transfer windows, legendary managers, iconic scorelines... you've absorbed it all. Respect.";
+    } else if (pct >= 0.625) {
+      verdict = '🔥 PROPER FAN';
+      sub = "You clearly love this game. You know your legends, your transfers, your big moments. A few gaps, but overall you absolutely know your stuff.";
+    } else if (pct >= 0.375) {
+      verdict = '👀 INTERESTED OBSERVER';
+      sub = "You follow the highlights and the big stories. But there are depths to this game — the players, the moments, the drama — that you haven't fully explored yet.";
+    } else {
+      verdict = '🤷 FOOTBALL TOURIST';
+      sub = "It's okay. Football is a big world. Maybe start with the greatest players and iconic matches, and work your way up from there.";
+    }
+
+    document.getElementById('results-verdict').textContent = verdict;
+    document.getElementById('results-sub').textContent = sub;
+  }
+
+  function resetQuiz() {
+    document.getElementById('results-screen').classList.add('hidden');
+    document.getElementById('setup-screen').classList.remove('hidden');
+    questions = []; currentQ = 0; score = 0;
+  }
+</script>
+</body>
+</html>
