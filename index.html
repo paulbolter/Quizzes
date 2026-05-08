@@ -336,7 +336,7 @@ const GITHUB_BRANCH = 'main';
 const PRETTY_NAMES = {
   'Anime-Attack-on-Titan.html':       'Attack on Titan',
   'Anime-Demon-Slayer.html':          'Demon Slayer',
-  'Anime-Generated.html':             'Anime General',
+  'Anime-Generated.html':             'Anime Generated',
   'Anime-Jujutsu-Kaisen.html':        'Jujutsu Kaisen',
   'Drama-Doctor-Slump.html':          'Doctor Slump',
   'Drama-TV-Drama-Discussion.html':   'TV Drama Discussion',
@@ -344,7 +344,7 @@ const PRETTY_NAMES = {
   'Football-Claude.html':             'Football · Claude Edition',
   'Football-Generated.html':          'Football · Generated',
   'Football-chatgpt.html':            'Football · ChatGPT Edition',
-  'K-pop-Generated.html':             'K-pop General',
+  'K-pop-Generated.html':             'K-pop Generated',
 };
 
 function prettyName(filename) {
@@ -432,7 +432,7 @@ function renderSections(files) {
     return;
   }
 
-  const RENDER_ORDER = ['anime', 'dramas', 'football', 'kpop', FALLBACK.key];
+  const RENDER_ORDER = ['football','anime','kpop', 'dramas', FALLBACK.key];
   const groups = new Map();
   RENDER_ORDER.forEach(key => {
     const cat = CATEGORIES.find(c => c.key === key) || FALLBACK;
