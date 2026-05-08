@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quizzes</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1a2e;
+    --paper: #fdf8f0;
+    --cream: #f5ede0;
+    --gold: #d4a017;
+    --gold-light: #f5e6b8;
+    --muted: #7a6a5a;
+    --border: #d9cfc4;
+    --card: #ffffff;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    padding: 36px 48px 32px;
+    border-bottom: 4px solid var(--gold);
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; top: 0; right: 0; bottom: 0;
+    width: 40%;
+    background: repeating-linear-gradient(45deg, transparent, transparent 12px, rgba(212,160,23,0.04) 12px, rgba(212,160,23,0.04) 24px);
+  }
+  .header-inner {
+    position: relative; z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .eyebrow {
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 400;
+    font-size: clamp(26px, 4vw, 38px);
+    color: white;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+  header p.sub {
+    color: #9999bb;
+    font-size: 13px;
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 500px;
+  }
+  .stats-bar {
+    margin-top: 20px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .stat { font-size: 12px; font-weight: 300; color: #9999bb; }
+  .stat strong { color: var(--gold); font-weight: 400; }
+
+  /* ── BACK BUTTON (header) ── */
+  .back-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 20px;
+    background: transparent;
+    border: 1.5px solid var(--gold);
+    border-radius: 8px;
+    color: var(--gold);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    text-decoration: none;
+    letter-spacing: 0.3px;
+    transition: background 0.2s, color 0.2s, transform 0.15s;
+    margin-left: auto;
+  }
+  .back-nav:hover {
+    background: var(--gold);
+    color: var(--ink);
+    transform: translateY(-1px);
+  }
+  .back-nav svg {
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+  .back-nav:hover svg {
+    transform: translateX(-3px);
+  }
+
+  @media (max-width: 640px) {
+    .back-nav {
+      margin-left: 0;
+      margin-top: 4px;
+    }
+  }
+
+  /* ── MAIN ── */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 36px 40px;
+  }
+
+  /* ── SEARCH ROW ── */
+  .search-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+    align-items: center;
+  }
+  .search-wrap { position: relative; flex: 1; }
+  .search-wrap svg {
+    position: absolute; left: 14px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+  #search {
+    width: 100%;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    font-size: 14px;
+    padding: 10px 14px 10px 40px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  #search:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px var(--gold-light);
+  }
+  #search::placeholder { color: var(--muted); }
+
+  .sort-select {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    font-size: 13px;
+    padding: 10px 14px;
+    outline: none;
+    cursor: pointer;
+  }
+  .sort-select:focus { border-color: var(--gold); }
+
+  /* ── SECTION HEADINGS ── */
+  .section {
+    margin-bottom: 36px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .section-pip {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 400;
+    font-size: 15px;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .section-count {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 900px)  { .grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 640px)  {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    header, main { padding-left: 20px; padding-right: 20px; }
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--cat-color, var(--gold));
+    border-radius: 10px;
+    padding: 22px 18px;
+    text-decoration: none;
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 80px;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.15s, transform 0.15s, background 0.15s;
+    animation: fadeUp 0.35s ease both;
+  }
+  .card:hover {
+    box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+    transform: translateY(-3px);
+    background: var(--gold-light);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1.45;
+    word-break: break-word;
+  }
+
+  /* ── STATES ── */
+  .state-msg {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+  .state-msg .big { font-size: 40px; margin-bottom: 14px; }
+  .state-msg p    { font-size: 14px; font-weight: 300; line-height: 1.8; }
+  .state-msg code {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    padding: 2px 6px; border-radius: 4px;
+    color: var(--ink); font-size: 12px;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 28px;
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <p class="eyebrow">paulbolter.github.io / Quizzes</p>
+    <h1>Quizzes</h1>
+    <p class="sub">Anime · Dramas · Football · K-pop — student-made and AI-powered quizzes</p>
+    <div class="stats-bar">
+      <div class="stat"><span id="file-count">Loading…</span></div>
+      <div class="stat">Updated: <strong id="last-updated">—</strong></div>
+      <a class="back-nav" href="https://paulbolter.github.io/School/" target="_blank" rel="noopener">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Classroom Tools
+      </a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="search-row">
+    <div class="search-wrap">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input id="search" type="text" placeholder="Filter quizzes…" autocomplete="off">
+    </div>
+    <select class="sort-select" id="sort">
+      <option value="alpha">A → Z</option>
+      <option value="recent">Newest</option>
+    </select>
+  </div>
+
+  <div id="sections">
+    <div class="state-msg">
+      <div class="big">⏳</div>
+      <p>Fetching quizzes from GitHub…</p>
+    </div>
+  </div>
+</main>
+
+<footer>Presidential School · Jizzakh · Uzbekistan</footer>
+
+<script>
+const GITHUB_USER   = 'paulbolter';
+const GITHUB_REPO   = 'Quizzes';
+const GITHUB_BRANCH = 'main';
+
+// ── Pretty names: no category prefix needed since the section heading provides context
+const PRETTY_NAMES = {
+  'Anime-Attack-on-Titan.html':       'Attack on Titan',
+  'Anime-Demon-Slayer.html':          'Demon Slayer',
+  'Anime-Generated.html':             'Anime General',
+  'Anime-Jujutsu-Kaisen.html':        'Jujutsu Kaisen',
+  'Drama-Doctor-Slump.html':          'Doctor Slump',
+  'Drama-TV-Drama-Discussion.html':   'TV Drama Discussion',
+  'Drama-When-I-Fly-Towards-you.html':'When I Fly Towards You',
+  'Football-Claude.html':             'Football · Claude Edition',
+  'Football-Generated.html':          'Football · Generated',
+  'Football-chatgpt.html':            'Football · ChatGPT Edition',
+  'K-pop-Generated.html':             'K-pop General',
+};
+
+function prettyName(filename) {
+  if (PRETTY_NAMES[filename]) return PRETTY_NAMES[filename];
+  // Fallback: strip prefix and extension
+  return filename
+    .replace(/\.html$/i, '')
+    .replace(/^(Anime|Drama|Football|K-pop)-/i, '')
+    .replace(/[-_]/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+// ── Categories by filename prefix
+const CATEGORIES = [
+  {
+    key: 'anime',
+    label: 'Anime',
+    color: '#e74c8b',
+    test: (f) => /^Anime-/i.test(f)
+  },
+  {
+    key: 'dramas',
+    label: 'Dramas',
+    color: '#8e44ad',
+    test: (f) => /^Drama-/i.test(f)
+  },
+  {
+    key: 'football',
+    label: 'Football',
+    color: '#27ae60',
+    test: (f) => /^Football-/i.test(f)
+  },
+  {
+    key: 'kpop',
+    label: 'K-pop',
+    color: '#e67e22',
+    test: (f) => /^K-pop-/i.test(f)
+  },
+];
+const FALLBACK = { key: 'other', label: 'Other', color: '#7a6a5a' };
+
+function classify(filename) {
+  for (const cat of CATEGORIES) {
+    if (cat.test(filename)) return cat;
+  }
+  return FALLBACK;
+}
+
+let allFiles = [];
+
+async function loadFiles() {
+  const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/?ref=${GITHUB_BRANCH}`;
+  try {
+    const res = await fetch(url, { headers: { 'Accept': 'application/vnd.github.v3+json' } });
+    if (!res.ok) throw new Error(`GitHub API ${res.status}`);
+    const data = await res.json();
+
+    allFiles = data
+      .filter(f => f.type === 'file' && f.name.toLowerCase().endsWith('.html') && f.name.toLowerCase() !== 'index.html')
+      .map(f => ({ name: f.name, url: `https://${GITHUB_USER}.github.io/${GITHUB_REPO}/${f.name}` }));
+
+    document.getElementById('file-count').innerHTML =
+      `<strong>${allFiles.length}</strong> quiz${allFiles.length !== 1 ? 'zes' : ''} available`;
+    document.getElementById('last-updated').textContent =
+      new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+
+    renderSections(allFiles);
+  } catch (err) {
+    document.getElementById('sections').innerHTML = `
+      <div class="state-msg">
+        <div class="big">⚠️</div>
+        <p>Couldn't load files from GitHub.<br>
+        Check the repo is public and the branch is <code>${GITHUB_BRANCH}</code>.<br><br>
+        Error: ${err.message}</p>
+      </div>`;
+    document.getElementById('file-count').textContent = 'Could not load';
+  }
+}
+
+function renderSections(files) {
+  const container = document.getElementById('sections');
+
+  if (!files.length) {
+    container.innerHTML = `<div class="state-msg"><div class="big">🔍</div><p>No quizzes match your search.</p></div>`;
+    return;
+  }
+
+  const RENDER_ORDER = ['anime', 'dramas', 'football', 'kpop', FALLBACK.key];
+  const groups = new Map();
+  RENDER_ORDER.forEach(key => {
+    const cat = CATEGORIES.find(c => c.key === key) || FALLBACK;
+    groups.set(key, { cat, files: [] });
+  });
+
+  files.forEach(f => {
+    const cat = classify(f.name);
+    groups.get(cat.key).files.push(f);
+  });
+
+  // Sort within each group
+  for (const { files: catFiles } of groups.values()) {
+    if (document.getElementById('sort').value === 'alpha') {
+      catFiles.sort((a, b) => prettyName(a.name).localeCompare(prettyName(b.name)));
+    }
+  }
+
+  let html = '';
+  let delay = 0;
+  for (const { cat, files: catFiles } of groups.values()) {
+    if (!catFiles.length) continue;
+    html += `
+      <div class="section">
+        <div class="section-header">
+          <div class="section-pip" style="background:${cat.color}"></div>
+          <div class="section-title">${cat.label}</div>
+          <div class="section-line"></div>
+          <div class="section-count">${catFiles.length}</div>
+        </div>
+        <div class="grid">
+          ${catFiles.map(f => `
+            <a class="card" href="${f.url}" target="_blank" rel="noopener"
+               style="--cat-color:${cat.color}; animation-delay:${delay++ * 35}ms">
+              <div class="card-title">${prettyName(f.name)}</div>
+            </a>`).join('')}
+        </div>
+      </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+function filtered() {
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  return allFiles.filter(f =>
+    !q || f.name.toLowerCase().includes(q) || prettyName(f.name).toLowerCase().includes(q)
+  );
+}
+
+document.getElementById('search').addEventListener('input', () => renderSections(filtered()));
+document.getElementById('sort').addEventListener('change', () => renderSections(filtered()));
+
+loadFiles();
+</script>
+</body>
+</html>
