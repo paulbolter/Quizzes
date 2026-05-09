@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drama Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #fdf6f0;
+    --bg-warm: #faf0e6;
+    --card: #ffffff;
+    --card-border: #f0d9c8;
+    --card-hover: #fff8f3;
+    --pink: #d4707a;
+    --pink-light: #f8e4e6;
+    --pink-deep: #b8525c;
+    --gold: #c9a84c;
+    --gold-light: #f7f0dc;
+    --gold-glow: #dbb95e;
+    --green: #7a9e54;
+    --green-bg: #eef5e6;
+    --green-text: #3d5a1e;
+    --red: #d4707a;
+    --red-bg: #fce8ea;
+    --red-text: #8b3540;
+    --skip-bg: #f7f0dc;
+    --skip-text: #7a5e14;
+    --text: #3d2b2b;
+    --text-soft: #6b5252;
+    --muted: #a08080;
+    --border-strong: #e0c4b0;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(212, 112, 122, 0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 100%, rgba(201, 168, 76, 0.1) 0%, transparent 60%);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .container {
+    max-width: 640px; margin: 0 auto; padding: 1.5rem 1rem;
+    min-height: 100vh; display: flex; flex-direction: column;
+  }
+
+  /* ── Header ── */
+  .header { text-align: center; margin-bottom: 1.5rem; }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 7vw, 48px);
+    font-weight: 800; color: var(--text);
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+  .header h1 .accent { color: var(--pink); }
+  .header .sparkle {
+    display: inline-block;
+    animation: twinkle 2s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle {
+    0% { opacity: 0.6; transform: scale(0.9); }
+    100% { opacity: 1; transform: scale(1.1); }
+  }
+  .header p {
+    color: var(--muted); font-size: 14px; margin-top: 6px;
+    letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500;
+  }
+
+  .divider {
+    width: 60px; height: 2px; margin: 12px auto 0;
+    background: linear-gradient(90deg, var(--pink-light), var(--gold), var(--pink-light));
+    border-radius: 2px;
+  }
+
+  /* ── Drama Picker ── */
+  .drama-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px; margin-top: 1rem;
+  }
+  .drama-btn {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 14px; padding: 18px 12px; text-align: center;
+    cursor: pointer; transition: all 0.2s ease;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+    color: var(--text); box-shadow: 0 2px 8px rgba(180, 120, 100, 0.06);
+    position: relative; overflow: hidden; line-height: 1.3;
+  }
+  .drama-btn::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; background: linear-gradient(90deg, var(--pink), var(--gold));
+    opacity: 0; transition: opacity 0.2s ease;
+  }
+  .drama-btn:hover {
+    background: var(--card-hover); border-color: var(--pink-light);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(212, 112, 122, 0.12);
+  }
+  .drama-btn:hover::before { opacity: 1; }
+  .drama-btn:active { transform: translateY(0); }
+
+  /* ── Loading ── */
+  .loading-screen { text-align: center; padding-top: 4rem; }
+  .loader-ring {
+    width: 48px; height: 48px; margin: 0 auto 1.5rem;
+    border: 3px solid var(--pink-light); border-top-color: var(--pink);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-screen p { color: var(--muted); font-size: 15px; }
+  .loading-show {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700; color: var(--text); font-size: 20px; margin-top: 8px;
+  }
+
+  /* ── Quiz ── */
+  .quiz-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1rem; flex-wrap: wrap; gap: 8px;
+  }
+  .quiz-show-name {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700; font-size: 16px; color: var(--pink-deep);
+    letter-spacing: 0.02em;
+  }
+  .quiz-progress { font-size: 13px; color: var(--muted); font-weight: 600; }
+
+  .progress-track {
+    height: 4px; background: var(--pink-light); border-radius: 2px;
+    overflow: hidden; margin-bottom: 1.5rem;
+  }
+  .progress-fill {
+    height: 100%; border-radius: 2px; transition: width 0.4s ease;
+    background: linear-gradient(90deg, var(--pink), var(--gold));
+  }
+
+  .q-card {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 16px; padding: 2rem; margin-bottom: 1rem;
+    box-shadow: 0 2px 12px rgba(180, 120, 100, 0.06);
+    animation: fadeUp 0.35s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .q-number {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.12em; color: var(--gold); margin-bottom: 8px;
+  }
+  .q-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; font-weight: 600; line-height: 1.45; margin-bottom: 1.5rem;
+    color: var(--text);
+  }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt-btn {
+    background: var(--card); border: 2px solid var(--card-border);
+    border-radius: 12px; padding: 14px 16px; text-align: left;
+    cursor: pointer; transition: all 0.15s ease;
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500;
+    color: var(--text); display: flex; align-items: center; gap: 12px; line-height: 1.4;
+  }
+  .opt-btn:hover:not(.locked) {
+    background: var(--card-hover); border-color: var(--pink);
+    box-shadow: 0 2px 8px rgba(212, 112, 122, 0.1);
+  }
+  .opt-btn .opt-letter {
+    font-size: 13px; font-weight: 700; color: var(--muted);
+    min-width: 22px; height: 22px; display: flex; align-items: center;
+    justify-content: center; border-radius: 6px; flex-shrink: 0;
+    background: var(--bg-warm);
+  }
+  .opt-btn.correct { background: var(--green-bg); border-color: var(--green); color: var(--green-text); }
+  .opt-btn.correct .opt-letter { color: #3d5a1e; background: #ddebc8; }
+  .opt-btn.wrong { background: var(--red-bg); border-color: var(--red); color: var(--red-text); }
+  .opt-btn.wrong .opt-letter { color: #8b3540; background: #f5cdd1; }
+  .opt-btn.locked { cursor: default; }
+  .opt-btn.locked:not(.correct):not(.wrong) { opacity: 0.45; }
+
+  .feedback {
+    margin-top: 14px; padding: 12px 16px; border-radius: 10px;
+    font-size: 15px; font-weight: 500; line-height: 1.5;
+    animation: fadeUp 0.25s ease;
+  }
+  .feedback.correct { background: var(--green-bg); color: var(--green-text); }
+  .feedback.wrong { background: var(--red-bg); color: var(--red-text); }
+  .feedback.skipped { background: var(--skip-bg); color: var(--skip-text); }
+
+  .action-row { display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end; }
+  .btn {
+    font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 15px;
+    border-radius: 10px; padding: 12px 22px; cursor: pointer; transition: all 0.15s ease;
+  }
+  .btn-skip {
+    background: transparent; color: var(--muted); border: 1px solid var(--card-border);
+    border-radius: 10px;
+  }
+  .btn-skip:hover { background: var(--card-hover); color: var(--text-soft); }
+  .btn-next {
+    background: linear-gradient(135deg, var(--pink), var(--pink-deep));
+    border: none; color: #fff; border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(212, 112, 122, 0.25);
+  }
+  .btn-next:hover {
+    box-shadow: 0 4px 16px rgba(212, 112, 122, 0.35);
+    transform: translateY(-1px);
+  }
+
+  /* ── Results ── */
+  .results-screen { text-align: center; padding-top: 2rem; animation: fadeUp 0.4s ease; }
+  .results-score {
+    font-family: 'Playfair Display', serif; font-size: 56px;
+    font-weight: 800; margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, var(--pink), var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .results-msg { font-size: 17px; color: var(--text); margin-bottom: 0.5rem; }
+  .results-show {
+    font-size: 14px; color: var(--muted); font-weight: 600; margin-bottom: 2rem;
+  }
+  .results-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .btn-retry, .btn-home {
+    padding: 11px 28px; border: 1px solid var(--border-strong); border-radius: 10px;
+    background: var(--card); color: var(--text); font-size: 14px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-weight: 600;
+    transition: all 0.15s ease;
+  }
+  .btn-retry:hover, .btn-home:hover {
+    background: var(--card-hover); border-color: var(--pink);
+    box-shadow: 0 2px 8px rgba(212, 112, 122, 0.1);
+  }
+
+  .error-box {
+    background: var(--red-bg); border: 1px solid var(--red);
+    border-radius: 14px; padding: 1.25rem; text-align: center; color: var(--red-text);
+    font-size: 14px; line-height: 1.6; margin-bottom: 1rem;
+  }
+  .error-box .btn { margin-top: 1rem; }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 400px) {
+    .drama-grid { grid-template-columns: repeat(2, 1fr); }
+    .q-card { padding: 1.5rem; }
+    .q-text { font-size: 18px; }
+    .opt-btn { font-size: 14px; padding: 12px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1><span class="sparkle">✨</span> <span class="accent">Drama</span> Quiz</h1>
+    <p>Pick a drama · 5 Questions · Go!</p>
+    <div class="divider"></div>
+  </div>
+
+  <div id="screen-picker">
+    <div class="drama-grid" id="drama-grid"></div>
+  </div>
+
+  <div id="screen-loading" class="hidden">
+    <div class="loading-screen">
+      <div class="loader-ring"></div>
+      <p>Generating questions for...</p>
+      <div class="loading-show" id="loading-show"></div>
+    </div>
+  </div>
+
+  <div id="screen-quiz" class="hidden">
+    <div class="quiz-header">
+      <span class="quiz-show-name" id="quiz-show-name"></span>
+      <span class="quiz-progress" id="quiz-progress"></span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div id="q-area"></div>
+  </div>
+
+  <div id="screen-results" class="hidden">
+    <div class="results-screen" id="results-area"></div>
+  </div>
+</div>
+
+<script>
+const DRAMA_LIST = [
+  { name: "When I Fly Towards You" },
+  { name: "My Demon" },
+  { name: "Falling Into Your Smile" },
+  { name: "Hidden Love" },
+  { name: "Speed and Love" },
+  { name: "True Beauty" },
+  { name: "Business Proposal" },
+  { name: "Doctor Slump" },
+  { name: "F4 Thailand" },
+  { name: "First Frost" }
+];
+
+const PROXY = 'https://claude-proxy-zeta-six.vercel.app/api/proxy';
+
+let currentShow = "";
+let questions = [];
+let currentQ = 0;
+let score = 0;
+let answered = false;
+
+const screens = {
+  picker: document.getElementById("screen-picker"),
+  loading: document.getElementById("screen-loading"),
+  quiz: document.getElementById("screen-quiz"),
+  results: document.getElementById("screen-results")
+};
+
+function showScreen(name) {
+  Object.values(screens).forEach(s => s.classList.add("hidden"));
+  screens[name].classList.remove("hidden");
+  window.scrollTo(0, 0);
+}
+
+function buildGrid() {
+  const grid = document.getElementById("drama-grid");
+  grid.innerHTML = "";
+  DRAMA_LIST.forEach(a => {
+    const btn = document.createElement("button");
+    btn.className = "drama-btn";
+    btn.innerHTML = a.name;
+    btn.onclick = () => startQuiz(a.name);
+    grid.appendChild(btn);
+  });
+}
+
+async function generateQuestions(dramaName) {
+  const prompt = `You are a quiz question writer for TV drama fans. Generate exactly 5 multiple-choice questions about the drama "${dramaName}".
+
+Rules:
+- EASY to MEDIUM difficulty only. Focus on main characters, major plot points, romantic moments, and iconic scenes that any viewer would know.
+- Never ask about specific episode numbers, air dates, or production details.
+- Each question must have exactly 4 options with only ONE correct answer.
+- Wrong options should be plausible but clearly wrong to someone who watched the show.
+- Keep questions fun and engaging.
+- If this is a K-Drama, C-Drama, or Thai drama, make sure the questions are about the TV adaptation, not any source material.
+
+Return ONLY a JSON array with exactly 5 objects. No preamble, no markdown, no backticks. Each object:
+{"q":"Question text?","options":["A","B","C","D"],"answer":0,"fact":"One punchy sentence — max 12 words."}
+
+The "answer" field is the zero-based index of the correct option (0-3).`;
+
+  const res = await fetch(PROXY, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message || 'API error');
+
+  const raw = data.content.map(b => b.text || '').join('').trim()
+    .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+
+  const arrMatch = raw.match(/\[[\s\S]*\]/);
+  const text = arrMatch ? arrMatch[0] : raw;
+
+  const parsed = JSON.parse(text);
+  if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('No questions returned');
+
+  return parsed.filter(q =>
+    q.q && Array.isArray(q.options) && q.options.length === 4 &&
+    typeof q.answer === 'number' && q.answer >= 0 && q.answer <= 3
+  ).slice(0, 5);
+}
+
+async function startQuiz(dramaName) {
+  currentShow = dramaName;
+  currentQ = 0;
+  score = 0;
+  answered = false;
+
+  document.getElementById("loading-show").textContent = dramaName;
+  showScreen("loading");
+
+  try {
+    questions = await generateQuestions(dramaName);
+    if (questions.length === 0) throw new Error("No valid questions");
+    document.getElementById("quiz-show-name").textContent = dramaName;
+    showScreen("quiz");
+    renderQuestion();
+  } catch (err) {
+    console.error(err);
+    showScreen("picker");
+    const prev = document.querySelector('.error-box');
+    if (prev) prev.remove();
+    const errDiv = document.createElement("div");
+    errDiv.className = "error-box";
+    errDiv.innerHTML = `<strong>Oops!</strong> Couldn't generate questions for ${escapeHtml(dramaName)}.<br>
+      ${escapeHtml(err.message)}<br>
+      <button class="btn btn-next" onclick="this.parentElement.remove()">OK</button>`;
+    const grid = document.getElementById("drama-grid");
+    grid.parentElement.insertBefore(errDiv, grid);
+  }
+}
+
+function renderQuestion() {
+  answered = false;
+  const q = questions[currentQ];
+  const total = questions.length;
+
+  document.getElementById("quiz-progress").textContent = `${currentQ + 1} of ${total}`;
+  document.getElementById("progress-fill").style.width = `${((currentQ) / total) * 100}%`;
+
+  const letters = ["A", "B", "C", "D"];
+
+  let html = `<div class="q-card">
+    <div class="q-number">Question ${currentQ + 1} of ${total}</div>
+    <div class="q-text">${escapeHtml(q.q)}</div>
+    <div class="options" id="options">`;
+
+  q.options.forEach((opt, i) => {
+    html += `<button class="opt-btn" data-idx="${i}" onclick="selectAnswer(${i})">
+      <span class="opt-letter">${letters[i]}</span>
+      <span>${escapeHtml(opt)}</span>
+    </button>`;
+  });
+
+  html += `</div>
+    <div id="feedback-area"></div>
+    <div class="action-row">
+      <button class="btn btn-skip" id="btn-skip" onclick="skipQuestion()">Skip</button>
+      <button class="btn btn-next hidden" id="btn-next" onclick="nextQuestion()">Next →</button>
+    </div>
+  </div>`;
+
+  document.getElementById("q-area").innerHTML = html;
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+
+  const q = questions[currentQ];
+  const correct = q.answer;
+  const btns = document.querySelectorAll(".opt-btn");
+
+  btns.forEach(btn => {
+    const bIdx = parseInt(btn.dataset.idx);
+    btn.classList.add("locked");
+    if (bIdx === correct) btn.classList.add("correct");
+    if (bIdx === idx && idx !== correct) btn.classList.add("wrong");
+  });
+
+  const fbArea = document.getElementById("feedback-area");
+  if (idx === correct) {
+    score++;
+    fbArea.innerHTML = `<div class="feedback correct">✓ Correct! ${q.fact ? escapeHtml(q.fact) : ""}</div>`;
+  } else {
+    fbArea.innerHTML = `<div class="feedback wrong">✗ ${escapeHtml(q.options[correct])}. ${q.fact ? escapeHtml(q.fact) : ""}</div>`;
+  }
+
+  document.getElementById("btn-skip").classList.add("hidden");
+  document.getElementById("btn-next").classList.remove("hidden");
+}
+
+function skipQuestion() {
+  if (answered) return;
+  answered = true;
+
+  const q = questions[currentQ];
+  const correct = q.answer;
+  const btns = document.querySelectorAll(".opt-btn");
+
+  btns.forEach(btn => {
+    const bIdx = parseInt(btn.dataset.idx);
+    btn.classList.add("locked");
+    if (bIdx === correct) btn.classList.add("correct");
+  });
+
+  const fbArea = document.getElementById("feedback-area");
+  fbArea.innerHTML = `<div class="feedback skipped">Skipped — ${escapeHtml(q.options[correct])}.</div>`;
+
+  document.getElementById("btn-skip").classList.add("hidden");
+  document.getElementById("btn-next").classList.remove("hidden");
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= questions.length) showResults();
+  else renderQuestion();
+}
+
+function showResults() {
+  document.getElementById("progress-fill").style.width = "100%";
+  const total = questions.length;
+  const pct = score / total;
+  let msg;
+
+  if (pct === 1) msg = "Perfect score — true drama fan! 💖";
+  else if (pct >= 0.8) msg = "Impressive — you really know this drama!";
+  else if (pct >= 0.6) msg = "Good knowledge — a few details slipped by.";
+  else if (pct >= 0.4) msg = "Not bad — maybe time for a rewatch?";
+  else msg = "Keep watching! 📺";
+
+  document.getElementById("results-area").innerHTML = `
+    <div class="results-score">${score}/${total}</div>
+    <div class="results-msg">${msg}</div>
+    <div class="results-show">${escapeHtml(currentShow)}</div>
+    <div class="results-btns">
+      <button class="btn-retry" onclick="startQuiz('${escapeAttr(currentShow)}')">Try again</button>
+      <button class="btn-home" onclick="goHome()">Pick another</button>
+    </div>
+  `;
+  showScreen("results");
+}
+
+function goHome() { showScreen("picker"); }
+
+function escapeHtml(str) {
+  const d = document.createElement("div");
+  d.textContent = str;
+  return d.innerHTML;
+}
+function escapeAttr(str) {
+  return str.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+}
+
+buildGrid();
+</script>
+</body>
+</html>
