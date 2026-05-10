@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Name — Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --twilight-1: #1a0f2e;
+    --twilight-2: #2d1b4e;
+    --twilight-3: #6b3370;
+    --sunset-pink: #ff6b9d;
+    --sunset-orange: #ff9966;
+    --sunset-gold: #ffc371;
+    --comet-cyan: #7de2fc;
+    --kumihimo-red: #d63a4a;
+    --paper: #fff5e6;
+    --muted: rgba(255,245,230,0.7);
+    --correct: #5fd4a0;
+    --wrong: #ff6b6b;
+    --card-bg: rgba(26, 15, 46, 0.72);
+    --card-border: rgba(255, 195, 113, 0.22);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: linear-gradient(180deg, var(--twilight-1) 0%, var(--twilight-2) 40%, var(--twilight-3) 70%, var(--sunset-pink) 90%, var(--sunset-orange) 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    color: var(--paper);
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--dur, 3s) ease-in-out infinite;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.5); }
+  }
+
+  .comet {
+    position: fixed;
+    top: 15%;
+    right: -10%;
+    width: 200px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--comet-cyan), white);
+    border-radius: 50%;
+    box-shadow: 0 0 20px var(--comet-cyan), 0 0 40px var(--comet-cyan);
+    transform: rotate(-25deg);
+    animation: cometDrift 20s ease-in-out infinite;
+    z-index: 1;
+    pointer-events: none;
+  }
+  @keyframes cometDrift {
+    0%, 100% { transform: rotate(-25deg) translateX(0); opacity: 0.6; }
+    50% { transform: rotate(-25deg) translateX(-100px); opacity: 1; }
+  }
+
+  .mountains {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 25vh;
+    background: linear-gradient(180deg, transparent 0%, rgba(26,15,46,0.4) 50%, rgba(26,15,46,0.9) 100%);
+    clip-path: polygon(0 60%, 8% 45%, 18% 55%, 28% 30%, 42% 50%, 55% 25%, 68% 45%, 80% 35%, 92% 55%, 100% 40%, 100% 100%, 0 100%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .container {
+    position: relative;
+    z-index: 2;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 30px 20px 60px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-top: 20px;
+  }
+  .jp-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(28px, 6vw, 44px);
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    background: linear-gradient(135deg, var(--sunset-gold), var(--sunset-pink));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 6px;
+  }
+  .en-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(20px, 4vw, 32px);
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--paper);
+    opacity: 0.95;
+  }
+  .cord {
+    width: 60%;
+    max-width: 300px;
+    height: 2px;
+    margin: 18px auto 0;
+    background: repeating-linear-gradient(90deg,
+      var(--kumihimo-red) 0,
+      var(--kumihimo-red) 6px,
+      var(--sunset-gold) 6px,
+      var(--sunset-gold) 12px);
+    border-radius: 2px;
+    opacity: 0.6;
+  }
+
+  .section-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .section-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 18px 22px;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    color: var(--paper);
+    font-family: inherit;
+    transition: transform 0.2s, border-color 0.2s, background 0.2s;
+  }
+  .section-card:hover {
+    border-color: var(--sunset-gold);
+    background: rgba(45, 27, 78, 0.85);
+    transform: translateX(4px);
+  }
+  .section-card-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--sunset-gold);
+    margin-bottom: 4px;
+  }
+  .section-card-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .back-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 6px 0;
+    margin-bottom: 14px;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+  .back-btn:hover { color: var(--sunset-gold); }
+
+  .progress-wrap { margin-bottom: 20px; }
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .progress-track {
+    height: 5px;
+    background: rgba(255, 245, 230, 0.12);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--comet-cyan), var(--sunset-pink), var(--sunset-gold));
+    border-radius: 10px;
+    transition: width 0.4s ease;
+    box-shadow: 0 0 10px rgba(125, 226, 252, 0.5);
+  }
+
+  .section-banner {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--sunset-gold);
+    margin-bottom: 18px;
+    letter-spacing: 0.05em;
+  }
+
+  .question-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 26px 24px;
+    animation: slideIn 0.4s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .question-text {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 22px;
+    color: var(--paper);
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .option {
+    background: rgba(255, 245, 230, 0.06);
+    border: 1.5px solid rgba(255, 245, 230, 0.2);
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: var(--paper);
+    font-size: 15px;
+    line-height: 1.5;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    width: 100%;
+  }
+  .option:hover:not(:disabled) {
+    background: rgba(255, 195, 113, 0.12);
+    border-color: var(--sunset-gold);
+    transform: translateX(4px);
+  }
+  .option:disabled { cursor: default; }
+  .option.correct {
+    background: rgba(95, 212, 160, 0.18);
+    border-color: var(--correct);
+  }
+  .option.wrong {
+    background: rgba(255, 107, 107, 0.15);
+    border-color: var(--wrong);
+  }
+  .option.opinion-selected {
+    background: rgba(255, 195, 113, 0.18);
+    border-color: var(--sunset-gold);
+  }
+
+  .explanation {
+    margin-top: 18px;
+    padding: 14px 16px;
+    background: rgba(125, 226, 252, 0.08);
+    border-left: 3px solid var(--comet-cyan);
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--paper);
+    animation: fadeIn 0.4s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .actions-row {
+    margin-top: 18px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .btn {
+    padding: 12px 26px;
+    background: linear-gradient(135deg, var(--sunset-pink), var(--sunset-orange));
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Shippori Mincho', serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 6px 20px rgba(255, 107, 157, 0.35);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(255, 107, 157, 0.55); }
+
+  .skip-btn {
+    padding: 11px 22px;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid rgba(255, 245, 230, 0.25);
+    border-radius: 50px;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .skip-btn:hover {
+    color: var(--sunset-gold);
+    border-color: var(--sunset-gold);
+  }
+
+  .results {
+    background: var(--card-bg);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 195, 113, 0.3);
+    border-radius: 16px;
+    padding: 36px 26px;
+    text-align: center;
+  }
+  .score-big {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(48px, 12vw, 72px);
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--sunset-gold), var(--sunset-pink));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .score-label {
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+  .score-message {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 17px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    color: var(--paper);
+  }
+
+  @media (max-width: 600px) {
+    .container { padding: 20px 14px 50px; }
+    .question-card, .results { padding: 22px 18px; }
+    .question-text { font-size: 16px; }
+    .option { font-size: 14px; padding: 12px 14px; }
+    .section-card { padding: 16px 18px; }
+    .section-card-title { font-size: 17px; }
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+<div class="comet"></div>
+<div class="mountains"></div>
+
+<div class="container">
+
+  <header class="header">
+    <div class="jp-title">君の名は。</div>
+    <div class="en-title">Your Name</div>
+    <div class="cord"></div>
+  </header>
+
+  <div id="pickerScreen">
+    <div class="section-list" id="sectionList"></div>
+  </div>
+
+  <div id="quizScreen" class="hidden">
+    <button class="back-btn" onclick="goHome()">← Back to sections</button>
+    <div class="progress-wrap">
+      <div class="progress-info">
+        <span id="progressText">Question 1 of 5</span>
+        <span id="scoreText">Score: 0</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+      </div>
+    </div>
+    <div class="section-banner" id="sectionBanner"></div>
+    <div class="question-card" id="questionCard">
+      <div class="question-text" id="questionText"></div>
+      <div class="options" id="optionsContainer"></div>
+      <div class="explanation hidden" id="explanation"></div>
+      <div class="actions-row">
+        <button class="skip-btn hidden" id="skipBtn" onclick="skipQuestion()">Skip →</button>
+        <button class="btn hidden" id="nextBtn" onclick="nextQuestion()">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="resultsScreen" class="hidden">
+    <div class="results">
+      <div class="score-big" id="finalScore">0/5</div>
+      <div class="score-label">Your Score</div>
+      <div class="score-message" id="scoreMessage"></div>
+      <button class="btn" onclick="goHome()">Back to sections</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const SECTIONS = [
+  {
+    id: 1,
+    title: "The Comet & The Setup",
+    desc: "Itomori, the festival, the swap begins",
+    isOpinion: false,
+    questions: [
+      {
+        q: "What is the name of the small lakeside town where Mitsuha lives?",
+        options: ["Itomori", "Hida", "Tessie", "Yotsuha"],
+        correct: 0,
+        explanation: "Itomori (糸守). The kanji 糸 means 'thread', linking it to the cord theme. Hida is the real region the town is based on; Tessie and Yotsuha are characters."
+      },
+      {
+        q: "What does Mitsuha shout in the town square that she wants to be in her next life?",
+        options: ["A famous singer", "A handsome Tokyo boy", "A sky god", "A train conductor"],
+        correct: 1,
+        explanation: "She shouts 'Make me a handsome Tokyo boy in my next life!' It's played for laughs but foreshadows the swap."
+      },
+      {
+        q: "Mitsuha and her sister Yotsuha perform a traditional shrine duty. What is it?",
+        options: ["Sweeping the shrine paths", "Performing a ritual dance with bells", "Selling charms to visitors", "Reading prayers aloud"],
+        correct: 1,
+        explanation: "They perform 'kagura' — a ritual dance with bells. Mitsuha is embarrassed because her classmates watch."
+      },
+      {
+        q: "What does Mitsuha's father do for a living?",
+        options: ["He runs the shrine", "He is the town mayor", "He owns the local sake brewery", "He is a schoolteacher"],
+        correct: 1,
+        explanation: "Toshiki Miyamizu is the mayor of Itomori. He used to be married into the shrine family but left after his wife died."
+      },
+      {
+        q: "What is unusual about the comet Tiamat in the film?",
+        options: ["It is invisible to the naked eye", "It returns every 1,200 years", "It only appears at sunrise", "It is bright green"],
+        correct: 1,
+        explanation: "The comet has a 1,200-year cycle. The crater lake of Itomori was likely formed by a previous fragment falling thousands of years ago."
+      }
+    ]
+  },
+  {
+    id: 2,
+    title: "Body-Swapping Rules",
+    desc: "How the swap works, the notes, daily life",
+    isOpinion: false,
+    questions: [
+      {
+        q: "How do Mitsuha and Taki first realise they are swapping bodies, rather than just having strange dreams?",
+        options: [
+          "Their friends tell them they have been acting strangely",
+          "They wake up in pyjamas they don't own",
+          "They each find notes the other has left",
+          "They see each other in a mirror"
+        ],
+        correct: 0,
+        explanation: "At first they think it's a vivid dream. But friends and family tell them they've been behaving completely differently. Only after this do they start leaving notes."
+      },
+      {
+        q: "How do Mitsuha and Taki communicate with each other across the swaps?",
+        options: [
+          "By calling each other's phones",
+          "By writing notes on each other's bodies and phones",
+          "Through dreams they can both control",
+          "Through letters delivered by Tessie"
+        ],
+        correct: 1,
+        explanation: "They write rules and reports on their phones (as diary entries) and sometimes on their skin in marker. Phone calls and texts never connect."
+      },
+      {
+        q: "What rule does Mitsuha set that Taki keeps breaking?",
+        options: [
+          "Don't eat her family's food",
+          "Don't talk to her father",
+          "Don't touch her body inappropriately",
+          "Don't go to the shrine"
+        ],
+        correct: 2,
+        explanation: "A running joke: every time Taki wakes up in Mitsuha's body, his first instinct is to grab her chest. She writes increasingly angry rules."
+      },
+      {
+        q: "Where does Taki work part-time in Tokyo?",
+        options: [
+          "A bookshop",
+          "A convenience store",
+          "An Italian restaurant",
+          "A train station kiosk"
+        ],
+        correct: 2,
+        explanation: "Taki works at an Italian restaurant called Il Giardino delle Parole. His older co-worker Miki Okudera is the woman he has a crush on."
+      },
+      {
+        q: "On the date Mitsuha set up with Miki Okudera, what does Miki tell Taki at the end?",
+        options: [
+          "That she is moving away from Tokyo",
+          "That she has a boyfriend already",
+          "That he seems different today — like someone else",
+          "That she never really liked him"
+        ],
+        correct: 2,
+        explanation: "Miki gently tells Taki that today he seemed different — not like himself. She sees that his thoughts are clearly somewhere else."
+      }
+    ]
+  },
+  {
+    id: 3,
+    title: "The Twist",
+    desc: "Kataware-doki, the time gap, the realisation",
+    isOpinion: false,
+    questions: [
+      {
+        q: "What does Taki try to do after the swaps suddenly stop, and why does it fail?",
+        options: [
+          "Visit Itomori — but he can't remember the town's name",
+          "Call Mitsuha — but the number is disconnected",
+          "Find Mitsuha online — but she has no social media",
+          "Write to her — but he doesn't know her address"
+        ],
+        correct: 0,
+        explanation: "Taki realises he never knew her town's name, and the memories are fading. He draws Itomori from memory and shows the drawings around."
+      },
+      {
+        q: "What is the central twist of the film about Mitsuha and Taki?",
+        options: [
+          "Mitsuha is actually a ghost",
+          "They are brother and sister separated at birth",
+          "They have been swapping across a 3-year time gap — Mitsuha's time is 3 years before Taki's",
+          "Mitsuha is a character in a dream Taki is having"
+        ],
+        correct: 2,
+        explanation: "Taki has been swapping with a Mitsuha who lived three years earlier. By Taki's present, Mitsuha and the entire town of Itomori were destroyed by a comet fragment."
+      },
+      {
+        q: "What is 'kuchikamizake', the offering Mitsuha makes at the shrine?",
+        options: [
+          "Rice cooked in spring water",
+          "Sake made from rice chewed in the mouth and spat out to ferment",
+          "Tea blessed by the priestess",
+          "Sweet wine made from mountain plums"
+        ],
+        correct: 1,
+        explanation: "Kuchikamizake (口噛み酒, 'mouth-chewed sake') is an ancient form of sake where the maker chews rice and spits it into a container. Mitsuha is mortified to do this in front of her classmates."
+      },
+      {
+        q: "What is 'kataware-doki' and why is it important?",
+        options: [
+          "A festival held only on the night of the comet",
+          "Twilight — a time when the boundary between worlds blurs and strange things become possible",
+          "The name of the shrine on the mountain",
+          "A traditional song Mitsuha's grandmother sings"
+        ],
+        correct: 1,
+        explanation: "Kataware-doki ('the time of the half-broken') is a regional word for twilight. The teacher explains it as a time when you might meet 'something not human'."
+      },
+      {
+        q: "When Taki finally meets Mitsuha at kataware-doki, what does she give him?",
+        options: [
+          "The kuchikamizake bottle",
+          "Her grandmother's bell",
+          "Her hair ribbon",
+          "A photograph of her family"
+        ],
+        correct: 2,
+        explanation: "She gives him her hair ribbon — the red braided cord she had been wearing."
+      }
+    ]
+  },
+  {
+    id: 4,
+    title: "Themes & Symbols",
+    desc: "Musubi, the cord, names and memory",
+    isOpinion: false,
+    questions: [
+      {
+        q: "Mitsuha's grandmother says the word 'musubi' has several meanings. Which of these is NOT one of the meanings she gives?",
+        options: [
+          "Tying threads together",
+          "Connecting people",
+          "The flow of time",
+          "The promise of marriage"
+        ],
+        correct: 3,
+        explanation: "Grandmother Hitoha says musubi (結び) means: tying threads, connecting people, AND the flow of time. It is also the old word for the local guardian god."
+      },
+      {
+        q: "What does the braided cord symbolise in the film's logic?",
+        options: [
+          "Mitsuha's family wealth",
+          "Time itself — twisting, tangling, sometimes breaking, then reconnecting",
+          "A magical object that causes the swaps",
+          "The bond between sisters"
+        ],
+        correct: 1,
+        explanation: "The cord is the film's central metaphor. As Grandmother says, the threads twist, tangle, sometimes break — but they also reconnect."
+      },
+      {
+        q: "When Mitsuha and Taki forget each other's names at kataware-doki, what does this tell us about the film's view of memory?",
+        options: [
+          "Memory is unreliable and meaningless",
+          "Names are only labels — the feeling outlasts the name",
+          "Magic always has a cost",
+          "Only true love can survive forgetting"
+        ],
+        correct: 1,
+        explanation: "Even after they forget each other's names and faces, the feeling remains. The film argues the deepest connection is not in the name."
+      },
+      {
+        q: "What is the body of the Miyamizu shrine god, hidden inside the crater on the mountain?",
+        options: [
+          "An ancient stone statue",
+          "A sacred sword",
+          "The kuchikamizake itself — half of the priestess's body",
+          "A mirror"
+        ],
+        correct: 2,
+        explanation: "Grandmother explains that the kuchikamizake IS the body of the god, because it is 'half' of the priestess herself."
+      },
+      {
+        q: "The film draws on a Japanese cultural concept of 'the red string of fate'. In the film, this idea is most directly represented by:",
+        options: [
+          "The trail of the comet",
+          "The braided cord Mitsuha and Taki exchange",
+          "The shrine's sacred rope",
+          "The path up the mountain"
+        ],
+        correct: 1,
+        explanation: "The red string of fate (赤い糸) is a folk belief that destined people are connected by an invisible red thread. The film makes this literal."
+      }
+    ]
+  },
+  {
+    id: 5,
+    title: "The Search & The Ending",
+    desc: "Saving Itomori, the staircase scene",
+    isOpinion: false,
+    questions: [
+      {
+        q: "What does Taki convince Mitsuha to do to save Itomori from the comet?",
+        options: [
+          "Run away from town with her family",
+          "Take shelter in the shrine on the mountain",
+          "Set off the town's emergency siren and evacuate everyone to the high school",
+          "Call the news and warn the country"
+        ],
+        correct: 2,
+        explanation: "The plan: use the radio system, set off explosives at the substation to cut power, then evacuate everyone to the high school on high ground. Tessie and Sayaka help."
+      },
+      {
+        q: "Who finally convinces Mayor Toshiki to order the evacuation?",
+        options: [
+          "Taki, in Mitsuha's body",
+          "Mitsuha herself, after returning to her own body",
+          "Grandmother Hitoha",
+          "Tessie's father"
+        ],
+        correct: 1,
+        explanation: "Taki (in Mitsuha's body) tries and fails — the mayor sees through him. Only Mitsuha herself, in her own body, finally convinces her father."
+      },
+      {
+        q: "Years after the comet, Taki is searching for something he can't name. What is he doing in his life at that point?",
+        options: [
+          "Studying to become a teacher",
+          "Job-hunting after university, struggling in interviews",
+          "Working as a journalist in Itomori",
+          "Travelling around Japan with no fixed plan"
+        ],
+        correct: 1,
+        explanation: "Adult Taki is job-hunting (called 'shukatsu' in Japan). In one interview he says he wants to preserve memories of places that disappear."
+      },
+      {
+        q: "In the film's final scene, what do Taki and Mitsuha say to each other on the staircase?",
+        options: [
+          "'I love you'",
+          "'I remember you'",
+          "'Your name is...?'",
+          "Nothing — they only smile"
+        ],
+        correct: 2,
+        explanation: "They both ask: 'Your name is...?' (君の名は…?). The film cuts to credits before they answer."
+      },
+      {
+        q: "Which of these is the strongest evidence that Mitsuha and Taki had crossed paths BEFORE the body-swaps began?",
+        options: [
+          "Mitsuha mentions Tokyo in her diary",
+          "Taki has been wearing Mitsuha's red cord on his wrist for years before the story begins",
+          "Taki recognises Itomori from a magazine",
+          "Mitsuha sees Taki in a dream as a child"
+        ],
+        correct: 1,
+        explanation: "The cord on Taki's wrist is hidden in plain sight from the very first scenes. A young Mitsuha travelled to Tokyo the day before the comet to find an older Taki."
+      }
+    ]
+  },
+  {
+    id: 6,
+    title: "No Right Answer",
+    desc: "Opinion and discussion — share your view",
+    isOpinion: true,
+    questions: [
+      {
+        q: "Director Makoto Shinkai's earlier films usually end with the lovers NOT reuniting. Was 'Your Name' right to give us a happy ending?",
+        options: [
+          "Yes — they earned it after losing everything",
+          "No — the bittersweet ending would have been more honest",
+          "It works either way — the staircase IS bittersweet",
+          "I haven't seen his other films"
+        ],
+        explanation: "Shinkai himself said he changed his mind during writing — the audience needed hope. There's no wrong answer here."
+      },
+      {
+        q: "Which moment in the film hit you hardest?",
+        options: [
+          "The reveal that Itomori was destroyed three years ago",
+          "Kataware-doki — when they finally meet face to face",
+          "Mitsuha cutting her hair",
+          "The final staircase scene"
+        ],
+        explanation: "All four are powerful moments. Different viewers connect with different parts of the story."
+      },
+      {
+        q: "The film says the deepest connection between people is something deeper than names. Do you agree?",
+        options: [
+          "Yes — feelings outlast labels",
+          "No — names and language are how we make connection real",
+          "Both — names matter, but only because they point to something deeper",
+          "I'm not sure"
+        ],
+        explanation: "This is the philosophical question at the heart of the film. There is real disagreement among thinkers about which comes first — language or feeling."
+      },
+      {
+        q: "Was Taki's plan to save Itomori realistic? Would a real teenager have been able to do what he did?",
+        options: [
+          "Yes — Tessie and Mitsuha did most of the work",
+          "No — the comet plot is the weakest part of the film",
+          "It doesn't matter — it's a fantasy story",
+          "Realism isn't the point — the film is about memory and loss"
+        ],
+        explanation: "Many viewers love the romance but find the disaster plot strained. Others argue the 'unrealistic' rescue is the point."
+      },
+      {
+        q: "Should body-swap stories like this one think more carefully about consent and privacy?",
+        options: [
+          "Yes — the film glosses over real ethical problems",
+          "No — it's a fantasy and the comedy is harmless",
+          "It depends — the chest-grabbing jokes haven't aged well, but the rest is fine",
+          "I hadn't thought about it before"
+        ],
+        explanation: "There is a real critical conversation about this. Some argue the body-swap comedy treats Mitsuha's body as the joke; others say the film handles the swap with respect."
+      }
+    ]
+  }
+];
+
+let currentSection = null;
+let currentIndex = 0;
+let score = 0;
+let answered = false;
+
+function makeStars() {
+  const container = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2.5 + 0.5;
+    s.style.width = size + 'px';
+    s.style.height = size + 'px';
+    s.style.left = (Math.random() * 100) + '%';
+    s.style.top = (Math.random() * 60) + '%';
+    s.style.setProperty('--dur', (Math.random() * 3 + 2) + 's');
+    s.style.animationDelay = (Math.random() * 3) + 's';
+    container.appendChild(s);
+  }
+}
+
+function buildPicker() {
+  const list = document.getElementById('sectionList');
+  list.innerHTML = '';
+  SECTIONS.forEach(sec => {
+    const card = document.createElement('button');
+    card.className = 'section-card';
+    card.onclick = () => startSection(sec.id);
+    card.innerHTML =
+      '<div class="section-card-title">' + sec.title + '</div>' +
+      '<div class="section-card-desc">' + sec.desc + '</div>';
+    list.appendChild(card);
+  });
+}
+
+function startSection(id) {
+  currentSection = SECTIONS.find(s => s.id === id);
+  currentIndex = 0;
+  score = 0;
+  document.getElementById('pickerScreen').classList.add('hidden');
+  document.getElementById('resultsScreen').classList.add('hidden');
+  document.getElementById('quizScreen').classList.remove('hidden');
+  document.getElementById('sectionBanner').textContent = currentSection.title;
+  showQuestion();
+}
+
+function showQuestion() {
+  const q = currentSection.questions[currentIndex];
+  const total = currentSection.questions.length;
+  answered = false;
+
+  document.getElementById('progressText').textContent = `Question ${currentIndex + 1} of ${total}`;
+  document.getElementById('scoreText').textContent = currentSection.isOpinion ? 'Opinion round' : `Score: ${score}`;
+  document.getElementById('progressFill').style.width = ((currentIndex / total) * 100) + '%';
+
+  document.getElementById('questionText').textContent = q.q;
+
+  const optionsContainer = document.getElementById('optionsContainer');
+  optionsContainer.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    optionsContainer.appendChild(btn);
+  });
+
+  document.getElementById('explanation').classList.add('hidden');
+  document.getElementById('nextBtn').classList.add('hidden');
+  document.getElementById('skipBtn').classList.remove('hidden');
+
+  document.getElementById('questionCard').style.animation = 'none';
+  void document.getElementById('questionCard').offsetWidth;
+  document.getElementById('questionCard').style.animation = 'slideIn 0.4s ease';
+}
+
+function selectAnswer(selectedIndex) {
+  if (answered) return;
+  answered = true;
+
+  const q = currentSection.questions[currentIndex];
+  const buttons = document.querySelectorAll('.option');
+
+  if (currentSection.isOpinion) {
+    buttons.forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === selectedIndex) btn.classList.add('opinion-selected');
+    });
+  } else {
+    buttons.forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === q.correct) btn.classList.add('correct');
+      else if (i === selectedIndex) btn.classList.add('wrong');
+    });
+    if (selectedIndex === q.correct) {
+      score++;
+      document.getElementById('scoreText').textContent = `Score: ${score}`;
+    }
+  }
+
+  const expl = document.getElementById('explanation');
+  expl.textContent = q.explanation;
+  expl.classList.remove('hidden');
+
+  document.getElementById('skipBtn').classList.add('hidden');
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.classList.remove('hidden');
+  nextBtn.textContent = (currentIndex === currentSection.questions.length - 1) ? 'See Results →' : 'Next →';
+}
+
+function skipQuestion() {
+  currentIndex++;
+  if (currentIndex >= currentSection.questions.length) {
+    showResults();
+  } else {
+    showQuestion();
+  }
+}
+
+function nextQuestion() {
+  currentIndex++;
+  if (currentIndex >= currentSection.questions.length) {
+    showResults();
+  } else {
+    showQuestion();
+  }
+}
+
+function showResults() {
+  document.getElementById('quizScreen').classList.add('hidden');
+  document.getElementById('resultsScreen').classList.remove('hidden');
+
+  const total = currentSection.questions.length;
+
+  if (currentSection.isOpinion) {
+    document.getElementById('finalScore').textContent = '✓';
+    document.getElementById('scoreMessage').textContent = "Thanks for sharing your views. There are no right or wrong answers in this section.";
+  } else {
+    document.getElementById('finalScore').textContent = `${score}/${total}`;
+    const pct = (score / total) * 100;
+    let msg;
+    if (pct === 100) msg = "Perfect score. You really watched this film closely.";
+    else if (pct >= 80) msg = "Very strong. You caught the details that matter.";
+    else if (pct >= 60) msg = "Good work. Some details slipped past.";
+    else if (pct >= 40) msg = "Half right. The film rewards close attention — try the other sections.";
+    else msg = "The film deserves another viewing. The first watch is for the story; the second is for everything underneath.";
+    document.getElementById('scoreMessage').textContent = msg;
+  }
+
+  document.getElementById('progressFill').style.width = '100%';
+}
+
+function goHome() {
+  document.getElementById('quizScreen').classList.add('hidden');
+  document.getElementById('resultsScreen').classList.add('hidden');
+  document.getElementById('pickerScreen').classList.remove('hidden');
+}
+
+makeStars();
+buildPicker();
+</script>
+
+</body>
+</html>
