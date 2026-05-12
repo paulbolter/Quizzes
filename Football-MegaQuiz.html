@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Football Mega Quiz</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --grass: #2e7d4f;
+    --grass-light: #4caf78;
+    --grass-pale: #e8f5ee;
+    --pitch: #f0f7f3;
+    --pitch-mid: #ddeee6;
+    --gold: #e8a020;
+    --gold-dim: #c4851a;
+    --gold-pale: #fef3e0;
+    --dark: #1a2e22;
+    --text: #2a3d30;
+    --grey: #7a9485;
+    --red: #c0392b;
+    --red-pale: #fdecea;
+    --card: #ffffff;
+    --border: #c8dfd3;
+    --border-strong: #a8c8b8;
+    --shadow: rgba(46,125,79,0.10);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--pitch);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(46,125,79,0.04) 49px, rgba(46,125,79,0.04) 50px),
+      repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(46,125,79,0.04) 49px, rgba(46,125,79,0.04) 50px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header {
+    text-align: center;
+    padding: 40px 0 32px;
+    border-bottom: 2px solid var(--border-strong);
+    margin-bottom: 36px;
+  }
+
+  .header .badge {
+    display: inline-block;
+    background: var(--grass);
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    padding: 4px 14px;
+    margin-bottom: 16px;
+    border-radius: 2px;
+  }
+
+  .header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 10vw, 80px);
+    line-height: 0.9;
+    letter-spacing: 2px;
+    color: var(--dark);
+  }
+
+  .header h1 span {
+    color: var(--grass);
+    display: block;
+  }
+
+  .header p {
+    margin-top: 16px;
+    color: var(--grey);
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── QUIZ PICKER GRID ── */
+  .quiz-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  @media (max-width: 520px) {
+    .quiz-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .quiz-btn {
+    background: var(--card);
+    border: 2px solid var(--border);
+    color: var(--text);
+    padding: 22px 12px;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px var(--shadow);
+  }
+
+  .quiz-btn .quiz-num {
+    display: block;
+    font-size: 38px;
+    line-height: 1;
+    color: var(--grass);
+    margin-bottom: 6px;
+    transition: color 0.18s;
+  }
+
+  .quiz-btn:hover {
+    border-color: var(--grass-light);
+    background: var(--grass-pale);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px var(--shadow);
+  }
+
+  .quiz-btn:hover .quiz-num { color: var(--grass); }
+
+  .quiz-btn.selected {
+    background: var(--grass);
+    border-color: var(--grass);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(46,125,79,0.25);
+  }
+
+  .quiz-btn.selected .quiz-num { color: var(--gold); }
+
+  /* ── START BUTTON ── */
+  .start-btn {
+    width: 100%;
+    background: var(--grass);
+    color: #fff;
+    border: none;
+    padding: 18px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+    box-shadow: 0 3px 12px rgba(46,125,79,0.3);
+  }
+
+  .start-btn:hover { background: var(--grass-light); transform: translateY(-1px); box-shadow: 0 5px 16px rgba(46,125,79,0.35); }
+
+  /* ── SECTION LABELS ── */
+  .section-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--grass);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border-strong); }
+
+  /* ── QUIZ ── */
+  .quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--border-strong);
+  }
+
+  .q-counter { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; color: var(--grey); }
+  .q-counter span { color: var(--grass); font-size: 22px; }
+  .score-display { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; color: var(--grey); }
+  .score-display span { color: var(--grass); font-size: 22px; }
+
+  .progress-bar { height: 4px; background: var(--border); margin-bottom: 32px; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--grass); transition: width 0.3s; }
+
+  .question-box {
+    background: var(--card);
+    padding: 28px 24px;
+    margin-bottom: 20px;
+    position: relative;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 10px var(--shadow);
+  }
+
+  .question-box::before {
+    content: attr(data-num);
+    position: absolute;
+    top: -10px;
+    left: 18px;
+    background: var(--gold);
+    color: #fff;
+    padding: 3px 12px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    border-radius: 2px;
+  }
+
+  .question-text {
+    font-size: 18px;
+    line-height: 1.5;
+    font-weight: 500;
+    color: var(--dark);
+  }
+
+  .options-grid { display: grid; gap: 10px; margin-bottom: 24px; }
+
+  .option-btn {
+    background: var(--card);
+    border: 2px solid var(--border);
+    color: var(--text);
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--grass-light);
+    background: var(--grass-pale);
+    transform: translateX(2px);
+  }
+
+  .option-btn .opt-letter {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    color: var(--grass);
+    min-width: 22px;
+  }
+
+  .option-btn.correct {
+    background: var(--grass);
+    border-color: var(--grass);
+    color: #fff;
+  }
+
+  .option-btn.correct .opt-letter { color: #fff; }
+
+  .option-btn.wrong {
+    background: var(--red-pale);
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .option-btn.wrong .opt-letter { color: var(--red); }
+
+  .option-btn:disabled { cursor: default; }
+
+  .feedback-box {
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    font-size: 15px;
+    line-height: 1.55;
+    border-radius: 4px;
+    display: none;
+  }
+
+  .feedback-box.show { display: block; }
+
+  .feedback-box.correct-fb {
+    background: var(--grass-pale);
+    border-left: 4px solid var(--grass);
+    color: var(--dark);
+  }
+
+  .feedback-box.wrong-fb {
+    background: var(--gold-pale);
+    border-left: 4px solid var(--gold);
+    color: var(--dark);
+  }
+
+  .next-btn {
+    width: 100%;
+    background: var(--grass);
+    color: #fff;
+    border: none;
+    padding: 16px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+    display: none;
+    box-shadow: 0 3px 12px rgba(46,125,79,0.3);
+  }
+
+  .next-btn.show { display: block; }
+  .next-btn:hover { background: var(--grass-light); transform: translateY(-1px); }
+
+  /* ── RESULTS ── */
+  .results-screen {
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .results-score {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(80px, 18vw, 140px);
+    color: var(--grass);
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  .results-score .denom { color: var(--grey); font-size: 0.5em; }
+
+  .results-verdict {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--dark);
+    margin-bottom: 16px;
+  }
+
+  .results-sub {
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .play-again-btn {
+    background: var(--grass);
+    color: #fff;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+    box-shadow: 0 3px 12px rgba(46,125,79,0.3);
+  }
+
+  .play-again-btn:hover { background: var(--grass-light); transform: translateY(-1px); }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="badge">⚽ SUPERFAN QUIZ</div>
+    <h1>FOOTBALL<span>MEGA</span>QUIZ</h1>
+    <p>All football. Legends, transfers, managers, iconic moments. How well do you really know the game?</p>
+  </div>
+
+  <!-- SETUP -->
+  <div id="setup-screen">
+
+    <div class="section-label">CHOOSE A QUIZ</div>
+    <div class="quiz-grid" id="quiz-grid">
+      <!-- 8 quiz buttons injected by JS -->
+    </div>
+
+    <button class="start-btn" id="start-btn">⚽ KICK OFF</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz-screen" class="hidden">
+    <div class="quiz-header">
+      <div class="q-counter">QUESTION <span id="q-num">1</span> / 8</div>
+      <div class="score-display">SCORE <span id="score-num">0</span></div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="question-box" id="question-box" data-num="Q1">
+      <div class="question-text" id="question-text"></div>
+    </div>
+    <div class="options-grid" id="options-grid"></div>
+    <div class="feedback-box" id="feedback-box"></div>
+    <button class="next-btn" id="next-btn">NEXT QUESTION →</button>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results-screen" class="results-screen hidden">
+    <div class="results-score" id="final-score">0<span class="denom">/8</span></div>
+    <div class="results-verdict" id="results-verdict"></div>
+    <div class="results-sub" id="results-sub"></div>
+    <button class="play-again-btn" onclick="resetQuiz()">PLAY AGAIN</button>
+  </div>
+
+</div>
+
+<script>
+  // ─────────────────────────────────────────────
+  // QUESTION BANK — 8 quizzes of 8 questions each
+  // All football: CL, PL, La Liga, Serie A, Bundesliga,
+  // World Cup, Euros, Legends/Iconic Moments
+  // Weighted toward 2020–present, with iconic older stuff
+  // ─────────────────────────────────────────────
+  const QUIZ_BANK = {
+    'Quiz 1': [
+      {question:"PSG's 5-0 win over Inter Milan in the 2025 Champions League final set a record for what?",options:["The fastest opening goal in a CL final","The biggest winning margin in a European Cup or CL final","The most yellow cards in a final","The first final without a penalty kick"],correct:1,explanation:"PSG's five unanswered goals beat the previous four-goal margins from 1960, 1974, 1989 and 1994."},
+      {question:"Who finally ended Bayern Munich's 11-year Bundesliga winning streak in 2023-24?",options:["Borussia Dortmund","RB Leipzig","Bayer Leverkusen","Eintracht Frankfurt"],correct:2,explanation:"Xabi Alonso's Leverkusen won their first ever Bundesliga title — and went unbeaten in the league while doing it."},
+      {question:"Mikel Oyarzabal scored the winning goal in which 2024 final?",options:["The Champions League final","The Euro 2024 final","The Copa del Rey final","The Nations League final"],correct:1,explanation:"His 86th-minute goal beat England 2-1 in Berlin and gave Spain a record fourth European Championship."},
+      {question:"Lionel Messi's 2022 World Cup final featured two of his goals. Who scored Argentina's other goal in normal time?",options:["Julián Álvarez","Ángel Di María","Lautaro Martínez","Rodrigo De Paul"],correct:1,explanation:"Di María finished a stunning counter-attack to make it 2-0 before halftime, then was taken off to a hero's ovation."},
+      {question:"Erling Haaland joined Manchester City in 2022 from which club?",options:["RB Salzburg","Borussia Dortmund","Molde","Bayern Munich"],correct:1,explanation:"City paid Dortmund his release clause of about €60m — he scored 36 PL goals in his first season."},
+      {question:"Which club won the Premier League in 2024-25, ending Manchester City's four-in-a-row?",options:["Arsenal","Liverpool","Chelsea","Manchester United"],correct:1,explanation:"Arne Slot's first season ended with Liverpool's 20th English league title, equalling Manchester United's record."},
+      {question:"Who scored Real Madrid's two stoppage-time goals against Manchester City in the 2022 Champions League semi-final?",options:["Karim Benzema","Vinícius Júnior","Rodrygo","Marco Asensio"],correct:2,explanation:"Rodrygo struck in the 90th and 91st minutes; Benzema's extra-time penalty then completed the famous remontada."},
+      {question:"Zinedine Zidane was sent off in the 2006 World Cup final for what?",options:["A two-footed tackle","Headbutting Marco Materazzi","Spitting at a player","Swearing at the referee"],correct:1,explanation:"Zidane's headbutt to Materazzi's chest in extra time was his final act as a footballer — Italy won the shootout."}
+    ],
+    'Quiz 2': [
+      {question:"Which 19-year-old scored twice for PSG in the 2025 Champions League final?",options:["Bradley Barcola","Désiré Doué","Warren Zaïre-Emery","Senny Mayulu"],correct:1,explanation:"Doué was named man of the match and CL Young Player of the Season after his two-goal display in Munich."},
+      {question:"Antonio Conte led which club to the Serie A title in 2024-25?",options:["Juventus","Inter Milan","Roma","Napoli"],correct:3,explanation:"It was Napoli's fourth Scudetto and made Conte the first manager to win Serie A with three different clubs."},
+      {question:"Cole Palmer's equaliser in the Euro 2024 final came after he had only just been substituted on. Which club had he joined the previous summer?",options:["Manchester City","Newcastle United","Chelsea","Arsenal"],correct:2,explanation:"Palmer left City for Chelsea in 2023 and became one of the Premier League's standout players in his debut season there."},
+      {question:"Geoff Hurst scored the only hat-trick in a men's World Cup final until who matched it in 2022?",options:["Lionel Messi","Karim Benzema","Olivier Giroud","Kylian Mbappé"],correct:3,explanation:"Mbappé's three goals against Argentina ended 56 years of Hurst's record standing alone — but France still lost on penalties."},
+      {question:"Pep Guardiola has won the Champions League three times. With which club did he win his first two?",options:["Bayern Munich","Barcelona","Real Madrid","Manchester City"],correct:1,explanation:"Guardiola's Barça won in 2009 and 2011, both finals against Manchester United."},
+      {question:"Jude Bellingham scored a stunning bicycle kick against which country at Euro 2024 to send England to extra time?",options:["Slovakia","Switzerland","Netherlands","Spain"],correct:0,explanation:"Bellingham's overhead kick in the 95th minute saved England in the round of 16, before Harry Kane won it in extra time."},
+      {question:"Lionel Messi left Barcelona in 2021. The official reason given was:",options:["A disagreement with the manager","Barcelona could not register him due to La Liga salary cap rules","He wanted to win the Champions League","A buyout clause was triggered"],correct:1,explanation:"Barça's huge debt meant they couldn't fit his contract under La Liga's salary cap — he signed for PSG for free."},
+      {question:"Which Englishman scored a hat-trick against Slovakia at the 2010 World Cup and remains England's record international goalscorer until 2023?",options:["Wayne Rooney","Frank Lampard","Steven Gerrard","Bobby Charlton"],correct:0,explanation:"Rooney scored 53 England goals; Harry Kane passed his record in March 2023."}
+    ],
+    'Quiz 3': [
+      {question:"Which two clubs contested the famous 'Istanbul' Champions League final in 2005?",options:["AC Milan and Liverpool","Inter Milan and Manchester United","Juventus and Liverpool","AC Milan and Arsenal"],correct:0,explanation:"Liverpool came back from 3-0 down at halftime to win on penalties — perhaps the greatest CL final ever."},
+      {question:"Which player joined Real Madrid in 2024 on a free transfer after his PSG contract ended?",options:["Achraf Hakimi","Marquinhos","Kylian Mbappé","Ousmane Dembélé"],correct:2,explanation:"Madrid had pursued Mbappé for years before finally signing him — he won the Pichichi as La Liga's top scorer in his first season."},
+      {question:"Roberto Mancini led which country to a Euro 2020 trophy in 2021?",options:["Spain","Italy","Portugal","France"],correct:1,explanation:"Italy beat England on penalties at Wembley — Mancini left two years later to take a controversial job with Saudi Arabia."},
+      {question:"In Liverpool's famous 4-0 second leg against Barcelona in 2019, who scored the final goal directly from a quick corner kick?",options:["Mohamed Salah","Sadio Mané","Divock Origi","Trent Alexander-Arnold"],correct:2,explanation:"Trent's quick corner caught Barcelona ball-watching and Origi tucked it in — one of the most replayed moments in CL history."},
+      {question:"In August 2020, in the famous one-off Champions League quarter-final played in Lisbon under COVID rules, Bayern Munich beat which club 8-2?",options:["Barcelona","Real Madrid","Atlético Madrid","Manchester City"],correct:0,explanation:"It was a huge embarrassment for Barça — Bayern went on to win the trophy that year."},
+      {question:"Who won the Ballon d'Or in 2024?",options:["Vinícius Júnior","Jude Bellingham","Rodri","Lamine Yamal"],correct:2,explanation:"Rodri's win sparked a Real Madrid boycott of the ceremony — they felt Vinícius deserved it after winning the CL and La Liga."},
+      {question:"Diego Maradona's two famous goals against England came in which tournament?",options:["1982 World Cup","1986 World Cup","1990 World Cup","Euro 1988"],correct:1,explanation:"The 'Hand of God' and the 'Goal of the Century' came minutes apart in the same quarter-final in Mexico City."},
+      {question:"Khvicha Kvaratskhelia, who scored in PSG's 2025 CL final win, joined the club in January 2025 from which Italian side?",options:["Roma","Inter Milan","Napoli","Juventus"],correct:2,explanation:"PSG paid Napoli about €70m for the Georgian winger — two and a half years after he helped them win the Scudetto."}
+    ],
+    'Quiz 4': [
+      {question:"Real Madrid's 2024 Champions League final was their how many-th European Cup?",options:["13th","14th","15th","16th"],correct:2,explanation:"Goals from Dani Carvajal and Vinícius Júnior beat Borussia Dortmund 2-0 at Wembley."},
+      {question:"Cristiano Ronaldo's record-breaking 5th Champions League came in 2018. Which Real Madrid manager was in charge?",options:["José Mourinho","Carlo Ancelotti","Julen Lopetegui","Zinedine Zidane"],correct:3,explanation:"It was Zidane's third CL in a row as manager — he then resigned a week later."},
+      {question:"Which English manager led his club to a Champions League title in 2019, beating Tottenham 2-0 in Madrid?",options:["Jürgen Klopp","Pep Guardiola","Mauricio Pochettino","Brendan Rodgers"],correct:0,explanation:"Klopp's Liverpool won it with goals from Salah (penalty after 2 minutes) and Origi late on."},
+      {question:"Lamine Yamal won Euro 2024 with Spain. He had just become the youngest scorer in Euros history at what age?",options:["15","16","17","18"],correct:1,explanation:"Yamal's stunning curler against France came at 16 years and 362 days old — three days short of his 17th birthday."},
+      {question:"Diego Simeone has been manager of Atlético Madrid since which year?",options:["2009","2011","2013","2015"],correct:1,explanation:"'Cholo' Simeone has now had the longest tenure of any major European manager — two La Liga titles in 2014 and 2021."},
+      {question:"Which French striker won the Golden Boot at the 2022 World Cup with 8 goals?",options:["Olivier Giroud","Karim Benzema","Antoine Griezmann","Kylian Mbappé"],correct:3,explanation:"Mbappé's hat-trick in the final lifted him past Messi's 7 — but Argentina still won the trophy."},
+      {question:"Antoine Griezmann left Atlético Madrid in 2019 to join Barcelona for around €120m. After two difficult seasons, what happened?",options:["He went on loan back to Atlético, then signed permanently","He moved to PSG for a similar fee","He retired due to injury","Barcelona sold him to Manchester United"],correct:0,explanation:"His Barça spell never really worked — he returned to Atlético on loan in 2021, then signed permanently."},
+      {question:"Who scored the only goal in Manchester City's 2023 Champions League final win over Inter Milan?",options:["Erling Haaland","Kevin De Bruyne","Rodri","Bernardo Silva"],correct:2,explanation:"Rodri's 68th-minute strike in Istanbul completed City's treble — they had won the Premier League and FA Cup in the same season."}
+    ],
+    'Quiz 5': [
+      {question:"Which Italian club won Serie A in 2022-23, their first title in 33 years?",options:["AC Milan","Inter Milan","Napoli","Roma"],correct:2,explanation:"Napoli's Scudetto under Luciano Spalletti was their first since the Maradona era of 1989-90."},
+      {question:"Which Italian winger did Liverpool sign from Juventus in summer 2024, the same window Arne Slot replaced Jürgen Klopp?",options:["Domenico Berardi","Federico Chiesa","Nicolò Zaniolo","Riccardo Orsolini"],correct:1,explanation:"Chiesa joined for about £10m as Slot took over from Klopp — and Liverpool went on to win the league in his debut season."},
+      {question:"Which Brazilian striker famously won the 2002 World Cup Golden Boot with eight goals?",options:["Rivaldo","Ronaldo (R9)","Ronaldinho","Adriano"],correct:1,explanation:"Ronaldo's twin goals beat Germany 2-0 in the final, completing his comeback from career-threatening knee injuries."},
+      {question:"Mohamed Salah joined Liverpool in 2017 from which Italian club?",options:["Inter Milan","AC Milan","Roma","Fiorentina"],correct:2,explanation:"Liverpool paid Roma about £37m — now widely seen as one of the great transfer bargains of the decade."},
+      {question:"Who scored the first goal in the 2022 World Cup final, from the penalty spot?",options:["Kylian Mbappé","Lionel Messi","Ángel Di María","Antoine Griezmann"],correct:1,explanation:"Messi's 23rd-minute penalty (after Ousmane Dembélé fouled Di María) opened the scoring in Lusail."},
+      {question:"Atlético Madrid broke the Real Madrid–Barcelona La Liga duopoly in 2020-21. Their title-winning striker was:",options:["Diego Costa","Luis Suárez","Antoine Griezmann","Álvaro Morata"],correct:1,explanation:"Suárez, almost given away by Barcelona that summer, scored 21 goals — including the winner on the final day."},
+      {question:"Which manager famously won the Premier League with Leicester City in 2015-16 at 5000-1 odds?",options:["Claudio Ranieri","Carlo Ancelotti","Brendan Rodgers","Roberto Mancini"],correct:0,explanation:"Ranieri's title with Leicester is widely seen as the greatest underdog story in modern football."},
+      {question:"What did Sergio Agüero famously do in the 93rd minute of the final day of the 2011-12 Premier League season?",options:["Score the title-winning goal for Man City vs QPR","Score a Champions League final winner","Score a hat-trick in the Manchester derby","Make his Manchester City debut"],correct:0,explanation:"Aguerooooo!!! His goal won City the title on goal difference over Manchester United — Martin Tyler's commentary became iconic."}
+    ],
+    'Quiz 6': [
+      {question:"Hansi Flick won the Champions League with Bayern in 2020. He was then appointed manager of which club in 2024?",options:["Real Madrid","Barcelona","Borussia Dortmund","PSG"],correct:1,explanation:"Flick won La Liga in his first Barça season, including a 4-0 Clásico hat-trick win at the Bernabéu."},
+      {question:"Argentina won the 2022 World Cup final on penalties. The score was 3-3 after extra time. What was the penalty shootout score?",options:["3-2","4-2","4-3","5-3"],correct:1,explanation:"Argentina won 4-2 — Coman missed and Tchouameni blasted wide for France, before Gonzalo Montiel scored the decisive penalty."},
+      {question:"Which goalkeeper made nine saves as Real Madrid beat Liverpool 1-0 in the 2022 Champions League final?",options:["Alisson Becker","Thibaut Courtois","Keylor Navas","Andriy Lunin"],correct:1,explanation:"Courtois's man-of-the-match performance was capped by saves from Salah, Mané, and Firmino as Vinícius scored the only goal."},
+      {question:"Who saved Argentina in the final seconds of the 2022 World Cup final with a stunning point-blank stop from Randal Kolo Muani?",options:["Emiliano Martínez","Franco Armani","Sergio Romero","Gerónimo Rulli"],correct:0,explanation:"'Dibu' Martínez's last-second save in the 123rd minute kept the score at 3-3 and sent the final to penalties."},
+      {question:"Which Norwegian striker has been Manchester City's main goalscorer since 2022?",options:["Alexander Sørloth","Erling Haaland","Joshua King","Martin Ødegaard"],correct:1,explanation:"Haaland set the Premier League single-season record with 36 goals in 2022-23."},
+      {question:"Sir Alex Ferguson managed Manchester United from when until 2013?",options:["1986","1990","1992","1995"],correct:0,explanation:"Ferguson's 27 years at United included 13 Premier League titles and 2 Champions Leagues."},
+      {question:"Inter Milan's last Champions League title before their 2023 and 2025 final defeats came in:",options:["2003","2006","2010","2014"],correct:2,explanation:"José Mourinho led Inter to the trophy in 2010 — part of an Italian-record treble — beating Bayern 2-0 in Madrid."},
+      {question:"Which French player scored a famous header in the 1998 World Cup final to give France the lead?",options:["Thierry Henry","Marcel Desailly","Zinedine Zidane","Lilian Thuram"],correct:2,explanation:"Zidane scored two first-half headers as France beat Brazil 3-0 in Paris — his crowning international moment."}
+    ],
+    'Quiz 7': [
+      {question:"Harry Kane left Tottenham in 2023 to join which club?",options:["Real Madrid","Manchester United","Bayern Munich","PSG"],correct:2,explanation:"Bayern paid about €100m — Kane scored loads of goals but his trophy drought continued until they won the 2024-25 Bundesliga."},
+      {question:"The 2024 Champions League final was held at which English stadium?",options:["Old Trafford","Wembley","Anfield","The Etihad"],correct:1,explanation:"Real Madrid's 2-0 win over Borussia Dortmund secured their record 15th European Cup."},
+      {question:"Who scored the only goal in Chelsea's 2021 Champions League final win over Manchester City?",options:["Mason Mount","Christian Pulisic","Kai Havertz","Timo Werner"],correct:2,explanation:"Havertz's chipped finish in Porto gave Chelsea their second European Cup, in Thomas Tuchel's first season."},
+      {question:"In the famous 1999 Champions League final, Manchester United scored two goals in stoppage time to beat which team?",options:["Real Madrid","AC Milan","Juventus","Bayern Munich"],correct:3,explanation:"Sheringham and Solskjær scored late on as United completed the treble at Camp Nou."},
+      {question:"Antonio Conte has now won the league title with three Italian clubs. Which three?",options:["Juventus, Inter, Roma","Juventus, Milan, Napoli","Juventus, Inter, Napoli","Inter, Milan, Napoli"],correct:2,explanation:"Conte's Scudetto wins came with Juventus (3x), Inter (2021) and Napoli (2025) — in his first season at each."},
+      {question:"Cristiano Ronaldo left Real Madrid in 2018 to join Juventus. He then moved to Manchester United in 2021. Where did he end up in early 2023?",options:["Inter Miami","Al-Nassr","Al-Hilal","Al-Ittihad"],correct:1,explanation:"Ronaldo joined the Saudi Pro League club Al-Nassr after his contract with Manchester United was terminated."},
+      {question:"Which winger did Real Madrid sign from Santos in 2024 — having agreed the deal two years earlier when he turned 16?",options:["Vitor Roque","Reinier","Endrick","Rodrygo"],correct:2,explanation:"Endrick joined Madrid after his 18th birthday, signed in 2022 as a long-term Brazilian successor."},
+      {question:"Which manager won the Champions League with both Real Madrid and AC Milan?",options:["Carlo Ancelotti","Zinedine Zidane","Pep Guardiola","Fabio Capello"],correct:0,explanation:"Ancelotti has won it five times — twice with Milan (2003, 2007) and three times with Madrid (2014, 2022, 2024)."}
+    ],
+    'Quiz 8': [
+      {question:"Tottenham's stunning comeback in the 2019 Champions League semi-final was completed by which player's hat-trick in Amsterdam?",options:["Harry Kane","Heung-Min Son","Lucas Moura","Christian Eriksen"],correct:2,explanation:"Spurs were 3-0 down on aggregate at halftime; Moura's stoppage-time goal completed the comeback in Ajax's stadium."},
+      {question:"Bayern Munich's 2020 Champions League final win was against which club?",options:["Real Madrid","Manchester City","Paris Saint-Germain","Atlético Madrid"],correct:2,explanation:"Kingsley Coman, a PSG academy product, scored the only goal in the empty Lisbon stadium during COVID."},
+      {question:"Which Argentine goalkeeper won the 2022 World Cup Golden Glove and is known for his unique penalty-shootout antics?",options:["Sergio Romero","Franco Armani","Emiliano Martínez","Gerónimo Rulli"],correct:2,explanation:"'Dibu' Martínez's psychological tactics helped Argentina win shootouts against the Netherlands and France."},
+      {question:"What was unusual about Bayer Leverkusen's 2023-24 Bundesliga title?",options:["They won by a record points margin","They went the entire league season unbeaten","Their manager was the youngest in Bundesliga history","They had no players from Germany"],correct:1,explanation:"Xabi Alonso's side went the whole league season without losing — a first in Bundesliga history."},
+      {question:"Liverpool's 2018-19 Premier League campaign ended with how many points — still the highest ever total without winning the title?",options:["94","97","99","102"],correct:1,explanation:"Liverpool's 97 points were beaten only by Manchester City's 98, who pipped them on the final day."},
+      {question:"Iniesta's famous 2010 World Cup-winning goal came against which country?",options:["Germany","Brazil","Netherlands","Argentina"],correct:2,explanation:"Iniesta's 116th-minute winner in Johannesburg gave Spain their first World Cup, 1-0 in a bad-tempered final."},
+      {question:"Which French winger left Barcelona for PSG in summer 2023, two years after joining Barça from Lyon?",options:["Memphis Depay","Ferran Torres","Ousmane Dembélé","Antoine Griezmann"],correct:2,explanation:"Dembélé reunited with Luis Enrique at PSG — and went on to play a key role in their 2025 Champions League win."},
+      {question:"Argentina's 2022 World Cup squad was managed by which young coach?",options:["Diego Simeone","Mauricio Pochettino","Marcelo Bielsa","Lionel Scaloni"],correct:3,explanation:"Scaloni, only 44 at the time, also won the 2021 Copa América — Argentina's first major trophy in 28 years."}
+    ]
+  };
+
+  // ─────────────────────────────────────────────
+  // QUIZ STATE
+  // ─────────────────────────────────────────────
+  let selectedQuiz = 'Quiz 1';
+  let questions = [];
+  let currentQ = 0;
+  let score = 0;
+  let answered = false;
+
+  // Fisher–Yates shuffle
+  function shuffle(array) {
+    const a = array.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // Build the 8 quiz buttons
+  const grid = document.getElementById('quiz-grid');
+  Object.keys(QUIZ_BANK).forEach((quizName, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-btn' + (i === 0 ? ' selected' : '');
+    btn.dataset.quiz = quizName;
+    btn.innerHTML = `<span class="quiz-num">${i + 1}</span>QUIZ`;
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.quiz-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedQuiz = quizName;
+    });
+    grid.appendChild(btn);
+  });
+
+  document.getElementById('start-btn').addEventListener('click', startQuiz);
+
+  function startQuiz() {
+    const pool = QUIZ_BANK[selectedQuiz];
+    // Randomize order within the selected quiz
+    questions = shuffle(pool);
+
+    currentQ = 0;
+    score = 0;
+    document.getElementById('setup-screen').classList.add('hidden');
+    document.getElementById('quiz-screen').classList.remove('hidden');
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    const q = questions[currentQ];
+    answered = false;
+
+    document.getElementById('q-num').textContent = currentQ + 1;
+    document.getElementById('score-num').textContent = score;
+    document.getElementById('progress-fill').style.width = ((currentQ / questions.length) * 100) + '%';
+
+    const qBox = document.getElementById('question-box');
+    qBox.setAttribute('data-num', 'Q' + (currentQ + 1));
+    document.getElementById('question-text').textContent = q.question;
+
+    const og = document.getElementById('options-grid');
+    og.innerHTML = '';
+    const letters = ['A', 'B', 'C', 'D'];
+
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      // Strip any leading "A) " etc. just in case
+      const text = opt.replace(/^[ABCD]\)\s*/i, '');
+      btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${text}</span>`;
+      btn.addEventListener('click', () => handleAnswer(i));
+      og.appendChild(btn);
+    });
+
+    const fb = document.getElementById('feedback-box');
+    fb.className = 'feedback-box';
+    fb.textContent = '';
+    document.getElementById('next-btn').classList.remove('show');
+  }
+
+  function handleAnswer(chosen) {
+    if (answered) return;
+    answered = true;
+
+    const q = questions[currentQ];
+    const correct = q.correct;
+    const btns = document.querySelectorAll('.option-btn');
+
+    btns.forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === correct) btn.classList.add('correct');
+      else if (i === chosen) btn.classList.add('wrong');
+    });
+
+    const fb = document.getElementById('feedback-box');
+    if (chosen === correct) {
+      score++;
+      document.getElementById('score-num').textContent = score;
+      fb.classList.add('show', 'correct-fb');
+      fb.textContent = '✓ Correct! ' + q.explanation;
+    } else {
+      fb.classList.add('show', 'wrong-fb');
+      fb.textContent = q.explanation;
+    }
+
+    const nextBtn = document.getElementById('next-btn');
+    nextBtn.classList.add('show');
+    nextBtn.textContent = currentQ < questions.length - 1 ? 'NEXT QUESTION →' : 'SEE RESULTS →';
+  }
+
+  document.getElementById('next-btn').addEventListener('click', () => {
+    currentQ++;
+    if (currentQ >= questions.length) showResults();
+    else renderQuestion();
+  });
+
+  function showResults() {
+    document.getElementById('quiz-screen').classList.add('hidden');
+    document.getElementById('results-screen').classList.remove('hidden');
+
+    const total = questions.length;
+    document.getElementById('final-score').innerHTML = score + '<span class="denom">/' + total + '</span>';
+
+    const pct = score / total;
+    let verdict, sub;
+
+    if (pct >= 0.875) {
+      verdict = '⚽ FOOTBALL ENCYCLOPAEDIA';
+      sub = "Remarkable. You don't just watch football — you live it. Transfer windows, legendary managers, iconic scorelines... you've absorbed it all. Respect.";
+    } else if (pct >= 0.625) {
+      verdict = '🔥 PROPER FAN';
+      sub = "You clearly love this game. You know your legends, your transfers, your big moments. A few gaps, but overall you absolutely know your stuff.";
+    } else if (pct >= 0.375) {
+      verdict = '👀 INTERESTED OBSERVER';
+      sub = "You follow the highlights and the big stories. But there are depths to this game — the players, the moments, the drama — that you haven't fully explored yet.";
+    } else {
+      verdict = '🤷 FOOTBALL TOURIST';
+      sub = "It's okay. Football is a big world. Maybe start with the greatest players and iconic matches, and work your way up from there.";
+    }
+
+    document.getElementById('results-verdict').textContent = verdict;
+    document.getElementById('results-sub').textContent = sub;
+  }
+
+  function resetQuiz() {
+    document.getElementById('results-screen').classList.add('hidden');
+    document.getElementById('setup-screen').classList.remove('hidden');
+    questions = []; currentQ = 0; score = 0;
+  }
+</script>
+</body>
+</html>
