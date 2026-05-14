@@ -353,7 +353,7 @@ function prettyName(filename) {
   // Fallback: strip prefix and extension
   return filename
     .replace(/\.html$/i, '')
-    .replace(/^(Anime|Drama|Football|K-pop)-/i, '')
+    .replace(/^(Anime|Drama|Football|K-pop|TV-movie)-/i, '')
     .replace(/[-_]/g, ' ')
     .replace(/\b\w/g, c => c.toUpperCase());
 }
@@ -383,6 +383,12 @@ const CATEGORIES = [
     label: 'K-pop',
     color: '#e74c8b',
     test: (f) => /^K-pop-/i.test(f)
+  },
+  {
+    key: 'tvmovie',
+    label: 'TV and Movies',
+    color: '#2980b9',
+    test: (f) => /^TV-movie-/i.test(f)
   },
 ];
 const FALLBACK = { key: 'other', label: 'Other', color: '#7a6a5a' };
@@ -433,7 +439,7 @@ function renderSections(files) {
     return;
   }
 
-  const RENDER_ORDER = ['football','anime','kpop', 'dramas', FALLBACK.key];
+  const RENDER_ORDER = ['football','anime','kpop', 'tvmovie', 'dramas', FALLBACK.key];
   const groups = new Map();
   RENDER_ORDER.forEach(key => {
     const cat = CATEGORIES.find(c => c.key === key) || FALLBACK;
