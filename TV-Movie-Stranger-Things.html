@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stranger Things — The Quiz</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Georgia, serif;
+    background: linear-gradient(180deg, #0d0a1f 0%, #1a1438 50%, #2a1f4d 100%);
+    background-attachment: fixed;
+    color: #e8e3f5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 2rem;
+    padding-top: 0;
+  }
+
+  /* Banner */
+  #banner {
+    width: 100%;
+    max-width: 720px;
+    text-align: center;
+    padding: 2.5rem 1rem 1.5rem;
+  }
+  .main-title {
+    font-family: Georgia, serif;
+    font-size: 44px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: #ff4d4d;
+    text-shadow: 0 0 18px rgba(255, 77, 77, 0.45), 0 0 36px rgba(255, 77, 77, 0.2);
+    margin-bottom: 6px;
+  }
+  .main-sub {
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    letter-spacing: 6px;
+    color: #b8a8e0;
+    text-transform: uppercase;
+  }
+
+  #app {
+    width: 100%;
+    max-width: 720px;
+    padding: 0 1.25rem;
+  }
+
+  /* Picker */
+  .picker-intro {
+    text-align: center;
+    color: #b8a8e0;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    margin-bottom: 1.75rem;
+  }
+  .section-list { display: flex; flex-direction: column; gap: 12px; }
+  .section-card {
+    text-align: left;
+    background: rgba(40, 28, 75, 0.55);
+    border: 1px solid rgba(184, 168, 224, 0.2);
+    border-radius: 12px;
+    padding: 18px 20px;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+    color: #e8e3f5;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
+  }
+  .section-card:hover {
+    background: rgba(60, 42, 110, 0.7);
+    border-color: rgba(255, 77, 77, 0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(255, 77, 77, 0.1);
+  }
+  .section-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .section-card-num {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #b8a8e0;
+    text-transform: uppercase;
+  }
+  .section-card-title {
+    font-family: Georgia, serif;
+    font-size: 19px;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .section-card-desc {
+    font-size: 13px;
+    color: #a89dc7;
+  }
+
+  /* Quiz */
+  .section-label {
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #b8a8e0;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .section-title {
+    font-family: Georgia, serif;
+    font-size: 24px;
+    color: #fff;
+    margin-bottom: 1.25rem;
+  }
+
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.25rem;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 6px;
+    background: rgba(184, 168, 224, 0.15);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff4d4d 0%, #b07cff 100%);
+    transition: width 0.3s ease;
+    box-shadow: 0 0 12px rgba(255, 77, 77, 0.4);
+  }
+  .progress-text {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    color: #b8a8e0;
+    min-width: 50px;
+    text-align: right;
+  }
+
+  .question-card {
+    background: rgba(40, 28, 75, 0.55);
+    border: 1px solid rgba(184, 168, 224, 0.2);
+    border-radius: 14px;
+    padding: 1.5rem;
+    backdrop-filter: blur(4px);
+  }
+  .question-text {
+    font-family: Georgia, serif;
+    font-size: 18px;
+    line-height: 1.5;
+    color: #fff;
+    margin-bottom: 1.25rem;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    text-align: left;
+    background: rgba(20, 14, 45, 0.7);
+    border: 1px solid rgba(184, 168, 224, 0.25);
+    border-radius: 10px;
+    padding: 13px 16px;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #e8e3f5;
+    transition: all 0.15s ease;
+    line-height: 1.4;
+  }
+  .option:hover:not(:disabled) {
+    background: rgba(60, 42, 110, 0.8);
+    border-color: rgba(184, 168, 224, 0.5);
+  }
+  .option .letter {
+    display: inline-block;
+    width: 22px;
+    color: #b8a8e0;
+    font-weight: 700;
+  }
+  .option.correct {
+    background: rgba(74, 158, 122, 0.3);
+    border-color: #4a9e7a;
+    color: #c8f0d8;
+  }
+  .option.wrong {
+    background: rgba(220, 70, 70, 0.25);
+    border-color: #dc4646;
+    color: #f5c8c8;
+  }
+  .option.opinion {
+    background: rgba(176, 124, 255, 0.25);
+    border-color: #b07cff;
+    color: #e5d4ff;
+  }
+  .option:disabled { cursor: default; }
+
+  .feedback {
+    margin-top: 1rem;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .feedback.hidden { display: none; }
+  .feedback.correct {
+    background: rgba(74, 158, 122, 0.2);
+    border-left: 3px solid #4a9e7a;
+    color: #c8f0d8;
+  }
+  .feedback.wrong {
+    background: rgba(220, 70, 70, 0.18);
+    border-left: 3px solid #dc4646;
+    color: #f5c8c8;
+  }
+  .feedback.opinion {
+    background: rgba(176, 124, 255, 0.18);
+    border-left: 3px solid #b07cff;
+    color: #e5d4ff;
+  }
+
+  .next-btn {
+    margin-top: 1rem;
+    padding: 11px 24px;
+    border: none;
+    border-radius: 8px;
+    background: #ff4d4d;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: none;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 12px rgba(255, 77, 77, 0.3);
+  }
+  .next-btn.visible { display: inline-block; }
+  .next-btn:hover:not(:disabled) {
+    background: #ff6b6b;
+    box-shadow: 0 4px 18px rgba(255, 77, 77, 0.5);
+  }
+  .next-btn:disabled { opacity: 0.5; cursor: default; }
+
+  .skip-btn {
+    margin-top: 1rem;
+    margin-left: 8px;
+    padding: 11px 22px;
+    border: 1px solid rgba(184, 168, 224, 0.3);
+    border-radius: 8px;
+    background: transparent;
+    color: #b8a8e0;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .skip-btn:hover { background: rgba(184, 168, 224, 0.1); color: #fff; }
+
+  .back-btn {
+    background: transparent;
+    border: none;
+    color: #b8a8e0;
+    padding: 0;
+    margin-bottom: 1rem;
+    font-size: 13px;
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+  }
+  .back-btn:hover { color: #fff; text-decoration: underline; }
+
+  /* Result */
+  .result { text-align: center; padding: 2rem 0; }
+  .result-score {
+    font-size: 56px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 8px;
+    font-family: Arial, sans-serif;
+    text-shadow: 0 0 22px rgba(255, 77, 77, 0.4);
+  }
+  .result-label {
+    font-size: 15px;
+    color: #b8a8e0;
+    margin-bottom: 1rem;
+    font-family: Arial, sans-serif;
+  }
+  .result-msg {
+    font-size: 17px;
+    color: #e8e3f5;
+    margin-bottom: 2rem;
+    font-family: Arial, sans-serif;
+  }
+  .result-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .restart-btn {
+    padding: 11px 28px;
+    border: 1px solid rgba(184, 168, 224, 0.3);
+    border-radius: 8px;
+    background: rgba(40, 28, 75, 0.55);
+    color: #e8e3f5;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+  }
+  .restart-btn:hover {
+    background: rgba(60, 42, 110, 0.8);
+    border-color: rgba(255, 77, 77, 0.4);
+  }
+
+  @media (max-width: 600px) {
+    .main-title { font-size: 32px; letter-spacing: 3px; }
+    .main-sub { font-size: 11px; letter-spacing: 4px; }
+    .question-text { font-size: 16px; }
+    .section-title { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="banner">
+  <div class="main-title">STRANGER THINGS</div>
+  <div class="main-sub">The Quiz · Seasons 1–4</div>
+</div>
+
+<div id="app">
+
+  <!-- SECTION PICKER -->
+  <div id="picker">
+    <p class="picker-intro">Choose a season to begin. You can come back and try the others any time.</p>
+    <div class="section-list" id="section-list"></div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz" style="display:none">
+    <button class="back-btn" onclick="goHome()">← Back to sections</button>
+    <p class="section-label" id="quiz-section-label"></p>
+    <p class="section-title" id="quiz-section-title"></p>
+    <div class="progress-row">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <span class="progress-text" id="progress-text"></span>
+    </div>
+    <div class="question-card">
+      <p class="question-text" id="question-text"></p>
+      <div class="options" id="options"></div>
+      <div class="feedback hidden" id="feedback"></div>
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next question</button>
+      <button class="skip-btn" id="skip-btn" onclick="skipQuestion()" style="display:none">Skip this one</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result" style="display:none">
+    <div class="result">
+      <div class="result-score" id="result-score"></div>
+      <div class="result-label" id="result-label">out of 6</div>
+      <div class="result-msg" id="result-msg"></div>
+      <div class="result-buttons">
+        <button class="restart-btn" onclick="restartCurrent()">Try again</button>
+        <button class="restart-btn" onclick="goHome()">Back to sections</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============== SECTIONS ============== */
+const sections = [
+  {
+    id: 1,
+    icon: '🚲',
+    label: 'Season 1',
+    title: 'The Vanishing of Will Byers',
+    desc: 'Hawkins, 1983 — where it all begins',
+    questions: [
+      { q: "Will Byers disappears on his way home from a friend's house. What is he doing in the moments just before he vanishes?",
+        options: ["Riding his bike home alone after a long D&D game", "Walking home through the woods after running out of gas", "Cycling home after his friends abandoned him at the arcade", "Hiding from bullies in the school gym"],
+        answer: 0, feedback: "The boys had been playing D&D at Mike's. Will rides home alone and is taken near his house — the bike is found, but he isn't." },
+      { q: "Eleven escapes from Hawkins Lab at the start of the season. What was being done to her there, and by whom?",
+        options: ["She was being trained as a soldier by the US Army", "She was a test subject for Dr. Brenner, who used her psychic abilities for government experiments", "She was a patient in a children's psychiatric ward", "She was being studied by Russian scientists who had captured her"],
+        answer: 1, feedback: "Brenner — 'Papa' — ran the MKUltra-style program that exploited her telekinetic and psychic powers." },
+      { q: "Why does Eleven's nose bleed throughout the show?",
+        options: ["She has a chronic illness from the experiments", "It happens whenever she uses her powers, especially for difficult tasks", "It's a side effect of the Demogorgon's presence", "It's caused by the cold of the Upside Down"],
+        answer: 1, feedback: "It's a strain response. The harder the task — moving a van, finding someone far away — the worse the bleed." },
+      { q: "Nancy and Jonathan team up in Season 1 for a reason that mixes both their stories. What brings them together?",
+        options: ["They are both investigating Barb's and Will's disappearances", "They are assigned a school project together", "Steve asks Jonathan to keep an eye on Nancy", "They meet by chance at the police station"],
+        answer: 0, feedback: "Nancy is searching for Barb, Jonathan for Will. Their separate investigations overlap and they end up working together." },
+      { q: "The 'Upside Down' is best described as which of the following?",
+        options: ["A parallel dimension that mirrors Hawkins but is dark, cold, and full of spores", "A government bunker beneath Hawkins Lab", "Another planet the Demogorgon comes from", "A dream world Will is trapped inside"],
+        answer: 0, feedback: "A shadow dimension overlapping with ours — same houses, same streets, but rotting and silent. Gates connect the two." },
+      { q: "At the end of Season 1, how do the boys finally communicate with Will while he's still trapped?",
+        options: ["Through walkie-talkies that pick up the Upside Down", "Through the Christmas lights Joyce strings up in her house", "Through Eleven, who can reach him telepathically", "Through the radio at Mike's basement"],
+        answer: 1, feedback: "Joyce's lights flicker as Will signals from the other side. She paints an alphabet on the wall so he can spell out words — one of the season's most iconic images." }
+    ]
+  },
+  {
+    id: 2,
+    icon: '🎃',
+    label: 'Season 2',
+    title: 'The Mind Flayer',
+    desc: 'Halloween, 1984 — something bigger is watching',
+    questions: [
+      { q: "Max and her stepbrother Billy arrive in Hawkins. What's the dynamic between them, and why does it matter to the season?",
+        options: ["They're close siblings who support each other", "Billy is abusive and controlling toward Max, which isolates her socially", "They barely know each other — different households", "Max protects Billy from their father"],
+        answer: 1, feedback: "Billy's aggression keeps Max from joining the group easily — and sets up his much bigger arc later in Season 3." },
+      { q: "Will is 'possessed' in Season 2 by a much larger entity than the Demogorgon. What is it, and how does it use him?",
+        options: ["The Mind Flayer (the 'Shadow Monster') uses Will as a spy, seeing through his eyes", "A new Demogorgon is growing inside him", "Dr. Brenner is controlling him remotely", "Eleven's lost twin sister is communicating through him"],
+        answer: 0, feedback: "The Mind Flayer takes hold of Will like a nerve ending. What Will sees, it sees — which is why he can't be told their plans." },
+      { q: "Dustin secretly raises a creature he names D'Artagnan ('Dart'). What does Dart turn out to be?",
+        options: ["A new species of lizard", "A baby Demogorgon (a 'Demodog')", "A creature engineered by Hawkins Lab", "Eleven's pet from the Upside Down"],
+        answer: 1, feedback: "Dart matures into one of the pack of Demodogs that attack later. Dustin's pizza-loving pet becomes a real problem." },
+      { q: "Eleven spends most of Season 2 away from the main group. Where does she go, and what does she discover?",
+        options: ["Living with Hopper in his cabin, then finding her 'sister' Kali in Chicago", "Hiding alone in the woods until Mike finds her", "Captured by Russians and held in a bunker", "Living with the Byers family in secret"],
+        answer: 0, feedback: "Hopper hides her in his cabin. She eventually tracks down Kali — 'Eight' — another lab subject living off-grid in Chicago." },
+      { q: "To free Will from the Mind Flayer's influence, the group tries an unusual method. What is it?",
+        options: ["They take him to Hawkins Lab for treatment", "They heat him up and 'burn it out,' because the Mind Flayer hates fire and heat", "Eleven enters his mind and pulls the entity out", "They put him in an ice bath to slow it down"],
+        answer: 1, feedback: "They overheat the Byers' shed to drive the Mind Flayer out. It recoils from heat — the same principle Hopper used in the tunnels." },
+      { q: "The season ends with Eleven closing the gate. Why is that not actually the end of the threat?",
+        options: ["The Mind Flayer is still in the Upside Down and still aware of the group", "A second gate opens immediately afterward", "Eleven loses her powers from the strain", "Hopper is taken to the Upside Down"],
+        answer: 0, feedback: "The final shot shows the Mind Flayer looming over the school. The gate is sealed, but the connection isn't gone." }
+    ]
+  },
+  {
+    id: 3,
+    icon: '🛍️',
+    label: 'Season 3',
+    title: 'Starcourt Mall',
+    desc: 'Summer 1985 — fireworks and Russians',
+    questions: [
+      { q: "Season 3 is set during which event, and how does that shape the story?",
+        options: ["Christmas — the holidays bring families together", "Summer 1985, with the new Starcourt Mall as a hub for the characters", "The first week of school, with everyone meeting new teachers", "Halloween — costumes and trick-or-treating drive the plot"],
+        answer: 1, feedback: "Summer of '85: new mall, summer jobs, pool culture — and a secret Russian base underneath all of it." },
+      { q: "Beneath the new mall, something is hidden. What is it, and what is it trying to do?",
+        options: ["A Russian laboratory trying to reopen the gate to the Upside Down", "A government weapons facility", "A Hawkins Lab evacuation tunnel", "A bunker built by Dr. Brenner"],
+        answer: 0, feedback: "The Russians are using a huge machine to crack the gate back open — Starcourt is essentially a giant lid on top of it." },
+      { q: "Billy's storyline in Season 3 is one of the season's main threads. What happens to him?",
+        options: ["He becomes a Russian agent willingly", "He's possessed by the Mind Flayer and becomes its main human host", "He goes back to California halfway through", "He befriends Eleven and helps her train"],
+        answer: 1, feedback: "The Mind Flayer takes him as its 'general,' using him to recruit more flesh. His arc ends with one of the show's biggest sacrifices." },
+      { q: "Steve and Robin work together at Scoops Ahoy and end up in danger. How do they discover the Russian plot?",
+        options: ["They overhear a Russian code on the walkie-talkies", "Robin translates a Russian radio transmission they pick up at the ice cream shop", "They follow a suspicious customer to the loading bay", "Dustin asks them to help spy on his crush"],
+        answer: 1, feedback: "Robin's language skills crack the code in the Russian broadcast Dustin picked up. The Scoops Troop is born." },
+      { q: "Hopper's storyline ends Season 3 on a major emotional beat. What appears to happen to him?",
+        options: ["He retires and moves away with Joyce", "He's caught in the blast that closes the gate and is presumed dead", "He's captured by the Mind Flayer", "He resigns as sheriff and joins the Byers in California"],
+        answer: 1, feedback: "He's beside the machine when it's destroyed and is presumed dead — a death that lingers all the way until Season 4 reveals the truth." },
+      { q: "At the very end of Season 3, the Byers family and Eleven leave Hawkins. Why?",
+        options: ["To escape the Mind Flayer", "With Hopper gone and the lab closed, Joyce moves the family away to give everyone a fresh start", "The government relocates them for protection", "To follow Dr. Owens to a new lab"],
+        answer: 1, feedback: "Joyce moves the kids — and Eleven — out of Hawkins. The geographic split sets up the multi-location structure of Season 4." }
+    ]
+  },
+  {
+    id: 4,
+    icon: '🕰️',
+    label: 'Season 4',
+    title: 'Vecna',
+    desc: 'Spring 1986 — the past comes for Hawkins',
+    questions: [
+      { q: "The Season 4 villain, Vecna, kills his victims in a distinctive way. What's the pattern?",
+        options: ["He drowns them in lakes around Hawkins", "He targets teenagers carrying trauma, traps them in their own minds, then breaks their bones", "He poisons them with spores from the Upside Down", "He hypnotises them into killing themselves with their own weapons"],
+        answer: 1, feedback: "He preys on guilt and trauma to enter their minds, then kills them physically. Eyes gouged, bones snapped — a calling card." },
+      { q: "The town blames a particular group of teenagers for the killings. Who, and why?",
+        options: ["The basketball team — because Patrick was a player", "The Hellfire Club D&D group, led by Eddie Munson — because of the satanic panic of the era", "The cheerleaders — because Chrissy was popular", "The Byers and Wheeler kids — because of past incidents"],
+        answer: 1, feedback: "Eddie and the Hellfire Club get scapegoated in the middle of the era's 'Satanic Panic' — D&D was the perfect target." },
+      { q: "Max becomes Vecna's next target. How do the group save her — at least the first time — and what song is involved?",
+        options: ["Playing her favourite song through headphones — 'Running Up That Hill' by Kate Bush — anchors her back to reality", "Eleven enters her mind and fights Vecna directly", "Lucas distracts Vecna with a physical attack", "They give her a sedative to knock her out"],
+        answer: 0, feedback: "Music tied to a happy memory pulls her out. Kate Bush became the season's signature — and topped the charts again, decades after release." },
+      { q: "A huge reveal late in the season changes what we know about Eleven and the lab. What is it?",
+        options: ["Eleven is not actually special — anyone can develop powers", "Vecna is 'One' / Henry Creel — the first test subject, who Eleven herself banished to the Upside Down years ago", "Dr. Brenner was actually Vecna in disguise", "Eleven has a long-lost brother also in the lab"],
+        answer: 1, feedback: "The 'good orderly' was Henry Creel — One. Eleven sent him to the Upside Down, which is what created Vecna in the first place." },
+      { q: "Hopper, presumed dead, is actually alive. Where has he been?",
+        options: ["Hiding in Indiana under a false name", "Imprisoned in Kamchatka, Russia — a Soviet prison camp", "Living with Murray Bauman", "Trapped in the Upside Down"],
+        answer: 1, feedback: "He's held in a Russian prison. Part of the season follows his escape attempts — and the demogorgon they keep in a pit there." },
+      { q: "The season ends with a major change to Hawkins itself. What happens?",
+        options: ["A complete government cover-up — Hawkins is declared safe", "Multiple gates tear open across the town, leaving Hawkins partly merged with the Upside Down", "The mall is rebuilt", "The lab is reopened under new management"],
+        answer: 1, feedback: "Vecna's four kills crack open gates in a pattern across town. The Upside Down starts bleeding through — setting up the final season." }
+    ]
+  },
+  {
+    id: 5,
+    icon: '💭',
+    label: 'Opinion Round',
+    title: 'What do you think?',
+    desc: 'No score — just discussion',
+    isOpinion: true,
+    questions: [
+      { q: "Who's the better protector of Eleven — Hopper or Mike?",
+        options: ["Hopper — he's the father figure she needed", "Mike — he's been there from the very first day", "Both, in different ways", "Neither — she protects herself"],
+        feedback: "Both fight for her — but in completely different ways. A good debate." },
+      { q: "Best season overall?",
+        options: ["Season 1 — the perfect introduction", "Season 2 — bigger and bolder", "Season 3 — fun, summery, emotional", "Season 4 — the darkest and most ambitious"],
+        feedback: "Every season has its loyal defenders. What makes a season the 'best' — story, scares, or vibes?" },
+      { q: "Which death hit hardest?",
+        options: ["Barb — gone too soon, never forgotten", "Bob — pure good, taken cruelly", "Billy — the redemption no-one expected", "Eddie — the most heroic exit"],
+        feedback: "Stranger Things doesn't do quiet deaths. Each one leaves a different kind of wound." },
+      { q: "Would you rather spend a day in the Upside Down or a week in Hawkins Lab?",
+        options: ["A day in the Upside Down — quick and over", "A week in Hawkins Lab — safer, even if creepy", "Neither — I'd hide in Hopper's cabin", "Both sound horrible, but the Lab is worse"],
+        feedback: "There are no good answers here — only less terrible ones." }
+    ]
+  }
+];
+
+/* ============== STATE ============== */
+let currentSection = null;
+let current = 0;
+let score = 0;
+let answered = false;
+
+/* ============== SHUFFLE HELPERS ============== */
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function shuffleQuestionOptions(question) {
+  const indices = shuffle(question.options.map(function(_, i) { return i; }));
+  const newOptions = indices.map(function(i) { return question.options[i]; });
+  const newQuestion = {
+    q: question.q,
+    options: newOptions,
+    feedback: question.feedback
+  };
+  if (typeof question.answer === 'number') {
+    newQuestion.answer = indices.indexOf(question.answer);
+  }
+  return newQuestion;
+}
+
+function prepareSection(section) {
+  const shuffledQs = shuffle(section.questions);
+  section._questions = shuffledQs.map(shuffleQuestionOptions);
+}
+
+/* ============== PICKER ============== */
+function renderPicker() {
+  document.getElementById('banner').style.display = 'block';
+  document.getElementById('picker').style.display = 'block';
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+  window.scrollTo(0, 0);
+
+  const list = document.getElementById('section-list');
+  list.innerHTML = '';
+  sections.forEach(function(s) {
+    const card = document.createElement('button');
+    card.className = 'section-card';
+    card.onclick = function() { startSection(s.id); };
+    card.innerHTML =
+      '<div class="section-card-top">' +
+        '<span class="section-card-num">' + s.label + '</span>' +
+      '</div>' +
+      '<div class="section-card-title">' + s.icon + ' ' + s.title + '</div>' +
+      '<div class="section-card-desc">' + s.desc + '</div>';
+    list.appendChild(card);
+  });
+}
+
+/* ============== QUIZ ============== */
+function startSection(id) {
+  currentSection = sections.find(function(s) { return s.id === id; });
+  prepareSection(currentSection);
+  current = 0;
+  score = 0;
+  answered = false;
+  document.getElementById('banner').style.display = 'none';
+  document.getElementById('picker').style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+  window.scrollTo(0, 0);
+  document.getElementById('quiz-section-label').textContent = currentSection.label;
+  document.getElementById('quiz-section-title').textContent = currentSection.icon + ' ' + currentSection.title;
+  render();
+}
+
+function render() {
+  const q = currentSection._questions[current];
+  const total = currentSection._questions.length;
+  document.getElementById('question-text').textContent = q.q;
+  document.getElementById('progress-text').textContent = (current + 1) + ' of ' + total;
+  document.getElementById('progress-fill').style.width = ((current / total) * 100) + '%';
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  q.options.forEach(function(opt, i) {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = '<span class="letter">' + letters[i] + '</span>' + opt;
+    btn.onclick = function() { choose(i); };
+    opts.appendChild(btn);
+  });
+  document.getElementById('feedback').className = 'feedback hidden';
+  document.getElementById('feedback').textContent = '';
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.className = 'next-btn';
+  nextBtn.disabled = false;
+  const skipBtn = document.getElementById('skip-btn');
+  skipBtn.style.display = currentSection.isOpinion ? 'inline-block' : 'none';
+  answered = false;
+}
+
+function choose(i) {
+  if (answered) return;
+  answered = true;
+  const q = currentSection._questions[current];
+  const btns = document.querySelectorAll('.option');
+  btns.forEach(function(b) { b.disabled = true; });
+  const fb = document.getElementById('feedback');
+
+  if (currentSection.isOpinion) {
+    btns[i].classList.add('opinion');
+    fb.className = 'feedback opinion';
+  } else if (i === q.answer) {
+    btns[i].classList.add('correct');
+    fb.className = 'feedback correct';
+    score++;
+  } else {
+    btns[i].classList.add('wrong');
+    btns[q.answer].classList.add('correct');
+    fb.className = 'feedback wrong';
+  }
+  fb.textContent = q.feedback;
+
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.className = 'next-btn visible';
+  nextBtn.disabled = true;
+  setTimeout(function() { nextBtn.disabled = false; }, 500);
+  document.getElementById('skip-btn').style.display = 'none';
+}
+
+function skipQuestion() {
+  nextQuestion();
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= currentSection._questions.length) {
+    showResult();
+  } else {
+    render();
+  }
+}
+
+function showResult() {
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('result').style.display = 'block';
+  const total = currentSection._questions.length;
+
+  if (currentSection.isOpinion) {
+    document.getElementById('result-score').textContent = '✓';
+    document.getElementById('result-label').textContent = 'No score — just opinions';
+    document.getElementById('result-msg').textContent = "Thanks for sharing your views. There are no right or wrong answers in this section.";
+  } else {
+    document.getElementById('result-score').textContent = score + '/' + total;
+    document.getElementById('result-label').textContent = 'out of ' + total;
+    const msgs = ["Keep watching!", "Not bad — a few details slipped by.", "Good knowledge of this season.", "Very good — you really know this one.", "Perfect score — true Hawkins material."];
+    const pct = score / total;
+    const idx = pct < 0.25 ? 0 : pct < 0.5 ? 1 : pct < 0.75 ? 2 : pct < 1 ? 3 : 4;
+    document.getElementById('result-msg').textContent = msgs[idx];
+  }
+}
+
+function restartCurrent() {
+  prepareSection(currentSection);
+  current = 0;
+  score = 0;
+  answered = false;
+  document.getElementById('quiz').style.display = 'block';
+  document.getElementById('result').style.display = 'none';
+  render();
+}
+
+function goHome() {
+  currentSection = null;
+  current = 0;
+  score = 0;
+  answered = false;
+  renderPicker();
+}
+
+renderPicker();
+</script>
+</body>
+</html>
