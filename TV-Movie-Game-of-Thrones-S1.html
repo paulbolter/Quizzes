@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game of Thrones — Season 1 Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5EFE0;
+    --cream-deep: #EBE3CE;
+    --gold: #C9A961;
+    --gold-deep: #A8893F;
+    --gold-pale: #E5D5A8;
+    --crimson: #8B1A1A;
+    --crimson-deep: #6B1414;
+    --green: #5C7A4A;
+    --green-deep: #445936;
+    --charcoal: #2C2416;
+    --charcoal-soft: #4A3F2A;
+    --shadow: rgba(44, 36, 22, 0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    background-color: var(--cream);
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(201, 169, 97, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(139, 26, 26, 0.05) 0%, transparent 40%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 0.7 0 0 0 0 0.6 0 0 0 0 0.4 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23n)'/%3E%3C/svg%3E");
+    color: var(--charcoal);
+    min-height: 100vh;
+    line-height: 1.5;
+    padding: 30px 20px;
+  }
+
+  .container { max-width: 780px; margin: 0 auto; }
+
+  .header {
+    text-align: center;
+    padding: 30px 20px 40px;
+    border-bottom: 2px solid var(--gold);
+    margin-bottom: 40px;
+    position: relative;
+  }
+  .header::before, .header::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    width: 60px;
+    height: 6px;
+    background: var(--gold);
+  }
+  .header::before { left: 0; }
+  .header::after { right: 0; }
+
+  .crest {
+    font-size: 2rem;
+    color: var(--gold-deep);
+    margin-bottom: 10px;
+    letter-spacing: 0.3em;
+  }
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--charcoal);
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.2rem;
+    color: var(--charcoal-soft);
+    letter-spacing: 0.05em;
+  }
+
+  .menu { text-align: center; }
+  .menu-intro {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    color: var(--charcoal-soft);
+    margin-bottom: 35px;
+    line-height: 1.6;
+  }
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    margin-bottom: 30px;
+  }
+  .menu-card {
+    background: var(--cream-deep);
+    border: 1.5px solid var(--gold);
+    padding: 28px 22px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+  }
+  .menu-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+  .menu-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px var(--shadow);
+    border-color: var(--gold-deep);
+  }
+  .menu-card:hover::before { transform: scaleX(1); }
+  .card-number {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    color: var(--gold-deep);
+    letter-spacing: 0.25em;
+    margin-bottom: 8px;
+  }
+  .card-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.2rem;
+    color: var(--charcoal);
+    font-weight: 600;
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+  }
+  .card-tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--charcoal-soft);
+    margin-bottom: 14px;
+    line-height: 1.4;
+  }
+  .card-score {
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    color: var(--gold-deep);
+    letter-spacing: 0.15em;
+    padding-top: 12px;
+    border-top: 1px solid var(--gold-pale);
+    text-transform: uppercase;
+    display: block;
+  }
+  .card-score.unplayed {
+    color: var(--charcoal-soft);
+    opacity: 0.5;
+  }
+
+  .question-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+    text-transform: uppercase;
+  }
+  .section-label {
+    color: var(--charcoal-soft);
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .section-label:hover { color: var(--crimson); }
+
+  .question {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    line-height: 1.5;
+    color: var(--charcoal);
+    margin-bottom: 28px;
+    padding: 25px 28px;
+    background: var(--cream-deep);
+    border-left: 4px solid var(--gold);
+    border-radius: 2px;
+    font-weight: 500;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .option {
+    background: var(--cream-deep);
+    border: 1.5px solid var(--gold);
+    padding: 16px 20px;
+    cursor: pointer;
+    border-radius: 2px;
+    font-family: 'Source Serif 4', serif;
+    font-size: 1.05rem;
+    color: var(--charcoal);
+    text-align: left;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    line-height: 1.4;
+  }
+  .option:hover:not(:disabled) {
+    background: var(--gold-pale);
+    border-color: var(--gold-deep);
+    transform: translateX(3px);
+  }
+  .option:disabled { cursor: default; }
+  .option-letter {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    color: var(--gold-deep);
+    font-size: 1.05rem;
+    min-width: 22px;
+  }
+  .option.correct {
+    background: #DCE5D2;
+    border-color: var(--green);
+    color: var(--green-deep);
+  }
+  .option.correct .option-letter { color: var(--green-deep); }
+  .option.incorrect {
+    background: #E8C9C9;
+    border-color: var(--crimson);
+    color: var(--crimson-deep);
+  }
+  .option.incorrect .option-letter { color: var(--crimson-deep); }
+  .option.faded { opacity: 0.5; }
+
+  .feedback {
+    margin-top: 18px;
+    padding: 18px 22px;
+    background: var(--cream-deep);
+    border-left: 3px solid var(--gold);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    line-height: 1.5;
+    color: var(--charcoal);
+    display: none;
+    font-style: italic;
+  }
+  .feedback.shown { display: block; }
+  .feedback strong {
+    font-style: normal;
+    font-family: 'Cinzel', serif;
+    color: var(--gold-deep);
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    display: block;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    padding: 14px 30px;
+    border: 1.5px solid var(--gold);
+    background: var(--cream);
+    color: var(--charcoal);
+    cursor: pointer;
+    border-radius: 2px;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+  }
+  .btn:hover {
+    background: var(--gold);
+    color: var(--cream);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--shadow);
+  }
+  .btn-primary {
+    background: var(--gold);
+    color: var(--cream);
+    border-color: var(--gold-deep);
+  }
+  .btn-primary:hover { background: var(--gold-deep); }
+  .btn-ghost {
+    background: transparent;
+    border-color: var(--charcoal-soft);
+    color: var(--charcoal-soft);
+  }
+  .btn-ghost:hover {
+    background: var(--charcoal-soft);
+    color: var(--cream);
+    border-color: var(--charcoal-soft);
+  }
+
+  .button-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .button-row.center { justify-content: center; }
+
+  .results { text-align: center; padding: 30px 20px; }
+  .results .roman {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    color: var(--gold-deep);
+    letter-spacing: 0.4em;
+    margin-bottom: 10px;
+  }
+  .results h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.8rem;
+    color: var(--charcoal);
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .results .subtitle { margin-bottom: 35px; }
+
+  .score-display {
+    background: var(--charcoal);
+    color: var(--gold-pale);
+    padding: 35px 25px;
+    border-radius: 2px;
+    margin: 25px 0;
+    border: 2px solid var(--gold);
+  }
+  .score-display .label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  .score-display .number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 4rem;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--cream);
+  }
+  .score-display .out-of {
+    font-size: 2.2rem;
+    color: var(--gold);
+  }
+
+  .verdict {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.3rem;
+    color: var(--charcoal-soft);
+    margin: 20px 0 30px;
+    line-height: 1.5;
+    padding: 0 10px;
+  }
+  .result-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .view { display: none; }
+  .view.active { display: block; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 600px) {
+    body { padding: 15px 12px; }
+    h1 { font-size: 1.5rem; }
+    .crest { font-size: 1.5rem; }
+    .question { font-size: 1.2rem; padding: 20px; }
+    .option { font-size: 1rem; padding: 14px 16px; }
+    .menu-grid { grid-template-columns: 1fr; }
+    .menu-card { padding: 22px 18px; }
+    .button-row { flex-direction: column-reverse; }
+    .btn { width: 100%; }
+    .score-display .number { font-size: 3rem; }
+    .score-display .out-of { font-size: 1.8rem; }
+    .results h2 { font-size: 1.4rem; }
+    .result-actions .btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header class="header">
+    <div class="crest">⚜ ⚜ ⚜</div>
+    <h1>Game of Thrones</h1>
+    <p class="subtitle">A Quiz of the First Season</p>
+  </header>
+
+  <div id="view-menu" class="view active">
+    <div class="menu">
+      <p class="menu-intro">
+        Four chapters of the realm's first year. Choose your path — test your memory of the plot, the people, the places, or the moments that shaped it all.
+      </p>
+      <div class="menu-grid" id="menu-grid"></div>
+    </div>
+  </div>
+
+  <div id="view-question" class="view">
+    <div class="question-meta">
+      <span class="section-label" id="q-section-label" onclick="returnToMenu()" title="Return to menu">← Section I — Plot</span>
+      <span id="q-counter">Question 1 of 8</span>
+    </div>
+    <div class="question" id="q-text"></div>
+    <div class="options" id="q-options"></div>
+    <div class="feedback" id="q-feedback"></div>
+    <div class="button-row">
+      <button class="btn btn-ghost" id="btn-skip" onclick="skipQuestion()">Skip</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextQuestion()" style="display:none;">Next</button>
+    </div>
+  </div>
+
+  <div id="view-results" class="view">
+    <div class="results">
+      <div class="roman" id="result-roman">I</div>
+      <h2 id="result-title">Plot</h2>
+      <p class="subtitle">Section complete</p>
+      <div class="score-display">
+        <div class="label">Your Score</div>
+        <div>
+          <span class="number" id="result-correct">0</span><span class="out-of">/8</span>
+        </div>
+      </div>
+      <p class="verdict" id="verdict-text"></p>
+      <div class="result-actions">
+        <button class="btn" onclick="replaySection()">Try Again</button>
+        <button class="btn btn-primary" onclick="returnToMenu()">Back to Menu</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const SECTIONS = [
+  {
+    title: "Plot",
+    tagline: "The threads that bind the realm",
+    questions: [
+      { q: "What does King Robert Baratheon ask Ned Stark to become when he visits Winterfell?", options: ["Lord Commander of the Kingsguard", "Hand of the King", "Master of Coin", "Warden of the East"], correct: 1, feedback: "Hand of the King. Robert wants someone he trusts after Jon Arryn's death." },
+      { q: "Why does Catelyn Stark have Tyrion Lannister arrested at the inn?", options: ["She believes he sent the assassin after Bran", "He insulted House Stark publicly", "He stole from Winterfell", "He plotted against King Robert"], correct: 0, feedback: "She believes he sent the assassin after Bran — the catspaw's dagger was traced to him (wrongly, as it turns out)." },
+      { q: "How does King Robert die?", options: ["Poisoned at a feast", "Killed in battle against the Targaryens", "Gored by a boar while hunting", "Assassinated by Varys"], correct: 2, feedback: "Gored by a boar while hunting — with help from strong wine arranged by Cersei via Lancel." },
+      { q: "What does Ned discover about Joffrey, Myrcella, and Tommen that puts his life in danger?", options: ["They are not Robert's children — they are Jaime and Cersei's", "They are plotting to kill Robert", "They are secretly Targaryens", "They are illegitimate but Robert knows"], correct: 0, feedback: "They are Jaime and Cersei's children. Ned figures it out from the Baratheon family history — every Baratheon child is black-haired." },
+      { q: "Why does Viserys Targaryen die in Vaes Dothrak?", options: ["Drogo poisons his wine", "He is executed for treason against Daenerys", "Drogo pours molten gold over his head", "He is killed by a bloodrider in a duel"], correct: 2, feedback: "Drogo pours molten gold over his head — the 'golden crown' Viserys had demanded." },
+      { q: "What does Ned offer to confess to in exchange for his life being spared?", options: ["Plotting Robert's murder", "Treason — falsely claiming Joffrey is the rightful king", "Conspiring with Stannis Baratheon", "Stealing from the royal treasury"], correct: 1, feedback: "Treason. He falsely names Joffrey the rightful king to protect Sansa — and Joffrey orders his head taken anyway." },
+      { q: "Robb Stark wins his first major battle by doing what?", options: ["Defeating Tywin's main force at the Green Fork", "Sending a smaller force to be crushed by Tywin while he captures Jaime at the Whispering Wood", "Burning the Lannister camp at night", "Allying with Stannis to flank the Lannisters"], correct: 1, feedback: "He sacrifices 2,000 men under Roose Bolton as a decoy, then captures Jaime Lannister at the Whispering Wood." },
+      { q: "What happens to Daenerys's unborn child, and what does Mirri Maz Duur reveal about why she let it happen?", options: ["The child is stillborn; Mirri reveals she took revenge for her village being destroyed by Drogo's khalasar", "The child is taken by the Dothraki; Mirri was paid by Viserys", "The child dies in childbirth; Mirri claims it was the will of the Great Stallion", "The child is healthy but Drogo dies; Mirri was forced by the bloodriders"], correct: 0, feedback: "The child Rhaego is born deformed and dead. Mirri reveals she let it happen as revenge — Drogo's khalasar sacked her temple and killed her people." }
+    ]
+  },
+  {
+    title: "Characters",
+    tagline: "Lords, ladies, bastards and spies",
+    questions: [
+      { q: "Who is Jon Snow's father, as far as everyone in Season 1 believes?", options: ["Robert Baratheon", "Ned Stark", "Benjen Stark", "Rodrik Cassel"], correct: 1, feedback: "Ned Stark — he claims Jon as his bastard and refuses to say who the mother is." },
+      { q: "What is the relationship between Cersei and Jaime Lannister?", options: ["Cousins", "Husband and wife", "Twin brother and sister", "Half-siblings"], correct: 2, feedback: "Twin brother and sister — and secretly lovers, which is the show's opening bombshell." },
+      { q: "Who trains Arya in 'water dancing' — a Braavosi sword-fighting style?", options: ["Ser Rodrik Cassel", "Syrio Forel", "Jory Cassel", "Ser Barristan Selmy"], correct: 1, feedback: "Syrio Forel, the First Sword of Braavos, hired by Ned at Arya's request." },
+      { q: "What is Petyr Baelish's childhood connection to House Tully?", options: ["He was fostered at Riverrun and fell in love with Catelyn", "He is Catelyn's cousin", "He served as Hoster Tully's squire", "He was betrothed to Lysa as a child"], correct: 0, feedback: "Fostered at Riverrun — he grew up with Catelyn and Lysa, and his love for Catelyn shapes everything he does." },
+      { q: "Why is Jorah Mormont in exile, serving Daenerys?", options: ["He killed a man in a duel over honor", "He sold poachers into slavery", "He betrayed House Stark", "He refused to take the black"], correct: 1, feedback: "He sold poachers to slavers to pay his wife's debts — Ned Stark came to execute him, but Jorah fled across the Narrow Sea." },
+      { q: "Who is the Master of Whisperers on the Small Council, known as 'the Spider'?", options: ["Pycelle", "Varys", "Littlefinger", "Renly Baratheon"], correct: 1, feedback: "Varys — a eunuch and former slave from Lys who runs a network of child spies called his 'little birds.'" },
+      { q: "What is Samwell Tarly's reason for being sent to the Night's Watch?", options: ["He killed a servant in his father's house", "His father gave him a choice: take the black or die in a 'hunting accident'", "He stole from House Tarly's vaults", "He refused an arranged marriage"], correct: 1, feedback: "His father Randyll Tarly considered him too soft to inherit and gave him a brutal ultimatum — join the Watch or be killed." },
+      { q: "Maester Aemon of the Night's Watch reveals a shocking truth about his identity to Jon Snow. What is it?", options: ["He is Jon's real grandfather", "He is a Targaryen — brother of Aegon V, and great-uncle to Daenerys and Viserys", "He was once Hand of the King", "He fought at the Trident against Robert Baratheon"], correct: 1, feedback: "Aemon Targaryen — he gave up the Iron Throne to serve the Watch, and uses his story to help Jon decide whether to stay or ride south to help Robb." }
+    ]
+  },
+  {
+    title: "Houses & Locations",
+    tagline: "Sigils, seats, and the seven kingdoms",
+    questions: [
+      { q: "What are the words of House Stark?", options: ["Hear Me Roar", "Winter is Coming", "Fire and Blood", "Ours is the Fury"], correct: 1, feedback: "Winter is Coming — a warning, not a boast, which sets the tone for the whole show." },
+      { q: "What is the sigil of House Lannister?", options: ["A golden stag on a yellow field", "A grey direwolf on a white field", "A golden lion on a crimson field", "A three-headed red dragon on black"], correct: 2, feedback: "A golden lion on crimson — wealth and power, displayed loudly." },
+      { q: "What is the Wall, and who guards it?", options: ["A massive ice wall guarded by the Night's Watch", "A stone wall guarded by the King's Army", "A wooden palisade guarded by the Wildlings", "A magical barrier maintained by maesters"], correct: 0, feedback: "A 700-foot wall of ice on the northern border, guarded by the Night's Watch — sworn brothers who serve for life." },
+      { q: "Which house rules from Storm's End, and what is its sigil?", options: ["House Tyrell — a golden rose", "House Baratheon — a crowned stag", "House Arryn — a falcon and moon", "House Greyjoy — a kraken"], correct: 1, feedback: "House Baratheon — Robert's family seat, ruled in Season 1 by his brother Renly." },
+      { q: "Where does Catelyn take Tyrion as her prisoner, and who rules there?", options: ["Riverrun, ruled by her father Hoster Tully", "The Eyrie, ruled by her sister Lysa Arryn", "Casterly Rock, ruled by Tywin Lannister", "Highgarden, ruled by the Tyrells"], correct: 1, feedback: "The Eyrie — Lysa's mountain fortress, where Tyrion demands a trial by combat and Bronn wins his freedom." },
+      { q: "What is Vaes Dothrak?", options: ["The Dothraki capital, where no blood may be spilled", "A Dothraki war camp on the Rhoyne", "A ruined city the Dothraki avoid", "The slave market where Daenerys was sold"], correct: 0, feedback: "The Dothraki sacred city — the only place where violence is forbidden, which is why Viserys's death there is so significant." },
+      { q: "Where does House Tully rule from?", options: ["The Twins", "Riverrun", "Seagard", "Harrenhal"], correct: 1, feedback: "Riverrun — at the meeting of the Red Fork and the Tumblestone. Catelyn's childhood home." },
+      { q: "Which of these is NOT one of the Seven Kingdoms' regions as established in Season 1?", options: ["The Reach", "Dorne", "The Stormlands", "The Free Cities"], correct: 3, feedback: "The Free Cities are across the Narrow Sea in Essos (Braavos, Pentos, Volantis, etc.) — not part of the Seven Kingdoms at all." }
+    ]
+  },
+  {
+    title: "Quotes & Moments",
+    tagline: "Words and images that echo through the realm",
+    questions: [
+      { q: "Who first says the Stark motto 'Winter is coming'?", options: ["Ned Stark", "Robb Stark", "Catelyn Stark", "Multiple Starks throughout the season"], correct: 3, feedback: "It's the family words, spoken by Ned, Robb, Jon, and others throughout — a warning, not a battle cry." },
+      { q: "Complete the line — Tyrion to Jon Snow at Winterfell: 'Never forget what you are. The rest of the world will not. Wear it like _____, and it can never be used to hurt you.'", options: ["a crown", "armor", "a sword", "a banner"], correct: 1, feedback: "Armor. One of Tyrion's first acts of kindness in the series — advice that shapes Jon for years." },
+      { q: "What moment ends the very first episode, 'Winter Is Coming'?", options: ["Ned discovers Jon Arryn's books", "Jaime pushes Bran out of the tower window", "Daenerys eats the stallion's heart", "Robert arrives at Winterfell"], correct: 1, feedback: "Jaime pushes Bran out of the window after Bran catches him with Cersei — 'The things I do for love.'" },
+      { q: "At his trial in the Eyrie, how does Tyrion escape Lysa Arryn's judgment?", options: ["He bribes the guards with Lannister gold", "He demands trial by combat", "He proves the dagger was not his", "He calls on Jaime to fight for him"], correct: 1, feedback: "Trial by combat — and the sellsword Bronn fights and wins for him." },
+      { q: "During Arya's first sword lesson, Syrio Forel asks her: 'What do we say to the god of death?' What is the answer?", options: ["'Today is not the day'", "'Not today'", "'Come and try'", "'We do not kneel'"], correct: 1, feedback: "'Not today.' Arya repeats it for years — and finally delivers on it." },
+      { q: "What is the visual moment at the very end of the season, in the final scene of 'Fire and Blood'?", options: ["Daenerys emerging from Drogo's funeral pyre with three baby dragons", "Jon Snow taking his Night's Watch vows", "Robb being crowned King in the North", "Bran waking from his coma"], correct: 0, feedback: "Daenerys steps out of the ashes, unburnt, with three newly hatched dragons — the show's first true magic moment." },
+      { q: "In the throne room, Cersei tells Ned: 'When you play the game of thrones, you _____.' Complete the line.", options: ["'win or you die'", "'live or you die'", "'rule or you fall'", "'kneel or you burn'"], correct: 0, feedback: "'You win or you die. There is no middle ground.' She says it to Ned just before everything unravels for him." },
+      { q: "At Ned's execution, what does Yoren of the Night's Watch do to save Arya from witnessing her father's death?", options: ["Covers her eyes and turns her away from the platform", "Carries her into the Sept of Baelor", "Knocks her unconscious", "Sends her ahead to the docks with Gendry"], correct: 0, feedback: "Yoren spots her on the statue of Baelor, grabs her, and forces her to look away — then takes her north disguised as a boy bound for the Wall." }
+    ]
+  }
+];
+
+const ROMAN = ["I", "II", "III", "IV"];
+const LETTERS = ["A", "B", "C", "D"];
+
+let scores = [null, null, null, null];
+let currentSection = 0;
+let currentQuestion = 0;
+let answered = false;
+let sectionScore = 0;
+
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderMenu() {
+  const grid = document.getElementById('menu-grid');
+  grid.innerHTML = '';
+  SECTIONS.forEach((s, i) => {
+    const card = document.createElement('div');
+    card.className = 'menu-card';
+    card.onclick = () => beginSection(i);
+    const scoreText = scores[i] === null
+      ? '<span class="card-score unplayed">Not yet played</span>'
+      : `<span class="card-score">Last score — ${scores[i]} / ${s.questions.length}</span>`;
+    card.innerHTML = `
+      <div class="card-number">Section ${ROMAN[i]}</div>
+      <div class="card-title">${s.title}</div>
+      <div class="card-tagline">${s.tagline}</div>
+      ${scoreText}
+    `;
+    grid.appendChild(card);
+  });
+  showView('view-menu');
+}
+
+function returnToMenu() { renderMenu(); }
+
+function beginSection(idx) {
+  currentSection = idx;
+  currentQuestion = 0;
+  sectionScore = 0;
+  renderQuestion();
+}
+
+function replaySection() { beginSection(currentSection); }
+
+function renderQuestion() {
+  answered = false;
+  const s = SECTIONS[currentSection];
+  const q = s.questions[currentQuestion];
+
+  document.getElementById('q-section-label').textContent =
+    `← Section ${ROMAN[currentSection]} — ${s.title}`;
+  document.getElementById('q-counter').textContent =
+    `Question ${currentQuestion + 1} of ${s.questions.length}`;
+  document.getElementById('q-text').textContent = q.q;
+
+  const optionsEl = document.getElementById('q-options');
+  optionsEl.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = `<span class="option-letter">${LETTERS[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    optionsEl.appendChild(btn);
+  });
+
+  const feedback = document.getElementById('q-feedback');
+  feedback.classList.remove('shown');
+  feedback.innerHTML = '';
+
+  document.getElementById('btn-skip').style.display = '';
+  document.getElementById('btn-next').style.display = 'none';
+
+  showView('view-question');
+}
+
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+
+  const q = SECTIONS[currentSection].questions[currentQuestion];
+  const options = document.querySelectorAll('#q-options .option');
+
+  options.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.correct) {
+      btn.classList.add('correct');
+    } else if (i === idx) {
+      btn.classList.add('incorrect');
+    } else {
+      btn.classList.add('faded');
+    }
+  });
+
+  if (idx === q.correct) sectionScore++;
+
+  const feedback = document.getElementById('q-feedback');
+  feedback.innerHTML = `<strong>${LETTERS[q.correct]} — ${q.options[q.correct]}</strong>${q.feedback}`;
+  feedback.classList.add('shown');
+
+  document.getElementById('btn-skip').style.display = 'none';
+  document.getElementById('btn-next').style.display = '';
+}
+
+function skipQuestion() { if (!answered) goToNext(); }
+function nextQuestion() { goToNext(); }
+
+function goToNext() {
+  const s = SECTIONS[currentSection];
+  currentQuestion++;
+  if (currentQuestion >= s.questions.length) {
+    showSectionResults();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showSectionResults() {
+  scores[currentSection] = sectionScore;
+  const s = SECTIONS[currentSection];
+  const total = s.questions.length;
+
+  document.getElementById('result-roman').textContent = ROMAN[currentSection];
+  document.getElementById('result-title').textContent = s.title;
+  document.getElementById('result-correct').textContent = sectionScore;
+  document.querySelector('#view-results .out-of').textContent = '/' + total;
+
+  const pct = sectionScore / total;
+  let verdict;
+  if (pct === 1) verdict = "Flawless. A maester of the Citadel would be proud.";
+  else if (pct >= 0.85) verdict = "Exceptional knowledge of the realm.";
+  else if (pct >= 0.625) verdict = "Well played — a true bannerman.";
+  else if (pct >= 0.4) verdict = "A capable squire. There is potential in you yet.";
+  else if (pct >= 0.2) verdict = "A green boy — best return to the training yard.";
+  else verdict = "You know nothing of this. Perhaps a rewatch is in order.";
+  document.getElementById('verdict-text').textContent = verdict;
+
+  showView('view-results');
+}
+
+renderMenu();
+</script>
+
+</body>
+</html>
