@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Football Player Quiz</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --grass: #2e7d4f;
+    --grass-light: #4caf78;
+    --grass-pale: #e8f5ee;
+    --pitch: #f0f7f3;
+    --pitch-mid: #ddeee6;
+    --gold: #e8a020;
+    --gold-dim: #c4851a;
+    --gold-pale: #fef3e0;
+    --dark: #1a2e22;
+    --text: #2a3d30;
+    --grey: #7a9485;
+    --red: #c0392b;
+    --red-pale: #fdecea;
+    --card: #ffffff;
+    --border: #c8dfd3;
+    --border-strong: #a8c8b8;
+    --shadow: rgba(46,125,79,0.10);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--pitch);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(46,125,79,0.04) 49px, rgba(46,125,79,0.04) 50px),
+      repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(46,125,79,0.04) 49px, rgba(46,125,79,0.04) 50px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header {
+    text-align: center;
+    padding: 40px 0 32px;
+    border-bottom: 2px solid var(--border-strong);
+    margin-bottom: 36px;
+  }
+
+  .header .badge {
+    display: inline-block;
+    background: var(--grass);
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    padding: 4px 14px;
+    margin-bottom: 16px;
+    border-radius: 2px;
+  }
+
+  .header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 10vw, 80px);
+    line-height: 0.9;
+    letter-spacing: 2px;
+    color: var(--dark);
+  }
+
+  .header h1 span {
+    color: var(--grass);
+    display: block;
+  }
+
+  .header p {
+    margin-top: 16px;
+    color: var(--grey);
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── PLAYER PICKER GRID (4x3 = 12) ── */
+  .quiz-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  @media (max-width: 520px) {
+    .quiz-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .quiz-btn {
+    background: var(--card);
+    border: 2px solid var(--border);
+    color: var(--text);
+    padding: 14px 8px 12px;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px var(--shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Photo placeholder — circular initials. Easy to swap to <img> later */
+  .quiz-btn .photo {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--grass-pale);
+    border: 2px solid var(--border-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--grass);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    transition: all 0.18s;
+    overflow: hidden;
+  }
+
+  .quiz-btn .photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .quiz-btn .player-name {
+    line-height: 1.1;
+    min-height: 28px;
+    display: flex;
+    align-items: center;
+  }
+
+  .quiz-btn:hover {
+    border-color: var(--grass-light);
+    background: var(--grass-pale);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px var(--shadow);
+  }
+
+  .quiz-btn.selected {
+    background: var(--grass);
+    border-color: var(--grass);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(46,125,79,0.25);
+  }
+
+  .quiz-btn.selected .photo {
+    background: #fff;
+    border-color: var(--gold);
+    color: var(--grass);
+  }
+
+  /* ── START BUTTON ── */
+  .start-btn {
+    width: 100%;
+    background: var(--grass);
+    color: #fff;
+    border: none;
+    padding: 18px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+    box-shadow: 0 3px 12px rgba(46,125,79,0.3);
+  }
+
+  .start-btn:hover { background: var(--grass-light); transform: translateY(-1px); box-shadow: 0 5px 16px rgba(46,125,79,0.35); }
+
+  /* ── SECTION LABELS ── */
+  .section-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--grass);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border-strong); }
+
+  /* ── QUIZ ── */
+  .quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--border-strong);
+  }
+
+  .q-counter { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; color: var(--grey); }
+  .q-counter span { color: var(--grass); font-size: 22px; }
+  .score-display { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; color: var(--grey); }
+  .score-display span { color: var(--grass); font-size: 22px; }
+
+  .player-banner {
+    text-align: center;
+    margin-bottom: 24px;
+    padding: 12px;
+    background: var(--grass-pale);
+    border-radius: 4px;
+    border-left: 4px solid var(--grass);
+  }
+  .player-banner .label { font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 3px; color: var(--grey); }
+  .player-banner .name { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 2px; color: var(--dark); margin-top: 2px; }
+
+  .question {
+    font-size: 19px;
+    line-height: 1.45;
+    margin-bottom: 24px;
+    color: var(--dark);
+    font-weight: 500;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .option-btn {
+    background: var(--card);
+    border: 2px solid var(--border);
+    color: var(--text);
+    padding: 16px 18px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.18s;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--grass-light);
+    background: var(--grass-pale);
+    transform: translateX(2px);
+  }
+
+  .option-btn .opt-letter {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    color: var(--grass);
+    min-width: 22px;
+  }
+
+  .option-btn.correct {
+    background: var(--grass);
+    border-color: var(--grass);
+    color: #fff;
+  }
+  .option-btn.correct .opt-letter { color: #fff; }
+
+  .option-btn.wrong {
+    background: var(--red-pale);
+    border-color: var(--red);
+    color: var(--red);
+  }
+  .option-btn.wrong .opt-letter { color: var(--red); }
+
+  .option-btn:disabled { cursor: default; }
+
+  /* ── FEEDBACK CARD ── */
+  .feedback {
+    padding: 14px 18px;
+    margin-top: 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1.5;
+    display: none;
+    background: var(--gold-pale);
+    border-left: 4px solid var(--gold);
+    color: var(--dark);
+  }
+
+  .feedback.show { display: block; }
+
+  /* ──────────────────────────────────────
+     SIDE-MOUNTED ACTION BUTTON
+     Floats to the right of the quiz card on wide screens.
+     Fixed position so it never requires scrolling.
+     ────────────────────────────────────── */
+  .side-action {
+    position: fixed;
+    top: 50%;
+    left: calc(50% + 380px);
+    transform: translateY(-50%);
+    width: 160px;
+    z-index: 50;
+    display: none;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .side-action.show { display: flex; }
+
+  .side-action button {
+    width: 100%;
+    border: none;
+    padding: 28px 14px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 6px;
+    box-shadow: 0 4px 14px rgba(46,125,79,0.25);
+  }
+
+  .next-btn {
+    background: var(--grass);
+    color: #fff;
+  }
+  .next-btn:hover { background: var(--grass-light); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(46,125,79,0.35); }
+
+  .skip-btn {
+    background: #fff;
+    color: var(--grey);
+    border: 2px solid var(--border-strong) !important;
+    font-size: 16px;
+    padding: 16px 14px;
+  }
+  .skip-btn:hover { background: var(--pitch-mid); color: var(--dark); transform: translateY(-2px); }
+
+  /* Below 1100px viewport, no room for side button — drop it under the question */
+  @media (max-width: 1100px) {
+    .side-action {
+      position: static;
+      transform: none;
+      width: auto;
+      max-width: 720px;
+      margin: 16px auto 0;
+      padding: 0 20px;
+      flex-direction: row;
+      gap: 10px;
+    }
+    .side-action button { padding: 18px 14px; font-size: 18px; }
+    .side-action .skip-btn { flex: 0 0 100px; }
+    .side-action .next-btn { flex: 1; }
+  }
+
+  /* ── RESULTS ── */
+  .results-screen {
+    text-align: center;
+    padding: 40px 0;
+  }
+
+  .results-screen .trophy {
+    font-size: 64px;
+    margin-bottom: 16px;
+  }
+
+  .results-screen h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    letter-spacing: 2px;
+    color: var(--dark);
+    margin-bottom: 8px;
+  }
+
+  .results-screen .final-score {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 72px;
+    color: var(--grass);
+    margin: 20px 0;
+    line-height: 1;
+  }
+
+  .results-screen .final-score span { color: var(--grey); font-size: 36px; }
+
+  .results-screen .verdict {
+    color: var(--grey);
+    font-size: 16px;
+    margin-bottom: 32px;
+  }
+
+  .play-again-btn {
+    background: var(--grass);
+    color: #fff;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+    box-shadow: 0 3px 12px rgba(46,125,79,0.3);
+  }
+
+  .play-again-btn:hover { background: var(--grass-light); transform: translateY(-1px); }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="badge">⚽ SUPERFAN QUIZ</div>
+    <h1>PLAYER<span>QUIZ</span></h1>
+    <p>Pick a player. Test your knowledge.</p>
+  </div>
+
+  <!-- PLAYER PICKER -->
+  <div id="setup-screen">
+    <div class="section-label">CHOOSE A PLAYER</div>
+    <div class="quiz-grid" id="quiz-grid">
+      <!-- 12 player buttons injected by JS -->
+    </div>
+    <button class="start-btn" id="start-btn">⚽ KICK OFF</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz-screen" class="hidden">
+    <div class="player-banner">
+      <div class="label">PLAYER</div>
+      <div class="name" id="current-player">—</div>
+    </div>
+    <div class="quiz-header">
+      <div class="q-counter">QUESTION <span id="q-num">1</span> / <span id="q-total">6</span></div>
+      <div class="score-display">SCORE <span id="score">0</span></div>
+    </div>
+    <div class="question" id="question-text">…</div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results-screen" class="results-screen hidden">
+    <div class="trophy">🏆</div>
+    <h2>FULL TIME</h2>
+    <div class="final-score"><span id="final-score">0</span><span> / <span id="final-total">6</span></span></div>
+    <p class="verdict" id="verdict">—</p>
+    <button class="play-again-btn" onclick="resetQuiz()">PLAY AGAIN</button>
+  </div>
+
+</div>
+
+<!-- SIDE ACTION BUTTON (floats right of card on wide screens, drops below on narrow) -->
+<div class="side-action" id="side-action">
+  <button class="next-btn" id="next-btn">NEXT →</button>
+  <button class="skip-btn" id="skip-btn">SKIP</button>
+</div>
+
+<script>
+  // ─────────────────────────────────────────────
+  // PLAYER QUIZ BANK
+  // 12 players × 6 questions each
+  // ─────────────────────────────────────────────
+  const QUIZ_BANK = {
+    'Lionel Messi': [
+      {question:"Messi left Barcelona in 2021. What was the official reason given?",options:["A disagreement with manager Ronald Koeman","Barcelona could not register him due to La Liga salary cap rules","He triggered a release clause to join PSG","Barcelona refused his contract demands"],correct:1,explanation:"Barça's huge debt meant they couldn't fit his renewed contract under La Liga's salary cap — he signed for PSG on a free transfer."},
+      {question:"Messi has won the Ballon d'Or a record how many times?",options:["6","7","8","9"],correct:2,explanation:"His 8th came in 2023 after winning the World Cup with Argentina — no other player has won more than 5."},
+      {question:"Who scored Argentina's second goal in the 2022 World Cup final, before Messi added his second?",options:["Lautaro Martínez","Julián Álvarez","Ángel Di María","Rodrigo De Paul"],correct:2,explanation:"Di María finished a stunning team counter-attack before halftime, then was substituted off to a hero's ovation."},
+      {question:"Messi made his Barcelona first-team debut in 2004 at what age?",options:["16","17","18","19"],correct:1,explanation:"He came on as a substitute against Espanyol at 17 years, 3 months — the youngest Barça player ever at the time."},
+      {question:"Messi joined Inter Miami in 2023. The club is part-owned by which former England captain?",options:["Frank Lampard","Steven Gerrard","David Beckham","John Terry"],correct:2,explanation:"Beckham is co-owner of Inter Miami — Messi's arrival turned the MLS club into a global brand overnight."},
+      {question:"Who succeeded Messi as Argentina's manager and led them to the 2022 World Cup?",options:["Diego Simeone","Mauricio Pochettino","Marcelo Bielsa","Lionel Scaloni"],correct:3,explanation:"Scaloni was only 44 when appointed — he also won the 2021 Copa América, Argentina's first major senior trophy in 28 years."}
+    ],
+    'Cristiano Ronaldo': [
+      {question:"Ronaldo joined Al-Nassr in early 2023 after his contract was terminated by which Premier League club?",options:["Manchester City","Manchester United","Chelsea","Tottenham"],correct:1,explanation:"United terminated his contract after he gave a controversial Piers Morgan interview criticising the club."},
+      {question:"Ronaldo has won the Champions League how many times?",options:["3","4","5","6"],correct:2,explanation:"One with Manchester United (2008) and four with Real Madrid (2014, 2016, 2017, 2018)."},
+      {question:"In what year did Ronaldo first leave Manchester United for Real Madrid?",options:["2007","2008","2009","2010"],correct:2,explanation:"The £80m fee was a world record at the time."},
+      {question:"Ronaldo's transfer from Real Madrid to Juventus came in which year?",options:["2016","2017","2018","2019"],correct:2,explanation:"He left right after winning his third consecutive Champions League with Madrid."},
+      {question:"Which country knocked Ronaldo's Portugal out of the 2022 World Cup in the quarter-finals?",options:["Switzerland","Morocco","Spain","France"],correct:1,explanation:"Morocco's 1-0 win made them the first African team to reach a World Cup semi-final."},
+      {question:"Ronaldo holds the record as the all-time top scorer in men's international football. He passed which player to claim the record?",options:["Pelé","Ali Daei","Miroslav Klose","Ferenc Puskás"],correct:1,explanation:"Iran's Ali Daei held the record with 109 goals for nearly two decades before Ronaldo passed it in 2021."}
+    ],
+    'Neymar': [
+      {question:"Neymar's transfer from Barcelona to PSG in 2017 was for what world-record fee?",options:["€150 million","€180 million","€222 million","€300 million"],correct:2,explanation:"PSG triggered his release clause — the fee still stands as the world transfer record today."},
+      {question:"At Barcelona, Neymar was part of a famous front three known as 'MSN'. Who were the other two?",options:["Messi and Suárez","Messi and Iniesta","Suárez and Pedro","Messi and Xavi"],correct:0,explanation:"MSN scored 364 goals across three seasons together (2014–2017)."},
+      {question:"Neymar left PSG in 2023 to join which Saudi Arabian club?",options:["Al-Nassr","Al-Hilal","Al-Ittihad","Al-Ahli"],correct:1,explanation:"His Saudi spell was largely wrecked by injuries — he played only a handful of games before returning to Santos."},
+      {question:"Neymar famously scored in PSG's historic 6-1 second-leg comeback against which club in the 2017 Champions League?",options:["Real Madrid","Bayern Munich","Barcelona","Manchester City"],correct:2,explanation:"Barcelona had lost 4-0 in the first leg — but came back to win 6-1, with Neymar scoring twice and assisting. This was during his Barça career."},
+      {question:"Which Brazilian club did Neymar return to in early 2025 after leaving Saudi Arabia?",options:["Flamengo","Palmeiras","Santos","Corinthians"],correct:2,explanation:"Santos is where he began his career — the move was treated as a homecoming."},
+      {question:"Which back injury caused Neymar to miss most of Brazil's 2014 World Cup, including the famous 7-1 semi-final loss?",options:["A torn hamstring","A fractured vertebra","A torn ACL","A broken metatarsal"],correct:1,explanation:"Colombia's Juan Camilo Zúñiga kneed him in the back in the quarter-final — Brazil were then humiliated by Germany without him."}
+    ],
+    'Zinedine Zidane': [
+      {question:"Zidane was famously sent off in the 2006 World Cup final for what?",options:["A two-footed tackle","Headbutting Marco Materazzi","Spitting at a player","Swearing at the referee"],correct:1,explanation:"His final act as a player — Italy went on to win the shootout."},
+      {question:"As manager of Real Madrid, Zidane won the Champions League in how many consecutive seasons?",options:["2","3","4","5"],correct:1,explanation:"2016, 2017 and 2018 — an achievement no other manager has matched in the modern Champions League era."},
+      {question:"Zidane scored two headers in which World Cup final to give France a 3-0 win?",options:["1998","2002","2006","1994"],correct:0,explanation:"France beat Brazil in Paris — Zidane's crowning international moment."},
+      {question:"Zidane's famous left-footed volley to win the 2002 Champions League final was scored against which club?",options:["Valencia","Bayer Leverkusen","AC Milan","Manchester United"],correct:1,explanation:"Real Madrid beat Leverkusen 2-1 in Glasgow — widely considered one of the greatest goals in CL final history."},
+      {question:"Zidane joined Real Madrid in 2001 from which club?",options:["Marseille","Bordeaux","Juventus","AC Milan"],correct:2,explanation:"The €77.5m fee was a world record at the time."},
+      {question:"Zidane resigned as Real Madrid manager just days after winning his third consecutive Champions League. In what year?",options:["2016","2017","2018","2019"],correct:2,explanation:"He returned to the club briefly in 2019, won another La Liga, then left again in 2021."}
+    ],
+    'Mohamed Salah': [
+      {question:"Salah joined Liverpool in 2017 from which Italian club?",options:["Inter Milan","AC Milan","Roma","Fiorentina"],correct:2,explanation:"The £37m fee is now seen as one of the great bargains of the decade."},
+      {question:"Salah's first Premier League club before joining Roma was:",options:["Chelsea","Arsenal","Tottenham","Manchester City"],correct:0,explanation:"He flopped at Chelsea under Mourinho, then rebuilt his career in Italy."},
+      {question:"Salah scored a penalty in which Champions League final, only for Liverpool to lose 3-1?",options:["2017","2018","2019","2022"],correct:1,explanation:"Real Madrid won in Kyiv — Salah also went off injured in that final after Sergio Ramos's grapple."},
+      {question:"In Liverpool's 2018-19 Premier League title chase, they finished with 97 points. How did they finish in the league?",options:["Champions","Second","Third","Fourth"],correct:1,explanation:"Manchester City pipped them by 1 point — the highest points total ever for a team that didn't win the league."},
+      {question:"Salah plays international football for which country?",options:["Morocco","Tunisia","Egypt","Algeria"],correct:2,explanation:"He's captained Egypt to two AFCON finals — both lost on penalties."},
+      {question:"Salah set the Premier League record for goals in a 38-game season with how many goals in 2017-18?",options:["30","32","34","36"],correct:1,explanation:"Haaland later broke it with 36 in 2022-23 — but Salah's record stood for five years."}
+    ],
+    'Kylian Mbappé': [
+      {question:"Mbappé scored a hat-trick in the 2022 World Cup final but France still lost. Who scored Argentina's other goal in normal time?",options:["Lautaro Martínez","Julián Álvarez","Ángel Di María","Rodrigo De Paul"],correct:2,explanation:"Di María scored before halftime, then was subbed off. Messi scored the other two."},
+      {question:"Mbappé joined Real Madrid in 2024 on a free transfer from PSG. Madrid had pursued him for how many years before finally signing him?",options:["2","4","6","8"],correct:2,explanation:"Madrid had tried since 2017 — Mbappé chose to stay at PSG in 2022 before finally moving."},
+      {question:"Mbappé first burst onto the scene with which French club?",options:["Lyon","Marseille","Monaco","Nantes"],correct:2,explanation:"Monaco won Ligue 1 with him in 2016-17 before selling him to PSG."},
+      {question:"Mbappé's deal at PSG was initially structured as what kind of transfer?",options:["A permanent transfer for €180m","A loan that became permanent","A free transfer","A swap deal"],correct:1,explanation:"PSG took him on loan from Monaco in 2017 then made it permanent in 2018 for €180m — a workaround for Financial Fair Play."},
+      {question:"At which World Cup did Mbappé first win the trophy with France?",options:["2014","2018","2022","Has not won one"],correct:1,explanation:"He scored in the final against Croatia at age 19 — becoming the first teenager to score in a final since Pelé."},
+      {question:"In his first season at Real Madrid, Mbappé won which individual La Liga award?",options:["The Zarra Trophy","The Pichichi","The Di Stéfano Trophy","Player of the Season"],correct:1,explanation:"The Pichichi goes to La Liga's top scorer — Mbappé won it in his debut Spanish season."}
+    ],
+    'Erling Haaland': [
+      {question:"Haaland joined Manchester City in 2022 from which club?",options:["RB Salzburg","Borussia Dortmund","Molde","Bayern Munich"],correct:1,explanation:"City paid Dortmund his €60m release clause — a bargain considering his subsequent goal record."},
+      {question:"Haaland's father, Alf-Inge Haaland, also played in the Premier League. For which clubs?",options:["Manchester United and Liverpool","Leeds, Manchester City and Nottingham Forest","Arsenal and Tottenham","Chelsea and West Ham"],correct:1,explanation:"Alf-Inge famously had his career effectively ended by Roy Keane's tackle."},
+      {question:"Haaland set the Premier League single-season goal record in 2022-23 with how many goals?",options:["32","34","36","38"],correct:2,explanation:"This broke Salah and Shearer's old joint record of 32 — and City won the treble that year."},
+      {question:"Which Norwegian club did Haaland make his professional debut for?",options:["Molde","Rosenborg","Bryne","Vålerenga"],correct:2,explanation:"He started at his hometown club Bryne before moving to Molde, then Salzburg."},
+      {question:"Haaland scored a hat-trick on his Champions League debut for which club?",options:["Borussia Dortmund","RB Salzburg","Molde","Manchester City"],correct:1,explanation:"His hat-trick on debut for Salzburg in 2019 made the world take notice — Dortmund signed him months later."},
+      {question:"Although Manchester City won the 2023 Champions League final, who scored the winning goal? (Hint: not Haaland.)",options:["Kevin De Bruyne","Rodri","Bernardo Silva","İlkay Gündoğan"],correct:1,explanation:"Rodri's strike beat Inter Milan 1-0 in Istanbul — Haaland didn't score in the final itself, but City completed the treble."}
+    ],
+    'Jude Bellingham': [
+      {question:"Bellingham joined Real Madrid in 2023 from which German club?",options:["Bayern Munich","Borussia Dortmund","RB Leipzig","Bayer Leverkusen"],correct:1,explanation:"Madrid paid around €103m — and he scored 23 goals in his debut La Liga season."},
+      {question:"Bellingham scored a stunning bicycle kick against which country at Euro 2024 to send England to extra time?",options:["Slovakia","Switzerland","Netherlands","Spain"],correct:0,explanation:"His 95th-minute overhead kick saved England in the round of 16 before Harry Kane won it in extra time."},
+      {question:"Bellingham started his professional career at which English club, where he was given a shirt number that was then retired?",options:["Aston Villa","West Bromwich Albion","Birmingham City","Stoke City"],correct:2,explanation:"Birmingham retired his No.22 shirt after he left — a rare honour for a 17-year-old."},
+      {question:"In Bellingham's first season at Madrid (2023-24), what major team trophies did the club win?",options:["Just La Liga","Just the Champions League","Both La Liga and the Champions League","The Club World Cup"],correct:2,explanation:"Madrid won La Liga and beat Borussia Dortmund 2-0 in the CL final at Wembley."},
+      {question:"Bellingham's younger brother Jobe also plays professional football. He moved to which German club in 2025?",options:["Bayern Munich","Borussia Dortmund","RB Leipzig","Bayer Leverkusen"],correct:1,explanation:"Jobe followed his older brother to Dortmund — from Sunderland."},
+      {question:"Bellingham scored on his Real Madrid La Liga debut at which iconic stadium?",options:["The Bernabéu","Camp Nou","San Mamés","The Wanda Metropolitano"],correct:2,explanation:"He scored on his La Liga debut away at Athletic Bilbao's San Mamés stadium in August 2023."}
+    ],
+    'Vinícius Júnior': [
+      {question:"Vinícius Júnior joined Real Madrid in 2018 from which Brazilian club?",options:["Santos","Flamengo","Palmeiras","Corinthians"],correct:1,explanation:"Madrid agreed the deal when he was 16, then waited a year for him to turn 18."},
+      {question:"Vinícius scored the only goal of which Champions League final?",options:["2021","2022","2023","2024"],correct:1,explanation:"Madrid beat Liverpool 1-0 in Paris — though Thibaut Courtois was named man of the match."},
+      {question:"Who won the 2024 Ballon d'Or, controversially beating Vinícius to the prize?",options:["Jude Bellingham","Rodri","Erling Haaland","Lamine Yamal"],correct:1,explanation:"Madrid boycotted the ceremony in protest — Vinícius posted 'they're not ready' on social media."},
+      {question:"Vinícius has been the victim of repeated racist abuse in La Liga stadiums. He plays international football for which country?",options:["Brazil","Portugal","Spain","France"],correct:0,explanation:"FIFA and La Liga have repeatedly punished clubs over chants directed at him."},
+      {question:"Who scored Real Madrid's goals in their 2-0 win over Borussia Dortmund in the 2024 Champions League final?",options:["Mbappé and Vinícius","Carvajal and Vinícius","Bellingham and Vinícius","Rodrygo and Vinícius"],correct:1,explanation:"Dani Carvajal opened the scoring with a header — Vinícius added the second."},
+      {question:"Who won the 2025 Ballon d'Or, the second year Vinícius missed out?",options:["Lamine Yamal","Ousmane Dembélé","Jude Bellingham","Kylian Mbappé"],correct:1,explanation:"Dembélé won it after PSG's Champions League title — Vinícius dropped all the way to 16th in voting."}
+    ],
+    'Lamine Yamal': [
+      {question:"At Euro 2024, Yamal scored a stunning curler against France in the semi-final at what age?",options:["15","16","17","18"],correct:1,explanation:"Specifically 16 years and 362 days — three days short of his 17th birthday, making him the youngest scorer in Euros history."},
+      {question:"Yamal came through the academy of which club, where he made his debut at 15?",options:["Real Madrid","Atlético Madrid","Barcelona","Espanyol"],correct:2,explanation:"He's been at Barcelona's La Masia academy since he was 7 years old."},
+      {question:"Yamal won Euro 2024 with Spain. Who did Spain beat in the final?",options:["Germany","France","England","Netherlands"],correct:2,explanation:"Mikel Oyarzabal scored the 86th-minute winner in Berlin — Spain's record fourth European Championship."},
+      {question:"Yamal won which award at Euro 2024 specifically?",options:["Player of the Tournament","Young Player of the Tournament","Top Scorer","Golden Glove"],correct:1,explanation:"Bellingham was a contender too, but Yamal won the young player award after Spain's victory."},
+      {question:"Yamal also won the 2024 Kopa Trophy. What does that award recognise?",options:["Best player at a major tournament","Best under-21 player in the world","Best goal of the year","Best newcomer to La Liga"],correct:1,explanation:"The Kopa Trophy is awarded alongside the Ballon d'Or to the world's best player aged under 21."},
+      {question:"In a Champions League semi-final in 2025, Yamal became the youngest scorer at that stage. Whose record did he take?",options:["Kylian Mbappé","Karim Benzema","Raúl","Patrick Kluivert"],correct:0,explanation:"Mbappé had held the record at 18 years 140 days, scoring for Monaco at Juventus in 2017 — Yamal beat it for Barcelona."}
+    ],
+    'Cole Palmer': [
+      {question:"Cole Palmer joined Chelsea in 2023 from which club?",options:["Manchester United","Manchester City","Arsenal","Newcastle"],correct:1,explanation:"Palmer left City as a fringe player and immediately became Chelsea's standout performer."},
+      {question:"Palmer's equaliser in the Euro 2024 final came just minutes after he had been substituted on. Who scored Spain's winning goal in reply?",options:["Álvaro Morata","Dani Olmo","Mikel Oyarzabal","Nico Williams"],correct:2,explanation:"Oyarzabal scored in the 86th minute — Spain won 2-1."},
+      {question:"In the 2024-25 Premier League season, Palmer became known for what trademark goal celebration?",options:["'Shushing' the crowd","The 'cold' pose with arms crossed and hands on shoulders","Doing a backflip","Pointing to the sky"],correct:1,explanation:"Inspired by his nickname 'Cold Palmer' — the celebration went viral."},
+      {question:"Palmer was born and raised in which English city?",options:["London","Liverpool","Manchester","Birmingham"],correct:2,explanation:"He grew up in Wythenshawe and was at Manchester City's academy from age 8."},
+      {question:"Palmer scored four first-half goals against which Premier League side in a famous 6-0 win for Chelsea in 2024?",options:["Everton","Brighton","Wolves","Crystal Palace"],correct:0,explanation:"All four came in the first 30 minutes — a record-setting performance."},
+      {question:"Palmer plays as which type of player for Chelsea?",options:["Centre-forward","Attacking midfielder","Holding midfielder","Left winger"],correct:1,explanation:"Sometimes described as a 'false 10' — he mostly operates centrally behind the striker."}
+    ],
+    'Florian Wirtz': [
+      {question:"Florian Wirtz joined Liverpool in summer 2025 from which German club?",options:["Bayern Munich","Borussia Dortmund","Bayer Leverkusen","RB Leipzig"],correct:2,explanation:"Liverpool paid around £100m up front, with add-ons potentially making it a Premier League record."},
+      {question:"Wirtz won the 2023-24 Bundesliga with Leverkusen. What made the title unique?",options:["They won by a record points margin","They went the entire league season unbeaten","They had the youngest squad in Bundesliga history","They won every away game"],correct:1,explanation:"Xabi Alonso's side went the whole league season without losing — a first in Bundesliga history."},
+      {question:"Wirtz plays international football for which country?",options:["Germany","Austria","Netherlands","Switzerland"],correct:0,explanation:"He's been a regular for Germany since 2021."},
+      {question:"Wirtz plays primarily in which position?",options:["Centre-forward","Attacking midfielder","Defensive midfielder","Right-back"],correct:1,explanation:"He's described as a '10' — capable of playing wide or as a false nine."},
+      {question:"Wirtz's transfer to Liverpool reportedly broke the sale record from which league?",options:["La Liga","Serie A","Bundesliga","Ligue 1"],correct:2,explanation:"His fee broke the Bundesliga sale record previously held by Ousmane Dembélé (Dortmund to Barcelona in 2017)."},
+      {question:"Wirtz's first manager at Liverpool was the Dutchman who had just won the Premier League. Who?",options:["Erik ten Hag","Arne Slot","Ruud van Nistelrooy","Frank de Boer"],correct:1,explanation:"Slot won the league in 2024-25 in his first season — Wirtz joined for the summer after."}
+    ]
+  };
+
+  // Initials for the photo circles — easy to swap to real <img> later
+  // To use a real photo, change e.g. 'LM' to '<img src="photos/messi.jpg">'
+  const PLAYER_INITIALS = {
+    'Lionel Messi': 'LM',
+    'Cristiano Ronaldo': 'CR',
+    'Neymar': 'NJ',
+    'Zinedine Zidane': 'ZZ',
+    'Mohamed Salah': 'MS',
+    'Kylian Mbappé': 'KM',
+    'Erling Haaland': 'EH',
+    'Jude Bellingham': 'JB',
+    'Vinícius Júnior': 'VJ',
+    'Lamine Yamal': 'LY',
+    'Cole Palmer': 'CP',
+    'Florian Wirtz': 'FW'
+  };
+
+  // ─────────────────────────────────────────────
+  // QUIZ STATE
+  // ─────────────────────────────────────────────
+  let selectedPlayer = 'Lionel Messi';
+  let questions = [];
+  let currentQ = 0;
+  let score = 0;
+  let answered = false;
+
+  // DOM helpers
+  const show = id => document.getElementById(id).classList.remove('hidden');
+  const hide = id => document.getElementById(id).classList.add('hidden');
+  const sideAction = document.getElementById('side-action');
+
+  // ─────────────────────────────────────────────
+  // BUILD PLAYER PICKER GRID
+  // ─────────────────────────────────────────────
+  Object.keys(QUIZ_BANK).forEach((playerName, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-btn' + (i === 0 ? ' selected' : '');
+    btn.dataset.player = playerName;
+    btn.innerHTML = `
+      <div class="photo">${PLAYER_INITIALS[playerName] || '?'}</div>
+      <div class="player-name">${playerName}</div>
+    `;
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.quiz-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedPlayer = playerName;
+    });
+    document.getElementById('quiz-grid').appendChild(btn);
+  });
+
+  // Buttons
+  document.getElementById('start-btn').addEventListener('click', startQuiz);
+  document.getElementById('next-btn').addEventListener('click', nextQuestion);
+  document.getElementById('skip-btn').addEventListener('click', nextQuestion);
+
+  function startQuiz() {
+    const pool = [...QUIZ_BANK[selectedPlayer]];
+    questions = shuffle(pool);
+    currentQ = 0;
+    score = 0;
+    document.getElementById('current-player').textContent = selectedPlayer;
+    document.getElementById('q-total').textContent = questions.length;
+    document.getElementById('final-total').textContent = questions.length;
+    hide('setup-screen');
+    show('quiz-screen');
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    const q = questions[currentQ];
+    answered = false;
+    document.getElementById('q-num').textContent = currentQ + 1;
+    document.getElementById('score').textContent = score;
+    document.getElementById('question-text').textContent = q.question;
+    document.getElementById('feedback').classList.remove('show');
+
+    // Skip is shown until they answer; once answered it switches to Next only
+    document.getElementById('skip-btn').style.display = '';
+    document.getElementById('next-btn').textContent = 'SKIP →';
+    document.getElementById('next-btn').style.display = 'none'; // hide Next until they answer or skip
+    // Actually — simpler model: show Skip button only before answering, show Next only after
+    sideAction.classList.add('show');
+    document.getElementById('skip-btn').style.display = '';
+    document.getElementById('next-btn').style.display = 'none';
+
+    const optionsContainer = document.getElementById('options');
+    optionsContainer.innerHTML = '';
+    const letters = ['A', 'B', 'C', 'D'];
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${opt}</span>`;
+      btn.addEventListener('click', () => selectOption(i, btn));
+      optionsContainer.appendChild(btn);
+    });
+  }
+
+  function selectOption(index, btn) {
+    if (answered) return;
+    answered = true;
+    const q = questions[currentQ];
+    const buttons = document.querySelectorAll('.option-btn');
+    buttons.forEach(b => b.disabled = true);
+
+    const fb = document.getElementById('feedback');
+    if (index === q.correct) {
+      btn.classList.add('correct');
+      score++;
+      document.getElementById('score').textContent = score;
+    } else {
+      btn.classList.add('wrong');
+      buttons[q.correct].classList.add('correct');
+    }
+    // No "Wrong" / "Not quite" — just give the correct info either way
+    fb.textContent = q.explanation;
+    fb.classList.add('show');
+
+    // Swap Skip out, show Next
+    document.getElementById('skip-btn').style.display = 'none';
+    document.getElementById('next-btn').style.display = '';
+    document.getElementById('next-btn').textContent = (currentQ + 1 >= questions.length) ? 'SEE RESULTS →' : 'NEXT →';
+  }
+
+  function nextQuestion() {
+    currentQ++;
+    if (currentQ >= questions.length) {
+      showResults();
+    } else {
+      renderQuestion();
+    }
+  }
+
+  function showResults() {
+    hide('quiz-screen');
+    sideAction.classList.remove('show');
+    show('results-screen');
+    document.getElementById('final-score').textContent = score;
+    const pct = score / questions.length;
+    let verdict = '';
+    if (pct === 1) verdict = "Perfect score. You really know your stuff!";
+    else if (pct >= 0.8) verdict = "Excellent — almost flawless.";
+    else if (pct >= 0.6) verdict = "Solid effort.";
+    else if (pct >= 0.4) verdict = "Not bad — keep watching the football!";
+    else verdict = "Time to brush up on the highlights.";
+    document.getElementById('verdict').textContent = verdict;
+  }
+
+  function resetQuiz() {
+    hide('results-screen');
+    show('setup-screen');
+  }
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+</script>
+
+</body>
+</html>
