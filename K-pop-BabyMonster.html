@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The BabyMonster Test — MONSTIEZ Quiz</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #fdf8f2;
+    --bg2: #fff5f8;
+    --cream: #f7f0e6;
+    --pink: #f4a7b9;
+    --pink-deep: #e07a95;
+    --pink-light: #fde8ef;
+    --gold: #c9933a;
+    --gold-light: #f5d98e;
+    --gold-pale: #fdf3dc;
+    --text: #2a1a24;
+    --text-mid: #7a5a68;
+    --text-light: #b8a0aa;
+    --card: rgba(255,255,255,0.7);
+    --border: rgba(200,150,170,0.25);
+    --shadow: rgba(180,100,130,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 10% 20%, rgba(244,167,185,0.18) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 80%, rgba(201,147,58,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(253,233,220,0.3) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 20px 20px 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    padding: 32px 0 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 28px;
+  }
+
+  .header .badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--pink), var(--pink-deep));
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(38px, 8vw, 64px);
+    line-height: 0.95;
+    color: var(--text);
+    font-style: italic;
+  }
+
+  .header h1 span {
+    color: var(--pink-deep);
+    display: block;
+    font-style: normal;
+    font-weight: 900;
+  }
+
+  .header p {
+    margin-top: 14px;
+    color: var(--text-mid);
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+  }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* DIFFICULTY */
+  .difficulty-row { display: flex; gap: 10px; margin-bottom: 28px; }
+
+  .diff-btn {
+    flex: 1;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text-mid);
+    padding: 16px 10px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    text-align: center;
+    border-radius: 10px;
+    backdrop-filter: blur(4px);
+  }
+
+  .diff-btn .diff-emoji { display: block; font-size: 20px; margin-bottom: 6px; }
+  .diff-btn:hover { border-color: var(--pink); background: var(--pink-light); }
+  .diff-btn.selected { background: linear-gradient(135deg, var(--pink-light), #fce4ec); border-color: var(--pink-deep); color: var(--pink-deep); font-weight: 600; }
+
+  /* START BUTTON */
+  .start-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--pink), var(--pink-deep));
+    color: #fff;
+    border: none;
+    padding: 18px;
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-style: italic;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 12px;
+    box-shadow: 0 6px 24px rgba(224,122,149,0.35);
+  }
+
+  .start-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(224,122,149,0.45); }
+
+  /* QUIZ SCREEN — compact for laptop, no scrolling */
+  .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+
+  .q-counter { font-size: 13px; font-weight: 500; letter-spacing: 1px; color: var(--text-mid); }
+  .q-counter span { color: var(--pink-deep); font-size: 20px; font-family: 'Playfair Display', serif; font-weight: 700; }
+  .score-display { font-size: 13px; font-weight: 500; letter-spacing: 1px; color: var(--text-mid); }
+  .score-display span { color: var(--gold); font-size: 20px; font-family: 'Playfair Display', serif; font-weight: 700; }
+
+  .progress-bar { height: 4px; background: var(--border); margin-bottom: 18px; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--pink), var(--pink-deep)); transition: width 0.4s ease; border-radius: 2px; }
+
+  .question-box {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    padding: 20px 22px;
+    margin-bottom: 14px;
+    position: relative;
+    border-radius: 14px;
+    box-shadow: 0 4px 20px var(--shadow);
+    backdrop-filter: blur(8px);
+  }
+
+  .question-box::before {
+    content: attr(data-num);
+    position: absolute;
+    top: -13px; left: 20px;
+    background: linear-gradient(135deg, var(--pink), var(--pink-deep));
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    padding: 3px 12px;
+    border-radius: 10px;
+  }
+
+  .question-text { font-size: 17px; font-weight: 500; line-height: 1.5; color: var(--text); }
+
+  .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  @media (max-width: 500px) { .options-grid { grid-template-columns: 1fr; } }
+
+  .option-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    padding: 12px 14px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    text-align: left;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    line-height: 1.35;
+    border-radius: 10px;
+    backdrop-filter: blur(4px);
+  }
+
+  .option-btn:hover:not(:disabled) { border-color: var(--pink-deep); background: var(--pink-light); }
+  .option-btn .opt-letter { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--pink-deep); min-width: 20px; }
+  .option-btn.correct { background: rgba(200,240,210,0.6); border-color: #6dbf7e; color: #2a6b38; }
+  .option-btn.correct .opt-letter { color: #2a6b38; }
+  .option-btn.wrong { background: rgba(244,167,185,0.25); border-color: var(--pink-deep); color: #b03060; }
+  .option-btn.wrong .opt-letter { color: #b03060; }
+  .option-btn:disabled { cursor: default; }
+
+  /* ACTION ROW — skip on left when unanswered, next on right after answer */
+  .action-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    min-height: 44px;
+  }
+
+  .skip-btn {
+    background: transparent;
+    border: 1.5px solid var(--text-light);
+    color: var(--text-mid);
+    padding: 10px 22px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 10px;
+    margin-left: auto;
+  }
+  .skip-btn:hover { border-color: var(--pink-deep); color: var(--pink-deep); background: var(--pink-light); }
+  .skip-btn.hidden { display: none; }
+
+  .next-btn {
+    background: linear-gradient(135deg, var(--pink), var(--pink-deep));
+    border: 1.5px solid var(--pink-deep);
+    color: #fff;
+    padding: 10px 30px;
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-style: italic;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: none;
+    border-radius: 10px;
+    margin-left: auto;
+    box-shadow: 0 4px 14px rgba(224,122,149,0.3);
+  }
+  .next-btn.show { display: block; }
+  .next-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(224,122,149,0.45); }
+
+  .feedback-box {
+    display: none;
+    border-left: 3px solid var(--gold);
+    background: var(--gold-pale);
+    color: var(--text);
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    border-radius: 0 10px 10px 0;
+  }
+  .feedback-box.show { display: block; }
+  .feedback-box.correct-fb { border-color: #6dbf7e; background: rgba(200,240,210,0.35); }
+  .feedback-box.wrong-fb { border-color: var(--pink-deep); background: rgba(253,232,239,0.5); }
+  .feedback-box.skip-fb { border-color: var(--text-light); background: rgba(220,220,220,0.3); }
+
+  /* RESULTS */
+  .results-screen { text-align: center; padding: 20px 0; }
+  .results-score { font-family: 'Playfair Display', serif; font-size: 100px; line-height: 1; color: var(--pink-deep); font-weight: 900; }
+  .results-score .denom { font-size: 40px; color: var(--text-light); }
+  .results-verdict { font-family: 'Playfair Display', serif; font-size: 28px; font-style: italic; font-weight: 700; margin: 12px 0; color: var(--text); }
+  .results-sub { color: var(--text-mid); font-size: 14px; margin-bottom: 36px; line-height: 1.7; max-width: 480px; margin-left: auto; margin-right: auto; }
+
+  .play-again-btn {
+    background: linear-gradient(135deg, var(--pink), var(--pink-deep));
+    color: #fff;
+    border: none;
+    padding: 16px 48px;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-style: italic;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(224,122,149,0.3);
+  }
+  .play-again-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(224,122,149,0.45); }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="badge">✨ MONSTIEZ Quiz</div>
+    <h1>The<span>BabyMonster Test</span></h1>
+    <p>Members, songs, the lore — how well do you know BAEMON?</p>
+  </div>
+
+  <!-- SETUP -->
+  <div id="setup-screen">
+
+    <div class="section-label">CHOOSE YOUR DIFFICULTY</div>
+    <div class="difficulty-row">
+      <button class="diff-btn" data-diff="casual"><span class="diff-emoji">👂</span>Casual Listener</button>
+      <button class="diff-btn selected" data-diff="fan"><span class="diff-emoji">💕</span>Real Fan</button>
+      <button class="diff-btn" data-diff="stan"><span class="diff-emoji">🔥</span>Full Stan</button>
+    </div>
+
+    <button class="start-btn" id="start-btn">✨ Start the Quiz</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz-screen" class="hidden">
+    <div class="quiz-header">
+      <div class="q-counter">QUESTION <span id="q-num">1</span> / <span id="q-total">8</span></div>
+      <div class="score-display">SCORE <span id="score-num">0</span></div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="question-box" id="question-box" data-num="Q1">
+      <div class="question-text" id="question-text"></div>
+    </div>
+    <div class="options-grid" id="options-grid"></div>
+    <div class="action-row">
+      <button class="skip-btn" id="skip-btn">Skip →</button>
+      <button class="next-btn" id="next-btn">Next Question →</button>
+    </div>
+    <div class="feedback-box" id="feedback-box"></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results-screen" class="results-screen hidden">
+    <div class="results-score" id="final-score">0<span class="denom">/8</span></div>
+    <div class="results-verdict" id="results-verdict"></div>
+    <div class="results-sub" id="results-sub"></div>
+    <button class="play-again-btn" onclick="resetQuiz()">Play Again ✨</button>
+  </div>
+
+</div>
+
+<script>
+  // =============================================================
+  // QUESTION BANK — edit here to update questions
+  // To create a new quiz: copy this file, replace the QUESTIONS object
+  // and the header text. That's it.
+  // =============================================================
+  const QUESTIONS = {
+    casual: [
+      {
+        question: "Which entertainment company is BabyMonster signed to?",
+        options: ["A) SM Entertainment", "B) JYP Entertainment", "C) YG Entertainment", "D) HYBE"],
+        correct: 2,
+        explanation: "BabyMonster is YG's first new girl group since BLACKPINK debuted back in 2016."
+      },
+      {
+        question: "How many members are in BabyMonster?",
+        options: ["A) 5", "B) 6", "C) 7", "D) 9"],
+        correct: 2,
+        explanation: "Seven members — that's why the group is also stylized as BABYMONS7ER."
+      },
+      {
+        question: "What was BabyMonster's official debut single in November 2023?",
+        options: ["A) Sheesh", "B) BATTER UP", "C) Stuck In The Middle", "D) Dream"],
+        correct: 1,
+        explanation: "BATTER UP dropped on November 27, 2023 — but the group debuted with only 6 members."
+      },
+      {
+        question: "BabyMonster is often called 'the next ___' — which iconic YG group?",
+        options: ["A) BLACKPINK", "B) Red Velvet", "C) TWICE", "D) ITZY"],
+        correct: 0,
+        explanation: "Both BLACKPINK and BabyMonster come from YG Entertainment — same label, big shoes to fill."
+      },
+      {
+        question: "What is BabyMonster's official fandom name?",
+        options: ["A) MOAs", "B) BLINKs", "C) MONSTIEZ", "D) ONCE"],
+        correct: 2,
+        explanation: "MONSTIEZ combines 'MONS' from BabyMonster with 'TIES' — meaning a close bond."
+      },
+      {
+        question: "Which member of BabyMonster is from Thailand?",
+        options: ["A) Ruka", "B) Pharita", "C) Rami", "D) Ahyeon"],
+        correct: 1,
+        explanation: "Pharita is Thai — and so is Chiquita! BabyMonster has strong Southeast Asian representation."
+      },
+      {
+        question: "What is the title of BabyMonster's first mini-album, released in April 2024?",
+        options: ["A) Drip", "B) We Go Up", "C) BABYMONS7ER", "D) Choom"],
+        correct: 2,
+        explanation: "BABYMONS7ER — the '7' in the title was a celebration of all 7 members finally being together."
+      },
+      {
+        question: "Which BabyMonster song became their first top-10 hit on Korea's Circle Digital Chart?",
+        options: ["A) Forever", "B) Sheesh", "C) Like That", "D) BATTER UP"],
+        correct: 1,
+        explanation: "'Sheesh' was a massive breakthrough for BabyMonster in 2024."
+      }
+    ],
+    fan: [
+      {
+        question: "Which member missed BabyMonster's first debut due to health reasons, then rejoined for BABYMONS7ER?",
+        options: ["A) Rora", "B) Chiquita", "C) Ahyeon", "D) Rami"],
+        correct: 2,
+        explanation: "Ahyeon was on hiatus when 'BATTER UP' dropped, but returned for the full 7-member debut in April 2024."
+      },
+      {
+        question: "What was the name of the 2023 reality survival show that revealed BabyMonster's final lineup?",
+        options: ["A) Idol Paradise", "B) Last Evaluation", "C) YG Treasure Box", "D) Girls Planet"],
+        correct: 1,
+        explanation: "'Last Evaluation' aired in 2023 on the group's YouTube channel and chronicled the final selection."
+      },
+      {
+        question: "What was BabyMonster's pre-debut promotional single, released on YouTube in May 2023?",
+        options: ["A) Stuck In The Middle", "B) Forever", "C) Dream", "D) Drip"],
+        correct: 2,
+        explanation: "'Dream' dropped May 14, 2023 and hit #1 on the Billboard Hot Trending Songs chart."
+      },
+      {
+        question: "Which two BabyMonster members are Japanese?",
+        options: ["A) Ruka and Asa", "B) Pharita and Chiquita", "C) Ahyeon and Rami", "D) Rora and Ruka"],
+        correct: 0,
+        explanation: "Ruka and Asa are both Japanese — they're among the first female Japanese idols to debut under YG."
+      },
+      {
+        question: "Who is the youngest member (maknae) of BabyMonster?",
+        options: ["A) Rora", "B) Chiquita", "C) Rami", "D) Asa"],
+        correct: 1,
+        explanation: "Chiquita is the maknae and trained for the shortest period — only since 2021."
+      },
+      {
+        question: "What is the title of BabyMonster's first full studio album, released November 2024?",
+        options: ["A) Choom", "B) We Go Up", "C) BABYMONS7ER", "D) Drip"],
+        correct: 3,
+        explanation: "'Drip' was their first full-length album and sold over a million copies domestically."
+      },
+      {
+        question: "Which legendary K-pop artist co-wrote the title track 'Drip' for BabyMonster?",
+        options: ["A) G-Dragon", "B) PSY", "C) Taeyang", "D) Zico"],
+        correct: 0,
+        explanation: "G-Dragon — fellow YG legend — co-wrote 'Drip', a huge endorsement for the rookie group."
+      },
+      {
+        question: "The fandom name MONSTIEZ is a combination of two words — what are they?",
+        options: ["A) MONSTERS + LIES", "B) MONS + TIES", "C) MONSTER + KIDS", "D) MOON + STIES"],
+        correct: 1,
+        explanation: "MONS (from BabyMonster) + TIES (close bond) = MONSTIEZ. Cute and meaningful."
+      }
+    ],
+    stan: [
+      {
+        question: "What was BabyMonster's first English digital single, released February 1, 2024?",
+        options: ["A) Forever", "B) Stuck In The Middle", "C) Like That", "D) Dream"],
+        correct: 1,
+        explanation: "'Stuck In The Middle' was their first all-English release while Ahyeon was still on hiatus."
+      },
+      {
+        question: "Who placed #1 in BabyMonster's final debut evaluation rankings?",
+        options: ["A) Ruka", "B) Rami", "C) Ahyeon", "D) Pharita"],
+        correct: 2,
+        explanation: "Ahyeon ranked #1 — she's known as the group's all-rounder and one of the main vocalists."
+      },
+      {
+        question: "Before joining BabyMonster, which member was in the Japanese girl group Shibu3 Project?",
+        options: ["A) Asa", "B) Pharita", "C) Ruka", "D) Chiquita"],
+        correct: 2,
+        explanation: "Ruka was in Shibu3 Project — she's also been training in hip-hop dance since she was 6."
+      },
+      {
+        question: "Which BabyMonster member was previously in the children's group U.SSO Girl alongside NewJeans' Hyein?",
+        options: ["A) Rora", "B) Rami", "C) Ahyeon", "D) Chiquita"],
+        correct: 0,
+        explanation: "Rora performed as 'U.ha' in U.SSO Girl with NewJeans' Hyein before her YG audition."
+      },
+      {
+        question: "What is the name of BabyMonster's first world tour, launched in 2025?",
+        options: ["A) Born Monsters", "B) Hello Monsters", "C) Monster Mash", "D) MONSTIEZ Live"],
+        correct: 1,
+        explanation: "The 'Hello Monsters World Tour' was their first major global tour as a 7-member group."
+      },
+      {
+        question: "What was the title of BabyMonster's second mini-album, released in October 2025?",
+        options: ["A) Choom", "B) Hot Sauce", "C) We Go Up", "D) Ghost"],
+        correct: 2,
+        explanation: "'We Go Up' was their 2nd EP, and the title was said to reflect each member's personal aspirations."
+      },
+      {
+        question: "What is the title of BabyMonster's third EP, released May 4, 2026?",
+        options: ["A) Drip", "B) Choom", "C) Up & Up", "D) Monster Pop"],
+        correct: 1,
+        explanation: "'Choom' was released in May 2026, led by a single of the same name."
+      },
+      {
+        question: "Before her audition with YG, what job did Rami start at age 2?",
+        options: ["A) Child actress", "B) Junior figure skater", "C) Child model", "D) Voice actress"],
+        correct: 2,
+        explanation: "Rami began as a child model at age 2 — long before joining YG in 2018."
+      }
+    ]
+  };
+
+  // =============================================================
+  // QUIZ LOGIC — no need to edit below
+  // =============================================================
+  let selectedDiff = 'fan';
+  let questions = [];
+  let currentQ = 0;
+  let score = 0;
+  let answered = false;
+
+  document.querySelectorAll('.diff-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedDiff = btn.dataset.diff;
+    });
+  });
+
+  document.getElementById('start-btn').addEventListener('click', startQuiz);
+
+  // Fisher-Yates shuffle
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function startQuiz() {
+    questions = shuffle(QUESTIONS[selectedDiff]);
+    currentQ = 0;
+    score = 0;
+    document.getElementById('q-total').textContent = questions.length;
+    document.getElementById('final-score').innerHTML = '0<span class="denom">/' + questions.length + '</span>';
+    hide('setup-screen');
+    show('quiz-screen');
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    const q = questions[currentQ];
+    answered = false;
+
+    document.getElementById('q-num').textContent = currentQ + 1;
+    document.getElementById('score-num').textContent = score;
+    document.getElementById('progress-fill').style.width = ((currentQ / questions.length) * 100) + '%';
+
+    const qBox = document.getElementById('question-box');
+    qBox.setAttribute('data-num', 'Q' + (currentQ + 1));
+    document.getElementById('question-text').textContent = q.question;
+
+    const grid = document.getElementById('options-grid');
+    grid.innerHTML = '';
+    const letters = ['A', 'B', 'C', 'D'];
+
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      const text = opt.replace(/^[ABCD]\)\s*/i, '');
+      btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${text}</span>`;
+      btn.addEventListener('click', () => handleAnswer(i));
+      grid.appendChild(btn);
+    });
+
+    // Reset action row: skip visible, next hidden
+    document.getElementById('skip-btn').classList.remove('hidden');
+    document.getElementById('next-btn').classList.remove('show');
+
+    const fb = document.getElementById('feedback-box');
+    fb.className = 'feedback-box';
+    fb.textContent = '';
+  }
+
+  function handleAnswer(chosen) {
+    if (answered) return;
+    answered = true;
+
+    const q = questions[currentQ];
+    const correct = q.correct;
+    const btns = document.querySelectorAll('.option-btn');
+
+    btns.forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === correct) btn.classList.add('correct');
+      else if (i === chosen) btn.classList.add('wrong');
+    });
+
+    const fb = document.getElementById('feedback-box');
+    if (chosen === correct) {
+      score++;
+      document.getElementById('score-num').textContent = score;
+      fb.classList.add('show', 'correct-fb');
+      fb.textContent = '✓ Correct! ' + q.explanation;
+    } else {
+      fb.classList.add('show', 'wrong-fb');
+      fb.textContent = '✗ Not quite! ' + q.explanation;
+    }
+
+    // Hide skip, show next
+    document.getElementById('skip-btn').classList.add('hidden');
+    const nextBtn = document.getElementById('next-btn');
+    nextBtn.classList.add('show');
+    nextBtn.textContent = currentQ < questions.length - 1 ? 'Next Question →' : 'See Results →';
+  }
+
+  function handleSkip() {
+    if (answered) return;
+    answered = true;
+
+    const q = questions[currentQ];
+    const correct = q.correct;
+    const btns = document.querySelectorAll('.option-btn');
+
+    // Reveal the correct answer without marking anything wrong
+    btns.forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === correct) btn.classList.add('correct');
+    });
+
+    const fb = document.getElementById('feedback-box');
+    fb.classList.add('show', 'skip-fb');
+    fb.textContent = '↷ Skipped. The answer was: ' + q.options[correct].replace(/^[ABCD]\)\s*/, '') + ' — ' + q.explanation;
+
+    document.getElementById('skip-btn').classList.add('hidden');
+    const nextBtn = document.getElementById('next-btn');
+    nextBtn.classList.add('show');
+    nextBtn.textContent = currentQ < questions.length - 1 ? 'Next Question →' : 'See Results →';
+  }
+
+  document.getElementById('skip-btn').addEventListener('click', handleSkip);
+
+  document.getElementById('next-btn').addEventListener('click', () => {
+    currentQ++;
+    if (currentQ >= questions.length) showResults();
+    else renderQuestion();
+  });
+
+  function showResults() {
+    hide('quiz-screen');
+    show('results-screen');
+
+    const total = questions.length;
+    document.getElementById('final-score').innerHTML = score + '<span class="denom">/' + total + '</span>';
+    document.getElementById('progress-fill').style.width = '100%';
+
+    const pct = score / total;
+    let verdict, sub;
+
+    if (pct >= 0.9) {
+      verdict = '🏆 Certified MONSTIEZ';
+      sub = "You know it all — members, songs, the lore, the comebacks. The MONSTIEZ leaderboard wants a word. BabyMonster would be proud.";
+    } else if (pct >= 0.7) {
+      verdict = '💕 Real MONSTIE Energy';
+      sub = "You clearly love BabyMonster! Songs, members, the big moments — you've got it. A few details slipped by, but very impressive.";
+    } else if (pct >= 0.5) {
+      verdict = '🎵 Casual Listener';
+      sub = "You know the hits and the faces, but there's a whole BabyMonster universe waiting. Time to dive deeper into their MVs!";
+    } else if (pct >= 0.3) {
+      verdict = '👀 Still Learning';
+      sub = "You've heard the songs but the details are still new. Watch a few MVs, learn the members — you'll get there!";
+    } else {
+      verdict = '🌱 Just Getting Started';
+      sub = "Everyone starts somewhere! Start with 'Sheesh' and 'Drip' — those are the perfect introduction to BabyMonster. Welcome to MONSTIEZ! 💖";
+    }
+
+    document.getElementById('results-verdict').textContent = verdict;
+    document.getElementById('results-sub').textContent = sub;
+  }
+
+  function resetQuiz() {
+    hide('results-screen');
+    show('setup-screen');
+    questions = []; currentQ = 0; score = 0;
+  }
+
+  function show(id) { document.getElementById(id).classList.remove('hidden'); }
+  function hide(id) { document.getElementById(id).classList.add('hidden'); }
+</script>
+</body>
+</html>
