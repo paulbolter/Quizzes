@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UCL Final Results – Teacher View</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --gold: #C9A84C;
+    --bg: #0a0a0f;
+    --surface: #14141e;
+    --surface2: #1e1e2e;
+    --border: rgba(255,255,255,0.08);
+    --text: #f0f0f0;
+    --muted: #888;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+  .hero {
+    background: linear-gradient(135deg, #0a2a0a 0%, #0a0a0f 50%, #2a0a00 100%);
+    padding: 28px 24px 22px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .page-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 34px;
+    letter-spacing: 3px;
+    color: #f0f0f0;
+  }
+  .container { max-width: 640px; margin: 0 auto; padding: 0 20px; }
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 28px 0 12px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .score-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .score-team-label {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 6px;
+  }
+  .score-team-label.psg { color: #4da6ff; }
+  .score-team-label.ars { color: #ff6b6b; }
+  input[type="number"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    text-align: center;
+    padding: 10px 0;
+    outline: none;
+    transition: border-color 0.2s;
+    -moz-appearance: textfield;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+  input[type="number"]:focus { border-color: var(--gold); }
+  .score-dash {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .toggle-group { display: flex; gap: 10px; margin-bottom: 16px; }
+  .toggle-label { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .toggle-btn {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 11px 0;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .toggle-btn.active {
+    background: rgba(201,168,76,0.15);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .calc-btn {
+    width: 100%;
+    background: var(--gold);
+    border: none;
+    border-radius: 12px;
+    color: #0a0a0f;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 16px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-top: 4px;
+  }
+  .calc-btn:hover { opacity: 0.9; }
+
+  #pen-toggle-wrap { display: none; }
+
+  /* Results */
+  #results-section { display: none; }
+  .winners-box {
+    background: linear-gradient(135deg, rgba(201,168,76,0.12), rgba(201,168,76,0.04));
+    border: 1px solid rgba(201,168,76,0.35);
+    border-radius: 16px;
+    padding: 28px 24px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .winners-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+  }
+  .winner-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 38px;
+    letter-spacing: 2px;
+    line-height: 1.1;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .winner-guess {
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .winner-guess span { color: var(--text); font-weight: 500; }
+  .trophy { font-size: 48px; margin-bottom: 10px; }
+
+  .all-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .all-table thead tr {
+    border-bottom: 1px solid var(--border);
+  }
+  .all-table th {
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 0 10px;
+    font-weight: 500;
+  }
+  .all-table th:last-child, .all-table td:last-child { text-align: right; }
+  .all-table tr.data-row td {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .all-table tr.data-row:last-child td { border-bottom: none; }
+  .rank-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    color: var(--muted);
+    width: 28px;
+  }
+  .rank-num.winner-rank { color: var(--gold); }
+  .row-name { font-weight: 500; }
+  .row-score {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+  }
+  .badge {
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 5px;
+    margin-left: 4px;
+  }
+  .badge-et { background: rgba(77,166,255,0.12); color: #4da6ff; border: 1px solid rgba(77,166,255,0.2); }
+  .badge-pen { background: rgba(255,200,50,0.12); color: #ffc832; border: 1px solid rgba(255,200,50,0.2); }
+  .diff-cell { font-size: 13px; color: var(--muted); }
+  .diff-cell.zero { color: #6fda8e; font-weight: 600; }
+  .diff-cell.low { color: #c8e880; }
+  .diff-cell.med { color: #f5c842; }
+
+  #loading-results { text-align:center; color:var(--muted); padding: 20px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-label">Teacher View</div>
+  <div class="page-title">UCL Final · Results Calculator</div>
+</div>
+
+<div class="container">
+
+  <p class="section-label">Enter the real final score</p>
+  <div class="card">
+    <div>
+      <div class="score-row" style="margin-bottom:4px;">
+        <div class="score-team-label psg">PSG</div>
+        <div></div>
+        <div class="score-team-label ars">Arsenal</div>
+      </div>
+      <div class="score-row">
+        <input type="number" id="real-psg" min="0" max="20" value="0">
+        <div class="score-dash">–</div>
+        <input type="number" id="real-ars" min="0" max="20" value="0">
+      </div>
+    </div>
+
+    <div class="toggle-label">Extra time?</div>
+    <div class="toggle-group">
+      <button class="toggle-btn" id="et-no" onclick="setToggle('et','no')">No</button>
+      <button class="toggle-btn" id="et-yes" onclick="setToggle('et','yes')">Yes</button>
+    </div>
+
+    <div id="pen-toggle-wrap">
+      <div class="toggle-label">Penalties?</div>
+      <div class="toggle-group">
+        <button class="toggle-btn" id="pen-no" onclick="setToggle('pen','no')">No</button>
+        <button class="toggle-btn" id="pen-yes" onclick="setToggle('pen','yes')">Yes</button>
+      </div>
+    </div>
+
+    <button class="calc-btn" onclick="calculate()">Calculate winners 🏆</button>
+  </div>
+
+  <div id="results-section">
+    <p class="section-label" style="margin-top:32px;">Winners</p>
+    <div id="winners-box" class="winners-box"></div>
+
+    <p class="section-label">All predictions — ranked</p>
+    <div class="card">
+      <div id="loading-results" style="display:none;">Loading…</div>
+      <table class="all-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Predicted</th>
+            <th>Diff</th>
+          </tr>
+        </thead>
+        <tbody id="results-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ============================================================
+  // CONFIGURATION — same URL as student page
+  // ============================================================
+  const SHEET_URL = https://script.google.com/macros/s/AKfycbxZlhorhz3Fg7T6bIspsDfQHQrvuKkDFTKhTTF9p7GBmkjessXw6l5bULOIN43AmMtw/exec;
+  // ============================================================
+
+  const state = { et: 'no', pen: 'no' };
+
+  function setToggle(field, val) {
+    state[field] = val;
+    ['yes','no'].forEach(v => {
+      const el = document.getElementById(field+'-'+v);
+      if (el) el.classList.toggle('active', v === val);
+    });
+    if (field === 'et') {
+      document.getElementById('pen-toggle-wrap').style.display = val === 'yes' ? 'block' : 'none';
+      if (val === 'no') setToggle('pen','no');
+    }
+  }
+  setToggle('et','no');
+  setToggle('pen','no');
+
+  function clamp(val) {
+    const n = parseInt(val,10);
+    return isNaN(n) ? 0 : Math.max(0,Math.min(20,n));
+  }
+
+  async function calculate() {
+    const realPSG = clamp(document.getElementById('real-psg').value);
+    const realARS = clamp(document.getElementById('real-ars').value);
+    const realET  = state.et;
+    const realPEN = (state.et === 'yes' && state.pen === 'yes') ? 'yes' : 'no';
+
+    let guesses;
+    try {
+      const res = await fetch(SHEET_URL + '?action=list');
+      const data = await res.json();
+      guesses = data.guesses || [];
+    } catch(e) {
+      alert('Could not load predictions. Check your internet connection.');
+      return;
+    }
+
+    if (guesses.length === 0) {
+      alert('No predictions found in the sheet yet.');
+      return;
+    }
+
+    // Score each guess
+    guesses.forEach(g => {
+      const psgDiff = Math.abs(parseInt(g.psg,10) - realPSG);
+      const arsDiff = Math.abs(parseInt(g.ars,10) - realARS);
+      g.goalDiff = psgDiff + arsDiff;
+      g.etMatch  = g.et  === realET  ? 1 : 0;
+      g.penMatch = g.pen === realPEN ? 1 : 0;
+    });
+
+    // Sort: goalDiff ASC, then etMatch DESC, then penMatch DESC
+    guesses.sort((a,b) => {
+      if (a.goalDiff !== b.goalDiff) return a.goalDiff - b.goalDiff;
+      if (b.etMatch  !== a.etMatch)  return b.etMatch  - a.etMatch;
+      return b.penMatch - a.penMatch;
+    });
+
+    // Find winners (same top score)
+    const best = guesses[0];
+    const winners = guesses.filter(g =>
+      g.goalDiff === best.goalDiff &&
+      g.etMatch  === best.etMatch  &&
+      g.penMatch === best.penMatch
+    );
+
+    renderResults(winners, guesses, realPSG, realARS);
+  }
+
+  function renderResults(winners, all, realPSG, realARS) {
+    document.getElementById('results-section').style.display = 'block';
+    document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Winners box
+    const wb = document.getElementById('winners-box');
+    if (winners.length === 1) {
+      wb.innerHTML = `
+        <div class="trophy">🏆</div>
+        <div class="winners-label">Winner</div>
+        <div class="winner-name">${esc(winners[0].name)}</div>
+        <div class="winner-guess">Predicted <span>${winners[0].psg} – ${winners[0].ars}</span>${winnerExtras(winners[0])} · ${winners[0].goalDiff === 0 ? 'Perfect score!' : 'Off by ' + winners[0].goalDiff + ' goal' + (winners[0].goalDiff > 1 ? 's' : '')}</div>`;
+    } else {
+      wb.innerHTML = `
+        <div class="trophy">🏆</div>
+        <div class="winners-label">${winners.length} Winners!</div>
+        ${winners.map(w => `<div class="winner-name">${esc(w.name)}</div>`).join('')}
+        <div class="winner-guess" style="margin-top:8px;">All predicted within ${best_diff(winners)} goal${best_diff(winners) !== 1 ? 's' : ''} of the real score</div>`;
+    }
+
+    // Table
+    const tbody = document.getElementById('results-table-body');
+    tbody.innerHTML = '';
+    let rank = 1;
+    all.forEach((g, i) => {
+      if (i > 0 && (g.goalDiff !== all[i-1].goalDiff || g.etMatch !== all[i-1].etMatch || g.penMatch !== all[i-1].penMatch)) rank = i + 1;
+      const isWinner = winners.includes(g);
+      const diffClass = g.goalDiff === 0 ? 'zero' : g.goalDiff <= 1 ? 'low' : g.goalDiff <= 2 ? 'med' : '';
+      const tr = document.createElement('tr');
+      tr.className = 'data-row';
+      tr.innerHTML = `
+        <td class="rank-num ${isWinner ? 'winner-rank' : ''}">${rank}</td>
+        <td class="row-name">${esc(g.name)}${isWinner ? ' 🏆' : ''}</td>
+        <td class="row-score">
+          <span style="color:#4da6ff">${g.psg}</span>
+          <span style="color:var(--muted);font-size:14px"> – </span>
+          <span style="color:#ff6b6b">${g.ars}</span>
+          ${g.et==='yes' ? '<span class="badge badge-et">ET</span>' : ''}
+          ${g.pen==='yes' ? '<span class="badge badge-pen">PEN</span>' : ''}
+        </td>
+        <td class="diff-cell ${diffClass}">${g.goalDiff === 0 ? '✓ exact' : '±' + g.goalDiff}</td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function best_diff(winners) { return winners[0].goalDiff; }
+
+  function winnerExtras(g) {
+    let s = '';
+    if (g.et === 'yes') s += ' + ET';
+    if (g.pen === 'yes') s += ' + Pen';
+    return s ? ` <span style="color:var(--muted)">(${s.trim()})</span>` : '';
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>
