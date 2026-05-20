@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tale of the Nine Tailed — The Quiz · 2020</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #fbf5e9;
+    --cream-warm: #f6ecd6;
+    --cream-card: #ffffff;
+    --gold: #c9a24c;
+    --gold-soft: #e8d29a;
+    --gold-deep: #a8862e;
+    --gold-glow: #f3e6bc;
+    --brown: #4a3528;
+    --brown-soft: #7a5a44;
+    --brown-muted: #a08770;
+    --red: #b8423a;
+    --red-soft: #d97a72;
+    --red-bg: #fbe8e5;
+    --red-text: #6e2520;
+    --blue: #2a3d5c;
+    --blue-soft: #5a6f8e;
+    --green-bg: #ecf2dc;
+    --green-border: #8aa854;
+    --green-text: #3d5018;
+    --border: #e8dcc0;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    background-image:
+      radial-gradient(ellipse at 15% 0%, rgba(201, 162, 76, 0.10) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 100%, rgba(184, 66, 58, 0.06) 0%, transparent 55%);
+    color: var(--brown);
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    padding-bottom: 2rem;
+  }
+
+  /* ── Banner ── */
+  .banner {
+    width: 100%; height: 200px; position: relative; overflow: hidden;
+    background: linear-gradient(135deg, #f6ecd6 0%, #f3dfa6 35%, #e8c66f 65%, #d4a04a 100%);
+    margin-bottom: 1.75rem;
+  }
+  .banner::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      radial-gradient(circle at 18% 35%, rgba(255,255,255,0.5) 0%, transparent 28%),
+      radial-gradient(circle at 78% 65%, rgba(184, 66, 58, 0.18) 0%, transparent 35%);
+  }
+  .banner::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 60px;
+    background: linear-gradient(180deg, rgba(251,245,233,0) 0%, rgba(251,245,233,1) 100%);
+  }
+  .banner-inner {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -55%);
+    text-align: center; z-index: 1; padding: 0 1rem;
+  }
+  .banner-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(26px, 4vw, 38px);
+    font-weight: 800;
+    color: var(--brown);
+    letter-spacing: 0.01em;
+    line-height: 1.15;
+    text-shadow: 0 2px 6px rgba(255,255,255,0.4);
+  }
+  .banner-sub {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--red);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-top: 10px;
+  }
+  .banner-divider {
+    width: 80px; height: 2px; margin: 12px auto 0;
+    background: linear-gradient(90deg, transparent, var(--red), transparent);
+    border-radius: 2px;
+  }
+
+  #app { width: 100%; max-width: 1080px; padding: 0 1.25rem; }
+
+  /* ── Picker ── */
+  .picker-intro {
+    text-align: center; font-size: 15px; color: var(--brown-soft);
+    margin-bottom: 1.5rem; line-height: 1.55; max-width: 580px;
+    margin-left: auto; margin-right: auto;
+  }
+  .section-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+  .section-card {
+    background: var(--cream-card);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--gold);
+    border-radius: 12px;
+    padding: 1.15rem 1.35rem;
+    cursor: pointer; text-align: left; width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.18s ease;
+    box-shadow: 0 2px 8px rgba(74, 53, 40, 0.04);
+  }
+  .section-card:hover {
+    background: var(--cream-warm);
+    border-top-color: var(--red);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(184, 66, 58, 0.10);
+  }
+  .section-card:active { transform: translateY(0); }
+  .section-card-top { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+  .section-card-num {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .section-card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 19px; font-weight: 700; color: var(--brown); margin-bottom: 4px;
+  }
+  .section-card-desc { font-size: 13px; color: var(--brown-muted); line-height: 1.45; }
+
+  /* ── Quiz Header ── */
+  .quiz-header { margin-bottom: 1rem; }
+  .back-btn {
+    background: transparent; border: none; color: var(--brown-soft);
+    padding: 0; margin-bottom: 0.75rem; font-size: 13px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-weight: 500;
+  }
+  .back-btn:hover { color: var(--red); text-decoration: underline; }
+  .section-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--gold-deep); margin-bottom: 4px;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px; font-weight: 700; color: var(--brown);
+  }
+  .progress-row { display: flex; align-items: center; gap: 12px; margin: 1rem 0 1.25rem; }
+  .progress-bar {
+    flex: 1; height: 5px; background: var(--gold-glow);
+    border-radius: 3px; overflow: hidden;
+    border: 1px solid var(--gold-soft);
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-deep));
+    border-radius: 3px; transition: width 0.35s ease;
+  }
+  .progress-text {
+    font-size: 13px; color: var(--brown-soft);
+    white-space: nowrap; font-weight: 500;
+  }
+
+  /* ── TWO-COLUMN LAYOUT ── */
+  .quiz-row {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 18px;
+    align-items: stretch;
+  }
+
+  /* Question card (left) */
+  .question-card {
+    background: var(--cream-card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--gold);
+    border-radius: 14px;
+    padding: 1.75rem 1.85rem;
+    box-shadow: 0 2px 10px rgba(74, 53, 40, 0.05);
+  }
+  .question-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; font-weight: 700; color: var(--brown);
+    line-height: 1.35; margin-bottom: 1.5rem;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 18px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer; font-size: 16px; font-weight: 500;
+    color: var(--brown); background: var(--cream-card);
+    text-align: left; width: 100%;
+    transition: all 0.15s ease;
+    font-family: 'DM Sans', sans-serif; line-height: 1.4;
+  }
+  .option:hover:not(:disabled) {
+    background: var(--cream-warm);
+    border-color: var(--gold);
+  }
+  .option.correct {
+    background: var(--green-bg);
+    border-color: var(--green-border);
+    color: var(--green-text);
+  }
+  .option.wrong {
+    background: var(--red-bg);
+    border-color: var(--red-soft);
+    color: var(--red-text);
+  }
+  .option.opinion {
+    background: #e8eef5;
+    border-color: var(--blue-soft);
+    color: var(--blue);
+  }
+  .option:disabled { cursor: default; }
+  .letter {
+    font-size: 13px; font-weight: 700;
+    color: var(--gold-deep); min-width: 18px;
+  }
+  .option.correct .letter { color: var(--green-text); }
+  .option.wrong .letter { color: var(--red-text); }
+  .option.opinion .letter { color: var(--blue); }
+
+  /* Feedback panel (right) */
+  .feedback-panel {
+    background: var(--cream-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem 1.4rem;
+    display: flex; flex-direction: column;
+    box-shadow: 0 2px 10px rgba(74, 53, 40, 0.05);
+    min-height: 100%;
+  }
+  .feedback-panel.empty {
+    background: transparent;
+    border: 2px dashed var(--border);
+    box-shadow: none;
+    align-items: center; justify-content: center;
+    color: var(--brown-muted);
+    font-size: 14px;
+    text-align: center;
+    padding: 2rem 1.5rem;
+    font-style: italic;
+  }
+  .feedback-panel.empty .feedback-empty-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+    opacity: 0.4;
+  }
+  .feedback-panel.correct { border-left: 5px solid var(--green-border); }
+  .feedback-panel.wrong { border-left: 5px solid var(--red-soft); }
+  .feedback-panel.opinion { border-left: 5px solid var(--blue-soft); }
+
+  .feedback-header {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+  .feedback-panel.correct .feedback-header { color: var(--green-text); }
+  .feedback-panel.wrong .feedback-header { color: var(--red-text); }
+  .feedback-panel.opinion .feedback-header { color: var(--blue); }
+
+  .feedback-text {
+    font-size: 15px; color: var(--brown);
+    line-height: 1.55; flex: 1;
+  }
+
+  .feedback-actions {
+    margin-top: 1.25rem;
+    display: flex; gap: 8px; justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+  .next-btn {
+    padding: 11px 24px;
+    border: 1px solid var(--red);
+    border-radius: 8px;
+    background: var(--red);
+    color: #fff;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.15s;
+    box-shadow: 0 2px 6px rgba(184, 66, 58, 0.2);
+  }
+  .next-btn:hover { background: #9a3530; }
+
+  .skip-btn {
+    padding: 11px 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--cream-card);
+    color: var(--brown-soft);
+    font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .skip-btn:hover { background: var(--cream-warm); color: var(--brown); }
+
+  .skip-row {
+    display: flex; justify-content: flex-end; margin-top: 10px;
+  }
+
+  /* ── Result Screen ── */
+  .result {
+    text-align: center; padding: 2.5rem 1rem;
+    background: var(--cream-card);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--gold);
+    border-radius: 14px;
+    max-width: 560px; margin: 0 auto;
+    box-shadow: 0 2px 10px rgba(74, 53, 40, 0.05);
+  }
+  .result-score {
+    font-family: 'Playfair Display', serif;
+    font-size: 64px; font-weight: 800;
+    color: var(--red);
+    margin-bottom: 4px;
+    line-height: 1;
+  }
+  .result-label {
+    font-size: 14px; color: var(--brown-muted);
+    margin-bottom: 1.25rem;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .result-msg {
+    font-family: 'Playfair Display', serif;
+    font-size: 19px; color: var(--brown);
+    margin-bottom: 2rem; line-height: 1.5;
+    font-style: italic;
+  }
+  .result-buttons {
+    display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+  }
+  .restart-btn {
+    padding: 11px 24px;
+    border: 1px solid var(--gold-deep);
+    border-radius: 8px;
+    background: var(--cream-card);
+    color: var(--gold-deep);
+    font-size: 14px; font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .restart-btn:hover { background: var(--gold-glow); }
+  .restart-btn.primary {
+    background: var(--red);
+    color: #fff;
+    border-color: var(--red);
+  }
+  .restart-btn.primary:hover { background: #9a3530; }
+
+  /* ── Mobile fallback ── */
+  @media (max-width: 820px) {
+    .quiz-row {
+      grid-template-columns: 1fr;
+    }
+    .feedback-panel.empty {
+      display: none;
+    }
+    .feedback-panel {
+      min-height: 0;
+    }
+    .banner { height: 160px; }
+    .banner-title { font-size: 24px; }
+    .question-card { padding: 1.4rem 1.5rem; }
+    .question-text { font-size: 19px; }
+    .option { font-size: 15px; padding: 12px 14px; }
+  }
+
+  @media (max-width: 480px) {
+    .banner { height: 140px; }
+    .banner-title { font-size: 20px; }
+    .banner-sub { font-size: 11px; }
+    .section-title { font-size: 21px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="banner">
+  <div class="banner-inner">
+    <div class="banner-title">Tale of the Nine Tailed</div>
+    <div class="banner-divider"></div>
+    <div class="banner-sub">The Quiz · 2020</div>
+  </div>
+</div>
+
+<div id="app">
+
+  <!-- SECTION PICKER -->
+  <div id="picker">
+    <p class="picker-intro">Five sections, one drama. Test what you remember about Lee Yeon, Ji-ah and the world of the fox spirits. Try them in any order.</p>
+    <div class="section-list" id="section-list"></div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz" style="display:none">
+    <div class="quiz-header">
+      <button class="back-btn" onclick="goHome()">← Back to sections</button>
+      <p class="section-label" id="quiz-section-label"></p>
+      <p class="section-title" id="quiz-section-title"></p>
+      <div class="progress-row">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        <span class="progress-text" id="progress-text"></span>
+      </div>
+    </div>
+
+    <div class="quiz-row">
+      <!-- LEFT: Question -->
+      <div class="question-card">
+        <p class="question-text" id="question-text"></p>
+        <div class="options" id="options"></div>
+        <div class="skip-row" id="skip-row" style="display:none">
+          <button class="skip-btn" id="skip-btn" onclick="skipQuestion()">Skip this one →</button>
+        </div>
+      </div>
+
+      <!-- RIGHT: Feedback panel -->
+      <div class="feedback-panel empty" id="feedback-panel">
+        <div>Pick an answer to see how you did</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result" style="display:none">
+    <div class="result">
+      <div class="result-score" id="result-score"></div>
+      <div class="result-label" id="result-label">out of 6</div>
+      <div class="result-msg" id="result-msg"></div>
+      <div class="result-buttons">
+        <button class="restart-btn primary" onclick="restartCurrent()">Try again</button>
+        <button class="restart-btn" onclick="goHome()">Back to sections</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============== SECTIONS ============== */
+const sections = [
+  {
+    id: 1,
+    title: 'Plot',
+    desc: 'What happens in the story',
+    questions: [
+      { q: "What is Nam Ji-ah's job at the start of the drama?",
+        options: ["A police detective", "A producer of a TV show about the supernatural", "A school teacher", "A novelist"],
+        answer: 1,
+        feedback: "Ji-ah produces a paranormal TV show — partly because she is searching for clues about her parents, who disappeared when she was a child." },
+      { q: "Why has Lee Yeon been waiting for hundreds of years?",
+        options: ["He is trapped in the human world", "He is waiting for his lost love Ah-eum to be reborn", "He is hiding from the Afterlife Immigration Office", "He is searching for his missing brother"],
+        answer: 1,
+        feedback: "Lee Yeon promised Ah-eum he would find her again — so he has been waiting through every lifetime for her to return." },
+      { q: "Why does Lee Yeon believe Ji-ah is connected to his past?",
+        options: ["She has the same name as his lost love", "She looks exactly like Ah-eum, the woman he loved long ago", "She knows the secret of the fox bead", "Her parents told her stories about him"],
+        answer: 1,
+        feedback: "Ji-ah is the reincarnation of Ah-eum — and she has the same face, which catches Lee Yeon's attention right away." },
+      { q: "Who is the main villain of the drama?",
+        options: ["Granny Taluipa", "Lee Rang", "The Imoogi — an evil serpent spirit", "A corrupt police officer"],
+        answer: 2,
+        feedback: "The Imoogi is an ancient serpent spirit who possesses people's bodies and is the true enemy of both Lee Yeon and Ji-ah." },
+      { q: "Where does much of the supernatural business take place?",
+        options: ["A hidden temple in the mountains", "The Afterlife Immigration Office", "An old library", "A floating island"],
+        answer: 1,
+        feedback: "The Afterlife Immigration Office is where souls are sorted before moving on — run by the funny but powerful Granny Taluipa and Hyeon-eui-ong." },
+      { q: "By the end of the story, what does Lee Yeon do for the people he loves?",
+        options: ["He gives up being a fox spirit and lives quietly", "He makes a great sacrifice to defeat the Imoogi and save them", "He marries Ji-ah and they move away", "He becomes the new mountain god immediately"],
+        answer: 1,
+        feedback: "Lee Yeon's final act is a powerful sacrifice — the show is really a story about love that lasts beyond a single lifetime." }
+    ]
+  },
+  {
+    id: 2,
+    title: 'Characters',
+    desc: 'Fox spirits, humans and friends',
+    questions: [
+      { q: "What kind of being is Lee Yeon?",
+        options: ["A vampire", "A nine-tailed fox spirit (gumiho) and former mountain god", "A ghost", "A wizard"],
+        answer: 1,
+        feedback: "Lee Yeon is a gumiho — a nine-tailed fox. Long ago he was the mountain god of Baekdudaegan before he gave up that role." },
+      { q: "Who is Lee Rang to Lee Yeon?",
+        options: ["His son", "His best friend", "His younger half-brother", "His teacher"],
+        answer: 2,
+        feedback: "Lee Rang is Lee Yeon's half-brother — half-fox and half-human — and their complicated relationship is at the heart of the drama." },
+      { q: "Why is Lee Rang so angry with his older brother?",
+        options: ["Lee Yeon stole something from him", "He feels Lee Yeon abandoned him when he was young", "Lee Yeon laughed at him in front of others", "He doesn't like Ji-ah"],
+        answer: 1,
+        feedback: "Lee Rang grew up feeling abandoned, and he blames his big brother for not being there — though the truth is more painful than he realises." },
+      { q: "Who is Shin-joo?",
+        options: ["A police officer who helps Ji-ah", "A half-human assistant to Lee Yeon who works as a vet", "Lee Rang's best friend", "An old enemy of Lee Yeon"],
+        answer: 1,
+        feedback: "Shin-joo is loyal, kind, and works as a veterinarian. He has served Lee Yeon for a very long time." },
+      { q: "Who runs the Afterlife Immigration Office?",
+        options: ["Lee Yeon and Shin-joo", "Granny Taluipa and Hyeon-eui-ong", "The Imoogi", "Ji-ah's parents"],
+        answer: 1,
+        feedback: "Granny Taluipa (the goddess of life and death) and Hyeon-eui-ong (the river god) — a married couple who are powerful, wise and often very funny." },
+      { q: "Who is Yu-ri?",
+        options: ["A young catfish spirit who becomes part of the group", "Lee Yeon's old enemy", "Ji-ah's little sister", "A teacher at the school"],
+        answer: 0,
+        feedback: "Yu-ri is a child-like catfish spirit. She is sweet, brave, and brings warmth to the group." }
+    ]
+  },
+  {
+    id: 3,
+    title: 'Mythology & Lore',
+    desc: 'The fox spirit world',
+    questions: [
+      { q: "How many tails does a gumiho like Lee Yeon have?",
+        options: ["Three", "Five", "Seven", "Nine"],
+        answer: 3,
+        feedback: "Nine — 'gumiho' means 'nine-tailed fox' in Korean. The number nine shows great power and long life." },
+      { q: "What is the 'yeowoo guseul' (fox bead)?",
+        options: ["A piece of magic jewellery anyone can wear", "A precious pearl that holds a fox spirit's power and life force", "A weapon used to fight monsters", "A key to the Afterlife Office"],
+        answer: 1,
+        feedback: "The fox bead is a pearl-like stone that holds a gumiho's essence — losing it is very dangerous." },
+      { q: "What is the Samdo River in the show's world?",
+        options: ["A river that runs through Seoul", "A river that separates the world of the living from the afterlife", "A river where fox spirits bathe", "A river that brings good luck"],
+        answer: 1,
+        feedback: "The Samdo River is the border between the living world and the next world — souls must cross it after death." },
+      { q: "How do souls usually travel to the afterlife in this story?",
+        options: ["They walk a long road", "They sail in a small boat", "They take a bus", "They fly with a guide"],
+        answer: 2,
+        feedback: "One of the show's most charming ideas — souls take a bus to the afterlife. It feels modern and mythic at the same time." },
+      { q: "What was Lee Yeon long ago, before the story begins?",
+        options: ["A king of humans", "The mountain god of Baekdudaegan", "A simple farmer", "A travelling singer"],
+        answer: 1,
+        feedback: "Lee Yeon was the powerful mountain god of Baekdudaegan — he gave up that role for love." },
+      { q: "What is special about the Imoogi in Korean myth, as shown in the drama?",
+        options: ["It is a fox that lost its tails", "It is a giant serpent that wants to become a dragon", "It is a ghost of an angry king", "It is a forest spirit"],
+        answer: 1,
+        feedback: "In legend, an imoogi is a great serpent waiting to become a dragon — in this show, it is twisted by hate and possesses humans." }
+    ]
+  },
+  {
+    id: 4,
+    title: 'Iconic Moments',
+    desc: 'Scenes fans never forget',
+    questions: [
+      { q: "What item is strongly linked to Lee Yeon in the show's most beautiful scenes?",
+        options: ["A blue scarf", "A red umbrella", "A silver sword", "A golden mask"],
+        answer: 1,
+        feedback: "The red umbrella is one of the most iconic images of the drama — soft, romantic, and a little bit lonely." },
+      { q: "Where do Lee Yeon and Ji-ah have many of their meaningful conversations?",
+        options: ["In a noodle shop", "Under a cherry blossom tree", "On a rooftop in Seoul", "At a bus stop"],
+        answer: 1,
+        feedback: "The cherry tree returns again and again — it ties the past life of Ah-eum to the present life of Ji-ah." },
+      { q: "What is the Afterlife Immigration Office best described as?",
+        options: ["A frightening, dark place full of ghosts", "A modern office where dead people are processed for the next world", "A garden with no buildings", "A library of human memories"],
+        answer: 1,
+        feedback: "The Afterlife Office looks like a busy modern workplace — and that mix of the everyday and the magical is one of the show's best ideas." },
+      { q: "What does Lee Rang often do that shows his loneliness, even when he is being cruel?",
+        options: ["He laughs to himself", "He acts childish and asks for attention from his brother", "He sings old songs", "He hides in the woods"],
+        answer: 1,
+        feedback: "Lee Rang's playful, almost childish behaviour towards his brother shows how much he just wants Lee Yeon to notice him." },
+      { q: "Why is the cherry tree such an important image in the drama?",
+        options: ["It is where the Imoogi was first defeated", "It is connected to Ah-eum and to Lee Yeon's promise to find her again", "It hides the entrance to the afterlife", "It belongs to Granny Taluipa"],
+        answer: 1,
+        feedback: "The cherry tree is tied to Ah-eum — Lee Yeon's promise to find her was made under blossoms, and it returns in Ji-ah's life too." },
+      { q: "Which feeling does the drama return to most often, between Lee Yeon and Ji-ah?",
+        options: ["Anger", "Comedy and jokes", "A deep, patient love that lasts beyond one lifetime", "Friendship only"],
+        answer: 2,
+        feedback: "The whole show is built on the idea of love that waits — across centuries, across deaths, across rebirths." }
+    ]
+  },
+  {
+    id: 5,
+    title: 'No Right Answer',
+    desc: 'Opinion round · what do you think?',
+    isOpinion: true,
+    questions: [
+      { q: "Which character do you find the most interesting?",
+        options: ["Lee Yeon — the patient fox spirit", "Lee Rang — the angry younger brother", "Ji-ah — the brave human reporter", "Granny Taluipa — the funny goddess"],
+        feedback: "Many fans say Lee Rang stole the show — but every character is written with care." },
+      { q: "Was Lee Rang's anger towards his brother fair?",
+        options: ["Yes — he was abandoned and his feelings make sense", "No — Lee Yeon did what he had to do", "It is fair to feel angry, but not fair to hurt others", "I'm not sure — both brothers suffered"],
+        feedback: "This is one of the best things to talk about with friends — there are good arguments on every side." },
+      { q: "What do you like most about the world of this drama?",
+        options: ["The fox spirits and their powers", "The Afterlife Immigration Office", "The romance between Lee Yeon and Ji-ah", "The mix of myth and modern Seoul"],
+        feedback: "Fans love all of these — and most people pick a different favourite. There is no wrong answer." },
+      { q: "If you had a fox bead, what would you wish for?",
+        options: ["To meet someone from the past", "To protect the people I love", "To live a very long life", "To have a quiet, normal life"],
+        feedback: "A great question to think about. What you choose says something about what matters most to you." }
+    ]
+  }
+];
+
+/* ============== STATE ============== */
+let currentSection = null;
+let current = 0;
+let score = 0;
+let answered = false;
+
+/* ============== PICKER ============== */
+function renderPicker() {
+  document.getElementById('picker').style.display = 'block';
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+  window.scrollTo(0, 0);
+
+  const list = document.getElementById('section-list');
+  list.innerHTML = '';
+  sections.forEach(function(s) {
+    const card = document.createElement('button');
+    card.className = 'section-card';
+    card.onclick = function() { startSection(s.id); };
+    card.innerHTML = `
+      <div class="section-card-top">
+        <span class="section-card-num">Section ${s.id}</span>
+      </div>
+      <div class="section-card-title">${s.title}</div>
+      <div class="section-card-desc">${s.desc}</div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function goHome() {
+  renderPicker();
+}
+
+/* ============== QUIZ ============== */
+function startSection(id) {
+  currentSection = sections.find(function(s) { return s.id === id; });
+  current = 0;
+  score = 0;
+  answered = false;
+  document.getElementById('picker').style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+  document.getElementById('quiz-section-label').textContent = `Section ${currentSection.id}`;
+  document.getElementById('quiz-section-title').textContent = currentSection.title;
+  showQuestion();
+  window.scrollTo(0, 0);
+}
+
+function restartCurrent() {
+  startSection(currentSection.id);
+}
+
+function resetFeedbackPanel() {
+  const panel = document.getElementById('feedback-panel');
+  panel.className = 'feedback-panel empty';
+  panel.innerHTML = `
+    <div>Pick an answer to see how you did</div>
+  `;
+}
+
+function showQuestion() {
+  answered = false;
+  const q = currentSection.questions[current];
+  document.getElementById('question-text').textContent = q.q;
+
+  const total = currentSection.questions.length;
+  const pct = (current / total) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `${current + 1} / ${total}`;
+
+  const optsBox = document.getElementById('options');
+  optsBox.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+  q.options.forEach(function(opt, i) {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = `<span class="letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = function() { selectOption(i, btn); };
+    optsBox.appendChild(btn);
+  });
+
+  // Show skip button only for opinion sections
+  const skipRow = document.getElementById('skip-row');
+  skipRow.style.display = currentSection.isOpinion ? 'flex' : 'none';
+
+  resetFeedbackPanel();
+}
+
+function selectOption(idx, btn) {
+  if (answered) return;
+  answered = true;
+
+  // Hide skip button once they engage
+  document.getElementById('skip-row').style.display = 'none';
+
+  const q = currentSection.questions[current];
+  const allBtns = document.querySelectorAll('.option');
+  const panel = document.getElementById('feedback-panel');
+  const total = currentSection.questions.length;
+  const isLast = (current === total - 1);
+  const nextLabel = isLast ? 'See your score' : 'Next question →';
+
+  if (currentSection.isOpinion) {
+    // Opinion round — every answer counts
+    allBtns.forEach(function(b, i) {
+      b.disabled = true;
+      if (i === idx) b.classList.add('opinion');
+    });
+    score++;
+    panel.className = 'feedback-panel opinion';
+    panel.innerHTML = `
+      <div class="feedback-header">Thanks for sharing</div>
+      <div class="feedback-text">${q.feedback}</div>
+      <div class="feedback-actions">
+        <button class="next-btn" onclick="nextQuestion()">${nextLabel}</button>
+      </div>
+    `;
+  } else {
+    allBtns.forEach(function(b, i) {
+      b.disabled = true;
+      if (i === q.answer) b.classList.add('correct');
+      else if (i === idx) b.classList.add('wrong');
+    });
+
+    if (idx === q.answer) {
+      score++;
+      panel.className = 'feedback-panel correct';
+      panel.innerHTML = `
+        <div class="feedback-header">Correct</div>
+        <div class="feedback-text">${q.feedback}</div>
+        <div class="feedback-actions">
+          <button class="next-btn" onclick="nextQuestion()">${nextLabel}</button>
+        </div>
+      `;
+    } else {
+      panel.className = 'feedback-panel wrong';
+      panel.innerHTML = `
+        <div class="feedback-text">${q.feedback}</div>
+        <div class="feedback-actions">
+          <button class="next-btn" onclick="nextQuestion()">${nextLabel}</button>
+        </div>
+      `;
+    }
+  }
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= currentSection.questions.length) {
+    showResult();
+  } else {
+    showQuestion();
+  }
+}
+
+function skipQuestion() {
+  nextQuestion();
+}
+
+/* ============== RESULT ============== */
+function showResult() {
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('result').style.display = 'block';
+  const total = currentSection.questions.length;
+  document.getElementById('result-score').textContent = score;
+  document.getElementById('result-label').textContent = `out of ${total}`;
+
+  let msg = '';
+  if (currentSection.isOpinion) {
+    msg = "Thanks for sharing what you think. There are no wrong answers in this section.";
+  } else {
+    const pct = (score / total) * 100;
+    if (pct === 100) msg = "A perfect score — Lee Yeon would be proud.";
+    else if (pct >= 75) msg = "Great work — you really know this drama.";
+    else if (pct >= 50) msg = "Not bad! You remember the main story well.";
+    else if (pct >= 25) msg = "Maybe time for a rewatch — it's a beautiful one.";
+    else msg = "It might be a good show to watch — give it a try!";
+  }
+  document.getElementById('result-msg').textContent = msg;
+
+  window.scrollTo(0, 0);
+}
+
+/* ============== INIT ============== */
+renderPicker();
+</script>
+
+</body>
+</html>
