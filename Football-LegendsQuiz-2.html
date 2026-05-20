@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Football Legends 2 Quiz </title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --grass: #2e7d4f;
+    --grass-light: #4caf78;
+    --grass-pale: #e8f5ee;
+    --pitch: #f0f7f3;
+    --pitch-mid: #ddeee6;
+    --gold: #e8a020;
+    --gold-dim: #c4851a;
+    --gold-pale: #fef3e0;
+    --dark: #1a2e22;
+    --text: #2a3d30;
+    --grey: #7a9485;
+    --red: #c0392b;
+    --red-pale: #fdecea;
+    --card: #ffffff;
+    --border: #c8dfd3;
+    --border-strong: #a8c8b8;
+    --shadow: rgba(46,125,79,0.10);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--pitch);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(46,125,79,0.04) 49px, rgba(46,125,79,0.04) 50px),
+      repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(46,125,79,0.04) 49px, rgba(46,125,79,0.04) 50px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header {
+    text-align: center;
+    padding: 40px 0 32px;
+    border-bottom: 2px solid var(--border-strong);
+    margin-bottom: 36px;
+  }
+
+  .header .badge {
+    display: inline-block;
+    background: var(--grass);
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    padding: 4px 14px;
+    margin-bottom: 16px;
+    border-radius: 2px;
+  }
+
+  .header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 10vw, 80px);
+    line-height: 0.9;
+    letter-spacing: 2px;
+    color: var(--dark);
+  }
+
+  .header h1 span {
+    color: var(--grass);
+    display: block;
+  }
+
+  .header p {
+    margin-top: 16px;
+    color: var(--grey);
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── PLAYER PICKER GRID (4x3 = 12) ── */
+  .quiz-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  @media (max-width: 520px) {
+    .quiz-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .quiz-btn {
+    background: var(--card);
+    border: 2px solid var(--border);
+    color: var(--text);
+    padding: 14px 8px 12px;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px var(--shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Photo placeholder — circular initials. Easy to swap to <img> later */
+  .quiz-btn .photo {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--grass-pale);
+    border: 2px solid var(--border-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--grass);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    transition: all 0.18s;
+    overflow: hidden;
+  }
+
+  .quiz-btn .photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .quiz-btn .player-name {
+    line-height: 1.1;
+    min-height: 28px;
+    display: flex;
+    align-items: center;
+  }
+
+  .quiz-btn:hover {
+    border-color: var(--grass-light);
+    background: var(--grass-pale);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px var(--shadow);
+  }
+
+  .quiz-btn.selected {
+    background: var(--grass);
+    border-color: var(--grass);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(46,125,79,0.25);
+  }
+
+  .quiz-btn.selected .photo {
+    background: #fff;
+    border-color: var(--gold);
+    color: var(--grass);
+  }
+
+  /* ── START BUTTON ── */
+  .start-btn {
+    width: 100%;
+    background: var(--grass);
+    color: #fff;
+    border: none;
+    padding: 18px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+    box-shadow: 0 3px 12px rgba(46,125,79,0.3);
+  }
+
+  .start-btn:hover { background: var(--grass-light); transform: translateY(-1px); box-shadow: 0 5px 16px rgba(46,125,79,0.35); }
+
+  /* ── SECTION LABELS ── */
+  .section-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--grass);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border-strong); }
+
+  /* ── QUIZ ── */
+  .quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--border-strong);
+  }
+
+  .q-counter { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; color: var(--grey); }
+  .q-counter span { color: var(--grass); font-size: 22px; }
+  .score-display { font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; color: var(--grey); }
+  .score-display span { color: var(--grass); font-size: 22px; }
+
+  .player-banner {
+    text-align: center;
+    margin-bottom: 24px;
+    padding: 12px;
+    background: var(--grass-pale);
+    border-radius: 4px;
+    border-left: 4px solid var(--grass);
+  }
+  .player-banner .label { font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 3px; color: var(--grey); }
+  .player-banner .name { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 2px; color: var(--dark); margin-top: 2px; }
+
+  .question {
+    font-size: 19px;
+    line-height: 1.45;
+    margin-bottom: 24px;
+    color: var(--dark);
+    font-weight: 500;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .option-btn {
+    background: var(--card);
+    border: 2px solid var(--border);
+    color: var(--text);
+    padding: 16px 18px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.18s;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--grass-light);
+    background: var(--grass-pale);
+    transform: translateX(2px);
+  }
+
+  .option-btn .opt-letter {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    color: var(--grass);
+    min-width: 22px;
+  }
+
+  .option-btn.correct {
+    background: var(--grass);
+    border-color: var(--grass);
+    color: #fff;
+  }
+  .option-btn.correct .opt-letter { color: #fff; }
+
+  .option-btn.wrong {
+    background: var(--red-pale);
+    border-color: var(--red);
+    color: var(--red);
+  }
+  .option-btn.wrong .opt-letter { color: var(--red); }
+
+  .option-btn:disabled { cursor: default; }
+
+  /* ── FEEDBACK CARD ── */
+  .feedback {
+    padding: 14px 18px;
+    margin-top: 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1.5;
+    display: none;
+    background: var(--gold-pale);
+    border-left: 4px solid var(--gold);
+    color: var(--dark);
+  }
+
+  .feedback.show { display: block; }
+
+  /* ──────────────────────────────────────
+     SIDE-MOUNTED ACTION BUTTON
+     Floats to the right of the quiz card on wide screens.
+     Fixed position so it never requires scrolling.
+     ────────────────────────────────────── */
+  .side-action {
+    position: fixed;
+    top: 50%;
+    left: calc(50% + 380px);
+    transform: translateY(-50%);
+    width: 160px;
+    z-index: 50;
+    display: none;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .side-action.show { display: flex; }
+
+  .side-action button {
+    width: 100%;
+    border: none;
+    padding: 28px 14px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 6px;
+    box-shadow: 0 4px 14px rgba(46,125,79,0.25);
+  }
+
+  .next-btn {
+    background: var(--grass);
+    color: #fff;
+  }
+  .next-btn:hover { background: var(--grass-light); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(46,125,79,0.35); }
+
+  .skip-btn {
+    background: #fff;
+    color: var(--grey);
+    border: 2px solid var(--border-strong) !important;
+    font-size: 16px;
+    padding: 16px 14px;
+  }
+  .skip-btn:hover { background: var(--pitch-mid); color: var(--dark); transform: translateY(-2px); }
+
+  /* Below 1100px viewport, no room for side button — drop it under the question */
+  @media (max-width: 1100px) {
+    .side-action {
+      position: static;
+      transform: none;
+      width: auto;
+      max-width: 720px;
+      margin: 16px auto 0;
+      padding: 0 20px;
+      flex-direction: row;
+      gap: 10px;
+    }
+    .side-action button { padding: 18px 14px; font-size: 18px; }
+    .side-action .skip-btn { flex: 0 0 100px; }
+    .side-action .next-btn { flex: 1; }
+  }
+
+  /* ── RESULTS ── */
+  .results-screen {
+    text-align: center;
+    padding: 40px 0;
+  }
+
+  .results-screen .trophy {
+    font-size: 64px;
+    margin-bottom: 16px;
+  }
+
+  .results-screen h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    letter-spacing: 2px;
+    color: var(--dark);
+    margin-bottom: 8px;
+  }
+
+  .results-screen .final-score {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 72px;
+    color: var(--grass);
+    margin: 20px 0;
+    line-height: 1;
+  }
+
+  .results-screen .final-score span { color: var(--grey); font-size: 36px; }
+
+  .results-screen .verdict {
+    color: var(--grey);
+    font-size: 16px;
+    margin-bottom: 32px;
+  }
+
+  .play-again-btn {
+    background: var(--grass);
+    color: #fff;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+    box-shadow: 0 3px 12px rgba(46,125,79,0.3);
+  }
+
+  .play-again-btn:hover { background: var(--grass-light); transform: translateY(-1px); }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="badge">⚽ SUPERFAN QUIZ</div>
+    <h1>LEGENDS<span>QUIZ</span></h1>
+    <p>Pick a player. Test your knowledge.</p>
+  </div>
+
+  <!-- PLAYER PICKER -->
+  <div id="setup-screen">
+    <div class="section-label">CHOOSE A PLAYER</div>
+    <div class="quiz-grid" id="quiz-grid">
+      <!-- 12 player buttons injected by JS -->
+    </div>
+    <button class="start-btn" id="start-btn">⚽ KICK OFF</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz-screen" class="hidden">
+    <div class="player-banner">
+      <div class="label">PLAYER</div>
+      <div class="name" id="current-player">—</div>
+    </div>
+    <div class="quiz-header">
+      <div class="q-counter">QUESTION <span id="q-num">1</span> / <span id="q-total">6</span></div>
+      <div class="score-display">SCORE <span id="score">0</span></div>
+    </div>
+    <div class="question" id="question-text">…</div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results-screen" class="results-screen hidden">
+    <div class="trophy">🏆</div>
+    <h2>FULL TIME</h2>
+    <div class="final-score"><span id="final-score">0</span><span> / <span id="final-total">6</span></span></div>
+    <p class="verdict" id="verdict">—</p>
+    <button class="play-again-btn" onclick="resetQuiz()">PLAY AGAIN</button>
+  </div>
+
+</div>
+
+<!-- SIDE ACTION BUTTON (floats right of card on wide screens, drops below on narrow) -->
+<div class="side-action" id="side-action">
+  <button class="next-btn" id="next-btn">NEXT →</button>
+  <button class="skip-btn" id="skip-btn">SKIP</button>
+</div>
+
+<script>
+  // ─────────────────────────────────────────────
+  // PLAYER QUIZ BANK
+  // 12 players × 6 questions each
+  // ─────────────────────────────────────────────
+  const QUIZ_BANK = {
+    'Virgil van Dijk': [
+      {question:"Van Dijk joined Liverpool in January 2018 from which club?",options:["Celtic","Southampton","Ajax","Groningen"],correct:1,explanation:"The £75m fee was a world record for a defender at the time — many thought Liverpool had overpaid."},
+      {question:"In 2019, Van Dijk was the runner-up for the Ballon d'Or. Who beat him to the prize?",options:["Cristiano Ronaldo","Lionel Messi","Luka Modrić","Mohamed Salah"],correct:1,explanation:"Messi won his 6th — but many felt Van Dijk had been the better player that season after winning the Champions League."},
+      {question:"Van Dijk suffered a serious knee injury in October 2020 after a challenge from which goalkeeper?",options:["Jordan Pickford","Hugo Lloris","Ederson","David de Gea"],correct:0,explanation:"Pickford's high tackle in the Merseyside derby tore Van Dijk's ACL — he missed the rest of Liverpool's title defence."},
+      {question:"Van Dijk captains the Netherlands. Who did he succeed as the long-term national team captain?",options:["Wesley Sneijder","Robin van Persie","Arjen Robben","Wesley Hoedt"],correct:2,explanation:"Robben retired from international football after the 2017 World Cup qualifying campaign — Van Dijk became the new defensive leader and captain."},
+      {question:"Van Dijk lifted the Champions League with Liverpool in 2019. Who did they beat in the final?",options:["Barcelona","Tottenham","Ajax","Manchester City"],correct:1,explanation:"An all-English final in Madrid — Liverpool won 2-0 with goals from Salah (penalty) and Origi."},
+      {question:"Before his big move to Southampton, Van Dijk played in which league?",options:["The Eredivisie","The Belgian Pro League","The Bundesliga","The Scottish Premiership"],correct:3,explanation:"He spent two seasons at Celtic (2013–15), winning two Scottish league titles before Southampton signed him."}
+    ],
+    'Toni Kroos': [
+      {question:"Kroos joined Real Madrid in 2014 from Bayern Munich, just weeks after winning what trophy?",options:["The Champions League","The Bundesliga","The World Cup","The Confederations Cup"],correct:2,explanation:"Germany won the 2014 World Cup in Brazil — Kroos was a key midfielder. Madrid signed him for a bargain €25m soon after."},
+      {question:"Kroos won the Champions League how many times with Real Madrid?",options:["3","4","5","6"],correct:2,explanation:"2016, 2017, 2018, 2022 and 2024 — five titles, plus the one he won with Bayern in 2013, giving him six in total."},
+      {question:"In which World Cup semi-final did Germany beat Brazil 7-1, with Kroos scoring twice?",options:["2010","2014","2018","2022"],correct:1,explanation:"The famous Mineirão thrashing — Kroos scored two in just 70 seconds during a six-goal first-half burst."},
+      {question:"Kroos retired from professional football immediately after which tournament?",options:["The 2022 World Cup","Euro 2024","The 2024 Champions League final","The 2024-25 La Liga season"],correct:1,explanation:"He retired at home, playing for Germany at Euro 2024 — they were knocked out in the quarter-finals by Spain."},
+      {question:"Kroos came through the youth system of which club, before Bayern bought him?",options:["Hansa Rostock","Hertha Berlin","Werder Bremen","Schalke 04"],correct:0,explanation:"He was at Rostock until 16, when Bayern signed him as one of Germany's most promising youngsters."},
+      {question:"What was Kroos most famous for on the pitch?",options:["Powerful long-range shooting","Pinpoint passing range and ball control","Aggressive tackling","Heading and aerial duels"],correct:1,explanation:"He was known for completing 90%+ of his passes every season — Madrid's metronome who set the tempo from deep midfield."}
+    ],
+    'Philipp Lahm': [
+      {question:"Lahm captained Germany to victory at which World Cup?",options:["2006","2010","2014","2018"],correct:2,explanation:"Germany beat Argentina 1-0 in the final in Rio — Lahm lifted the trophy and retired from international football immediately after."},
+      {question:"Lahm was unusual among full-backs in that he played comfortably on which side?",options:["Only the right","Only the left","Both sides equally","Neither — he was a centre-back"],correct:2,explanation:"He was naturally right-footed but played most of his early career at left-back, then switched to the right — and could also play defensive midfield."},
+      {question:"Lahm spent almost his entire club career at which one club?",options:["Borussia Dortmund","Bayer Leverkusen","Bayern Munich","Schalke 04"],correct:2,explanation:"Bayern from age 11, with one loan spell at Stuttgart — he played over 500 games for Bayern and captained them for six years."},
+      {question:"Under which manager did Lahm win the 2013 Champions League, completing Bayern's treble?",options:["Pep Guardiola","Jupp Heynckes","Louis van Gaal","Carlo Ancelotti"],correct:1,explanation:"Heynckes led Bayern to the treble — Lahm captained the side that beat Borussia Dortmund 2-1 in the all-German final at Wembley."},
+      {question:"After retiring in 2017, Lahm took on what major football role?",options:["Bayern Munich head coach","Germany national team manager","Tournament director for Euro 2024","FIFA technical director"],correct:2,explanation:"He led the organisation of Euro 2024, hosted in Germany — Spain won the tournament."},
+      {question:"Lahm was widely praised by Pep Guardiola, who once called him what?",options:["The hardest-working player he had ever coached","The most intelligent player he had ever coached","The most loyal player he had ever coached","The fastest player he had ever coached"],correct:1,explanation:"Guardiola said in 2014 that Lahm was 'probably the most intelligent player' he had ever coached — high praise from someone who had managed Messi, Iniesta and Xavi."}
+    ],
+    'Arjen Robben': [
+      {question:"Robben scored the winning goal in the 2013 Champions League final for Bayern Munich. Who did they beat?",options:["Real Madrid","Borussia Dortmund","Barcelona","Chelsea"],correct:1,explanation:"The all-German final at Wembley — Robben's late winner made up for the heartbreak of losing the 2012 final to Chelsea at Bayern's own stadium."},
+      {question:"Robben was famous for one specific move. What was it?",options:["A stepover before crossing","Cutting inside from the right onto his left foot","A long-range run from his own half","Backheel passes in tight spaces"],correct:1,explanation:"Defenders knew it was coming — but his pace and balance made it impossible to stop. He scored dozens of goals this way."},
+      {question:"Robben played for Chelsea before joining which Spanish club in 2007?",options:["Barcelona","Real Madrid","Atlético Madrid","Valencia"],correct:1,explanation:"He spent two seasons at Real Madrid, winning La Liga in 2008, before Bayern bought him in 2009."},
+      {question:"In the 2010 World Cup final, Robben missed a famous one-on-one chance against which goalkeeper, before the Netherlands lost in extra time?",options:["Iker Casillas","Gianluigi Buffon","Manuel Neuer","Petr Čech"],correct:0,explanation:"Casillas saved with his trailing foot — Spain went on to win 1-0 thanks to Iniesta's extra-time goal."},
+      {question:"Robben ended his career with a surprise comeback in 2020-21 at which club?",options:["PSV Eindhoven","Ajax","Feyenoord","Groningen"],correct:3,explanation:"He came out of retirement during the pandemic to play for his boyhood club Groningen — but injuries limited him and he retired again after one season."},
+      {question:"Robben formed a famous winger pairing at Bayern with which other Dutch-speaking player?",options:["Wesley Sneijder","Franck Ribéry","Rafael van der Vaart","Marc Overmars"],correct:1,explanation:"'Robbery' — Robben on the right, Ribéry (French, not Dutch) on the left. The two terrorised defences for nearly a decade together."}
+    ],
+    'Luis Suárez': [
+      {question:"Suárez was banned at the 2014 World Cup for biting which Italian defender?",options:["Leonardo Bonucci","Andrea Barzagli","Giorgio Chiellini","Daniele De Rossi"],correct:2,explanation:"His third biting incident — FIFA banned him for four months from all football activity. It happened in a group game Uruguay won 1-0."},
+      {question:"Suárez joined Barcelona in 2014 from which club?",options:["Ajax","Liverpool","Atlético Madrid","Inter Milan"],correct:1,explanation:"Liverpool sold him for around £65m straight after his World Cup biting ban — he formed the 'MSN' front three with Messi and Neymar."},
+      {question:"In the 2010 World Cup quarter-final, Suárez deliberately handballed on the line against which African country, who then missed the resulting penalty?",options:["Nigeria","Cameroon","Ghana","South Africa"],correct:2,explanation:"He was sent off, but Asamoah Gyan hit the crossbar — Uruguay won the shootout. Suárez celebrated wildly on the touchline as it happened."},
+      {question:"Suárez's 2013-14 Liverpool season ended with how many Premier League goals, winning him the Golden Boot?",options:["25","28","31","34"],correct:2,explanation:"31 goals in just 33 games — Liverpool finished second to Manchester City by 2 points despite his heroics."},
+      {question:"After leaving Barcelona in 2020, Suárez immediately joined which Spanish rival and won La Liga in his first season?",options:["Real Madrid","Sevilla","Atlético Madrid","Valencia"],correct:2,explanation:"Barcelona's Josep Bartomeu told him he was no longer wanted — Suárez's goals helped Atlético pip Real Madrid to the title. He cried during a famous interview about it."},
+      {question:"Before Liverpool and Barcelona, Suárez became a superstar in the Eredivisie with which Dutch club?",options:["PSV Eindhoven","Feyenoord","AZ Alkmaar","Ajax"],correct:3,explanation:"He scored 81 goals in 110 Ajax league games and captained the club — his first biting incident also happened there, against PSV's Otman Bakkal."}
+    ]
+  };
+
+  // Initials for the photo circles — easy to swap to real <img> later
+  // To use a real photo, change e.g. 'LM' to '<img src="photos/messi.jpg">'
+  const PLAYER_INITIALS = {
+    'Virgil van Dijk': 'VD',
+    'Toni Kroos': 'TK',
+    'Philipp Lahm': 'PL',
+    'Arjen Robben': 'AR',
+    'Luis Suárez': 'LS'
+  };
+
+  // ─────────────────────────────────────────────
+  // QUIZ STATE
+  // ─────────────────────────────────────────────
+  let selectedPlayer = 'Lionel Messi';
+  let questions = [];
+  let currentQ = 0;
+  let score = 0;
+  let answered = false;
+
+  // DOM helpers
+  const show = id => document.getElementById(id).classList.remove('hidden');
+  const hide = id => document.getElementById(id).classList.add('hidden');
+  const sideAction = document.getElementById('side-action');
+
+  // ─────────────────────────────────────────────
+  // BUILD PLAYER PICKER GRID
+  // ─────────────────────────────────────────────
+  Object.keys(QUIZ_BANK).forEach((playerName, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-btn' + (i === 0 ? ' selected' : '');
+    btn.dataset.player = playerName;
+    btn.innerHTML = `
+      <div class="photo">${PLAYER_INITIALS[playerName] || '?'}</div>
+      <div class="player-name">${playerName}</div>
+    `;
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.quiz-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedPlayer = playerName;
+    });
+    document.getElementById('quiz-grid').appendChild(btn);
+  });
+
+  // Buttons
+  document.getElementById('start-btn').addEventListener('click', startQuiz);
+  document.getElementById('next-btn').addEventListener('click', nextQuestion);
+  document.getElementById('skip-btn').addEventListener('click', nextQuestion);
+
+  function startQuiz() {
+    const pool = [...QUIZ_BANK[selectedPlayer]];
+    questions = shuffle(pool);
+    currentQ = 0;
+    score = 0;
+    document.getElementById('current-player').textContent = selectedPlayer;
+    document.getElementById('q-total').textContent = questions.length;
+    document.getElementById('final-total').textContent = questions.length;
+    hide('setup-screen');
+    show('quiz-screen');
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    const q = questions[currentQ];
+    answered = false;
+    document.getElementById('q-num').textContent = currentQ + 1;
+    document.getElementById('score').textContent = score;
+    document.getElementById('question-text').textContent = q.question;
+    document.getElementById('feedback').classList.remove('show');
+
+    // Skip is shown until they answer; once answered it switches to Next only
+    document.getElementById('skip-btn').style.display = '';
+    document.getElementById('next-btn').textContent = 'SKIP →';
+    document.getElementById('next-btn').style.display = 'none'; // hide Next until they answer or skip
+    // Actually — simpler model: show Skip button only before answering, show Next only after
+    sideAction.classList.add('show');
+    document.getElementById('skip-btn').style.display = '';
+    document.getElementById('next-btn').style.display = 'none';
+
+    const optionsContainer = document.getElementById('options');
+    optionsContainer.innerHTML = '';
+    const letters = ['A', 'B', 'C', 'D'];
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${opt}</span>`;
+      btn.addEventListener('click', () => selectOption(i, btn));
+      optionsContainer.appendChild(btn);
+    });
+  }
+
+  function selectOption(index, btn) {
+    if (answered) return;
+    answered = true;
+    const q = questions[currentQ];
+    const buttons = document.querySelectorAll('.option-btn');
+    buttons.forEach(b => b.disabled = true);
+
+    const fb = document.getElementById('feedback');
+    if (index === q.correct) {
+      btn.classList.add('correct');
+      score++;
+      document.getElementById('score').textContent = score;
+    } else {
+      btn.classList.add('wrong');
+      buttons[q.correct].classList.add('correct');
+    }
+    // No "Wrong" / "Not quite" — just give the correct info either way
+    fb.textContent = q.explanation;
+    fb.classList.add('show');
+
+    // Swap Skip out, show Next
+    document.getElementById('skip-btn').style.display = 'none';
+    document.getElementById('next-btn').style.display = '';
+    document.getElementById('next-btn').textContent = (currentQ + 1 >= questions.length) ? 'SEE RESULTS →' : 'NEXT →';
+  }
+
+  function nextQuestion() {
+    currentQ++;
+    if (currentQ >= questions.length) {
+      showResults();
+    } else {
+      renderQuestion();
+    }
+  }
+
+  function showResults() {
+    hide('quiz-screen');
+    sideAction.classList.remove('show');
+    show('results-screen');
+    document.getElementById('final-score').textContent = score;
+    const pct = score / questions.length;
+    let verdict = '';
+    if (pct === 1) verdict = "Perfect score. You really know your stuff!";
+    else if (pct >= 0.8) verdict = "Excellent — almost flawless.";
+    else if (pct >= 0.6) verdict = "Solid effort.";
+    else if (pct >= 0.4) verdict = "Not bad — keep watching the football!";
+    else verdict = "Time to brush up on the highlights.";
+    document.getElementById('verdict').textContent = verdict;
+  }
+
+  function resetQuiz() {
+    hide('results-screen');
+    show('setup-screen');
+  }
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+</script>
+
+</body>
+</html>
