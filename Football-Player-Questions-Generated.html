@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Football Player Discussion Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Dark green + gold football theme */
+    --bg: #0d2818;
+    --bg-soft: #143b22;
+    --card: #1a4a2c;
+    --card-light: #20593a;
+    --border: #2d6b48;
+    --gold: #d4af37;
+    --gold-bright: #f0c850;
+    --gold-soft: #b8941f;
+    --cream: #f5f0e1;
+    --text: #f5f0e1;
+    --muted: #a8b5a8;
+    --shadow: 0 4px 24px rgba(0,0,0,0.35);
+    --shadow-gold: 0 4px 20px rgba(212,175,55,0.18);
+    --radius: 14px;
+    --font-head: 'DM Serif Display', Georgia, serif;
+    --font-body: 'DM Sans', sans-serif;
+
+    /* Bloom's level colours — tuned to work on dark green */
+    --c1: #5b9bd5; /* Remember - light blue */
+    --c2: #4ec9a8; /* Understand - teal */
+    --c3: #f0a040; /* Apply - amber */
+    --c4: #c084fc; /* Analyse - lavender */
+    --c5: #f87171; /* Evaluate - coral */
+    --c6: #f0c850; /* Create - gold */
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background:
+      radial-gradient(ellipse at top, var(--bg-soft) 0%, var(--bg) 60%),
+      var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 36px 20px 60px;
+  }
+
+  /* Subtle pitch-line stripe pattern in background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 80px,
+      rgba(255,255,255,0.012) 80px,
+      rgba(255,255,255,0.012) 160px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header, .card, .questions-list { position: relative; z-index: 1; }
+
+  header { text-align: center; margin-bottom: 24px; }
+
+  header h1 {
+    font-family: var(--font-head);
+    font-size: 2.4rem;
+    font-weight: 400;
+    color: var(--gold-bright);
+    letter-spacing: -0.3px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  header h1 span {
+    color: var(--cream);
+    font-style: italic;
+  }
+
+  header p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    font-weight: 300;
+    margin-top: 8px;
+    letter-spacing: 0.02em;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px;
+    width: 100%;
+    max-width: 680px;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    background: var(--bg-soft);
+    color: var(--cream);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  input[type="text"]::placeholder { font-weight: 400; color: #6b8270; }
+  input[type="text"]:focus {
+    border-color: var(--gold);
+    background: var(--bg);
+  }
+
+  button#generateBtn {
+    padding: 14px 26px;
+    background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+    color: #1a1a0e;
+    border: none;
+    border-radius: 10px;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: filter 0.2s, transform 0.1s;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+    box-shadow: var(--shadow-gold);
+  }
+  button#generateBtn:hover { filter: brightness(1.08); }
+  button#generateBtn:active { transform: scale(0.97); }
+  button#generateBtn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .status {
+    font-size: 0.88rem;
+    color: var(--muted);
+    min-height: 22px;
+    margin-bottom: 14px;
+    font-style: italic;
+  }
+
+  /* ─── Confirmation card ─────────────────────────────────────── */
+  .confirm-card {
+    display: none;
+    background: var(--card-light);
+    border: 1.5px solid var(--gold);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    margin-top: 8px;
+    box-shadow: var(--shadow-gold);
+    animation: fadeUp 0.3s ease;
+  }
+
+  .confirm-card.visible { display: block; }
+
+  .confirm-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold-bright);
+    margin-bottom: 10px;
+  }
+
+  .confirm-name {
+    font-family: var(--font-head);
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--cream);
+    margin-bottom: 6px;
+    letter-spacing: -0.2px;
+  }
+
+  .confirm-info {
+    font-size: 0.95rem;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+
+  .confirm-buttons {
+    display: flex;
+    gap: 10px;
+  }
+
+  .confirm-yes, .confirm-no {
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+  }
+
+  .confirm-yes {
+    background: var(--gold);
+    color: #1a1a0e;
+  }
+  .confirm-yes:hover { background: var(--gold-bright); }
+
+  .confirm-no {
+    background: transparent;
+    color: var(--muted);
+    border-color: var(--border);
+  }
+  .confirm-no:hover { border-color: var(--cream); color: var(--cream); }
+
+  /* ─── Bloom's level pills ───────────────────────────────────── */
+  .levels-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 22px 0 18px;
+  }
+
+  .level-pill {
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 11px;
+    border-radius: 100px;
+    color: #1a1a1a;
+    opacity: 0.3;
+    transition: opacity 0.3s;
+  }
+  .level-pill.active { opacity: 1; }
+
+  .pill-1 { background: var(--c1); }
+  .pill-2 { background: var(--c2); }
+  .pill-3 { background: var(--c3); }
+  .pill-4 { background: var(--c4); }
+  .pill-5 { background: var(--c5); }
+  .pill-6 { background: var(--c6); }
+
+  /* ─── Questions list ────────────────────────────────────────── */
+  .questions-list {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 680px;
+    margin-top: 22px;
+  }
+
+  .questions-list.visible {
+    display: flex;
+    animation: fadeUp 0.4s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .player-heading {
+    font-family: var(--font-head);
+    font-size: 1.55rem;
+    font-weight: 400;
+    color: var(--gold-bright);
+    margin-bottom: 4px;
+    letter-spacing: -0.2px;
+  }
+
+  .player-subheading {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-style: italic;
+  }
+
+  .q-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    padding: 18px 22px;
+    border-left: 5px solid;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    animation: popIn 0.3s cubic-bezier(.34,1.56,.64,1) both;
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.96) translateY(6px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .q-card:nth-child(2) { animation-delay: 0.05s; }
+  .q-card:nth-child(3) { animation-delay: 0.10s; }
+  .q-card:nth-child(4) { animation-delay: 0.15s; }
+  .q-card:nth-child(5) { animation-delay: 0.20s; }
+  .q-card:nth-child(6) { animation-delay: 0.25s; }
+  .q-card:nth-child(7) { animation-delay: 0.30s; }
+
+  .q-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    border-radius: 50%;
+    margin-bottom: 10px;
+  }
+
+  .q-text {
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    font-weight: 500;
+    line-height: 1.55;
+    color: var(--cream);
+  }
+
+  .level-1 { border-color: var(--c1); }
+  .level-1 .q-number { background: var(--c1); }
+  .level-2 { border-color: var(--c2); }
+  .level-2 .q-number { background: var(--c2); }
+  .level-3 { border-color: var(--c3); }
+  .level-3 .q-number { background: var(--c3); }
+  .level-4 { border-color: var(--c4); }
+  .level-4 .q-number { background: var(--c4); }
+  .level-5 { border-color: var(--c5); }
+  .level-5 .q-number { background: var(--c5); }
+  .level-6 { border-color: var(--c6); }
+  .level-6 .q-number { background: var(--c6); }
+
+  .regenerate-btn {
+    margin-top: 6px;
+    padding: 10px 20px;
+    background: transparent;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    align-self: flex-start;
+  }
+  .regenerate-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold-bright);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Football Player <span>Discussion</span></h1>
+  <p>Type in a player to begin</p>
+</header>
+
+<div class="card">
+
+  <div class="input-row">
+    <input type="text" id="playerInput" placeholder="Enter a player name, e.g. Vinícius Júnior, Yamal, Bellingham…" onkeydown="if(event.key==='Enter') confirmPlayer()" />
+    <button id="generateBtn" onclick="confirmPlayer()">Find Player ✦</button>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <!-- Confirmation card -->
+  <div class="confirm-card" id="confirmCard">
+    <div class="confirm-label">Did you mean…</div>
+    <div class="confirm-name" id="confirmName"></div>
+    <div class="confirm-info" id="confirmInfo"></div>
+    <div class="confirm-buttons">
+      <button class="confirm-yes" onclick="generateQuestions()">Yes, that's the one</button>
+      <button class="confirm-no" onclick="cancelConfirm()">No, try again</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="questions-list" id="questionsList">
+  <div class="player-heading" id="playerHeading"></div>
+  <div class="player-subheading" id="playerSubheading"></div>
+  <div id="questionsContainer"></div>
+  <button class="regenerate-btn" onclick="generateQuestions()">↺ New questions for same player</button>
+</div>
+
+<script>
+  // ─── State ──────────────────────────────────────────────────
+  var confirmedPlayer = null;  // { name, club, country, position, age, info }
+
+  var input = document.getElementById("playerInput");
+  var btn = document.getElementById("generateBtn");
+  var status = document.getElementById("status");
+  var confirmCard = document.getElementById("confirmCard");
+  var confirmName = document.getElementById("confirmName");
+  var confirmInfo = document.getElementById("confirmInfo");
+  var list = document.getElementById("questionsList");
+
+  // ─── Step 1: Confirm the player ─────────────────────────────
+  async function confirmPlayer() {
+    const query = input.value.trim();
+    if (!query) return;
+
+    btn.disabled = true;
+    confirmCard.classList.remove("visible");
+    list.classList.remove("visible");
+    status.textContent = '🔍 Looking up "' + query + '"…';
+
+    const prompt = `A user is searching for a football (soccer) player. The user typed: "${query}"
+
+This name may have spelling mistakes or be incomplete (e.g. just a first name or last name).
+
+STEP 1: Identify the most likely well-known professional footballer they mean.
+
+STEP 2: Use web_search ONCE to confirm the player's CURRENT club as of ${new Date().toISOString().slice(0,10)}. Players move clubs, retire, or get loaned out — your training data may be outdated. A good search query is just the player's name plus "current club".
+
+STEP 3: Respond ONLY in this exact JSON format with no extra text or markdown:
+
+{
+  "found": true,
+  "name": "Full player name with correct spelling and accents",
+  "position": "Position (e.g. Winger, Striker, Centre-back, Midfielder, Goalkeeper)",
+  "club": "CURRENT club as confirmed by web search (or 'retired' if applicable)",
+  "country": "International team / nationality",
+  "info": "One short sentence (max 18 words) describing what they are famous for — playing style, key strength, or trademark trait."
+}
+
+If you cannot identify any plausible player from the input, respond with:
+{ "found": false, "reason": "Short explanation, e.g. 'No well-known player matches that name.'" }`;
+
+    try {
+      const res = await fetch("https://claude-proxy-zeta-six.vercel.app/api/proxy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-haiku-4-5-20251001",
+          max_tokens: 1200,
+          tools: [{ "type": "web_search_20250305", "name": "web_search", "max_uses": 2 }],
+          messages: [{ role: "user", content: prompt }]
+        })
+      });
+
+      const data = await res.json();
+      // Extract text from response — may include tool_use blocks if web search was used
+      const textBlocks = data.content
+        .filter(item => item.type === "text")
+        .map(item => item.text)
+        .join("\n");
+      const text = textBlocks.trim();
+      const clean = text.replace(/```json|```/g, "").trim();
+      // Find the JSON object in the response (in case there's any preamble)
+      const jsonMatch = clean.match(/\{[\s\S]*\}/);
+      const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : clean);
+
+      if (!parsed.found) {
+        status.textContent = "❌ " + (parsed.reason || "Couldn't identify that player. Try a different spelling.");
+        btn.disabled = false;
+        return;
+      }
+
+      // Store and show confirmation
+      confirmedPlayer = parsed;
+      confirmName.textContent = parsed.name;
+      confirmInfo.textContent =
+        parsed.position + " · " + parsed.club + " · " + parsed.country +
+        ". " + parsed.info;
+      confirmCard.classList.add("visible");
+      status.textContent = "";
+
+    } catch (err) {
+      status.textContent = "❌ Error: " + err.message;
+    }
+
+    btn.disabled = false;
+  }
+
+  function cancelConfirm() {
+    confirmCard.classList.remove("visible");
+    confirmedPlayer = null;
+    input.focus();
+    input.select();
+  }
+
+  // ─── Step 2: Generate discussion questions ──────────────────
+  async function generateQuestions() {
+    if (!confirmedPlayer) return;
+
+    const p = confirmedPlayer;
+    confirmCard.classList.remove("visible");
+    list.classList.remove("visible");
+    btn.disabled = true;
+    status.textContent = '⏳ Generating discussion questions about ' + p.name + '…';
+
+    const prompt = `You are creating PAIR-WORK DISCUSSION questions about a famous footballer for Grade 8 EFL students (age 14, low-B2 English). Students will argue and debate the questions in pairs — there are no "correct" answers, only opinions.
+
+Player: ${p.name}
+Position: ${p.position}
+Club: ${p.club}
+Country: ${p.country}
+Known for: ${p.info}
+
+═══ STEP 1: THINK FIRST (do this silently, do not output it) ═══
+Before writing any questions, identify 4 SPECIFIC ANCHORS about this player:
+A. A KEY TEAMMATE — who they pair / link / combine with most often on the pitch
+B. A KEY RIVAL or COMPARABLE PLAYER — someone in the same position or era
+C. A SIGNATURE SKILL or TRADEMARK MOVE — what makes them recognisable (e.g. step-overs, long passes, headers, free kicks, sprint speed, vision)
+D. A SIGNATURE MOMENT or ACHIEVEMENT — a goal, trophy, tournament, transfer, or famous game
+
+═══ STEP 2: WRITE 6 QUESTIONS USING THESE ANCHORS ═══
+Every question MUST mention something specific to THIS player — a real teammate name, a real rival, a real skill, a real club, a real moment. Do NOT write generic templates that could apply to any player. If a question could be asked about any footballer, REWRITE IT with a specific name or detail from above.
+
+Question slots (do NOT label these in the output — just put them in order):
+
+1. FACT — a specific, well-known fact about the player (preferred foot, position quirk, famous nickname, a country/club they played for, a trademark celebration). Should feel like a real fact-recall question, not generic.
+
+2. UNDERSTAND — a short "Is X's [skill A] more important/dangerous than X's [skill B]?" style question, OR a "why does X's [skill] matter more than people think?" question. Reference two real attributes the player has. Keep it punchy — under 14 words is ideal.
+
+3. APPLY — a tactical "what would you do as the coach" scenario that uses this player's actual position/style. Should feel realistic to their real club situation.
+
+4. COMPARE — a head-to-head with the rival/comparable player (anchor B), or a pairing question with the key teammate (anchor A). Examples: "Who fits better in [club]: ${p.name} or [rival]?" or "Which teammate does ${p.name} link best with — [name X] or [name Y]?"
+
+5. CHALLENGE — a "name a better X" or "is there anyone who does Y better than ${p.name}" question. Force students to defend a choice.
+
+6. CREATE — design something specific: a new team built around them, an ideal partner, a tactic that uses their best skill. Must reference a specific skill or position from this player.
+
+═══ RULES ═══
+- Each question under 18 words.
+- Simple, common words — B2 level, understandable on first read.
+- DEBATABLE — two students should be able to argue different sides.
+- AVOID precise stats / numbers (goals scored, transfer fees) — these can be outdated.
+- DO use teammate names, club names, country names, rival names freely.
+- If you don't know a specific teammate or rival with confidence, use a position-based reference ("his left-back at ${p.club}") rather than inventing a name.
+
+Respond ONLY in this exact JSON format with no extra text or markdown:
+
+{
+  "player": "${p.name}",
+  "questions": [
+    { "question": "..." },
+    { "question": "..." },
+    { "question": "..." },
+    { "question": "..." },
+    { "question": "..." },
+    { "question": "..." }
+  ]
+}`;
+
+    try {
+      const res = await fetch("https://claude-proxy-zeta-six.vercel.app/api/proxy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-haiku-4-5-20251001",
+          max_tokens: 800,
+          messages: [{ role: "user", content: prompt }]
+        })
+      });
+
+      const data = await res.json();
+      const textBlocks = data.content
+        .filter(item => item.type === "text")
+        .map(item => item.text)
+        .join("\n");
+      const text = textBlocks.trim();
+      const clean = text.replace(/```json|```/g, "").trim();
+      const jsonMatch = clean.match(/\{[\s\S]*\}/);
+      const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : clean);
+
+      document.getElementById("playerHeading").textContent = p.name;
+      document.getElementById("playerSubheading").textContent =
+        p.position + " · " + p.club + " · " + p.country;
+
+      const container = document.getElementById("questionsContainer");
+      container.innerHTML = "";
+
+      parsed.questions.forEach((q, i) => {
+        const div = document.createElement("div");
+        div.className = "q-card level-" + (i + 1);
+        div.innerHTML =
+          '<div class="q-number">' + (i + 1) + '</div>' +
+          '<div class="q-text">' + q.question + '</div>';
+        container.appendChild(div);
+      });
+
+      list.classList.add("visible");
+      status.textContent = "";
+
+      // Smoothly scroll so the questions list is centered in view
+      setTimeout(function() {
+        list.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+
+    } catch (err) {
+      status.textContent = "❌ Error: " + err.message;
+    }
+
+    btn.disabled = false;
+  }
+</script>
+
+</body>
+</html>
