@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>If Wishes Could Kill — The Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    /* Cold institutional light — school corridors, fluorescent white */
+    --bg:             #edf0f2;
+    --bg-lift:        #f5f7f8;
+    --card:           #ffffff;
+    --card-hover:     #f0f4f6;
+    --border:         #d0d8de;
+    --border-soft:    #e2e8ec;
+
+    --accent:         #4a7a96;       /* steel blue — railings */
+    --accent-soft:    #6a9ab6;
+    --accent-dim:     #c8dae4;
+
+    --text:           #1a2530;       /* near-black */
+    --text-soft:      #4a5a68;
+    --text-muted:     #8a9aaa;
+
+    --correct-bg:     #e8f4ee;
+    --correct-border: #3a9060;
+    --correct-text:   #1a5535;
+
+    --wrong-bg:       #faeaea;
+    --wrong-border:   #c03040;
+    --wrong-text:     #7a1520;
+
+    --opinion-bg:     #eaf0f8;
+    --opinion-border: #4a7aaa;
+    --opinion-text:   #1a3558;
+
+    --btn-correct:    #2a7a48;
+    --btn-correct-h:  #229050;
+    --btn-wrong:      #a82030;
+    --btn-wrong-h:    #c02838;
+    --btn-opinion:    #2a5a88;
+    --btn-opinion-h:  #3a6a9a;
+
+    --shadow:         0 1px 4px rgba(30,50,70,0.10);
+    --shadow-md:      0 3px 12px rgba(30,50,70,0.12);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    padding-bottom: 3rem;
+  }
+
+  /* ── Banner — dark contrast strip at top ── */
+  .banner {
+    width: 100%; height: 200px; position: relative; overflow: hidden;
+    background: linear-gradient(135deg, #0e1820 0%, #162535 40%, #1e3040 70%, #141018 100%);
+    margin-bottom: 2.25rem;
+  }
+  .banner::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      radial-gradient(circle at 18% 55%, rgba(160,210,230,0.22) 0%, transparent 44%),
+      radial-gradient(circle at 80% 55%, rgba(200,60,70,0.18) 0%, transparent 40%),
+      repeating-linear-gradient(
+        90deg,
+        transparent, transparent 48px,
+        rgba(255,255,255,0.025) 48px, rgba(255,255,255,0.025) 49px
+      );
+  }
+  .banner::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+    background: rgba(160,210,230,0.35);
+  }
+  .banner-inner {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    text-align: center; z-index: 1; padding: 0 1rem; width: 100%;
+  }
+  .banner-tag {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.28em;
+    text-transform: uppercase; color: rgba(160,210,230,0.85);
+    margin-bottom: 10px;
+  }
+  .banner-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 4vw, 40px);
+    font-weight: 800;
+    color: #f0f4f6;
+    letter-spacing: 0.01em;
+    line-height: 1.15;
+    text-shadow: 0 2px 18px rgba(0,0,0,0.5);
+  }
+  .banner-divider {
+    width: 55px; height: 1px; margin: 13px auto 0;
+    background: linear-gradient(90deg, transparent, rgba(160,210,230,0.7), transparent);
+  }
+
+  #app { width: 100%; max-width: 1080px; padding: 0 1.25rem; }
+
+  /* ── Picker ── */
+  .picker-intro {
+    text-align: center; font-size: 15px; color: var(--text-soft);
+    margin-bottom: 1.75rem; line-height: 1.6; max-width: 540px;
+    margin-left: auto; margin-right: auto;
+  }
+  .section-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 13px;
+  }
+  .section-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+    cursor: pointer; text-align: left; width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.18s ease;
+    box-shadow: var(--shadow);
+  }
+  .section-card:hover {
+    background: var(--card-hover);
+    border-top-color: var(--wrong-border);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  .section-card:active { transform: translateY(0); }
+  .section-card-num {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .section-card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; font-weight: 700; color: var(--text);
+    margin-bottom: 5px;
+  }
+  .section-card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.45; }
+
+  /* ── Quiz Header ── */
+  .quiz-header { margin-bottom: 1rem; }
+  .back-btn {
+    background: transparent; border: none; color: var(--text-soft);
+    padding: 0; margin-bottom: 0.85rem; font-size: 13px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-weight: 500;
+  }
+  .back-btn:hover { color: var(--accent); text-decoration: underline; }
+  .section-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 4px;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 25px; font-weight: 700; color: var(--text);
+  }
+  .progress-row { display: flex; align-items: center; gap: 12px; margin: 1rem 0 1.35rem; }
+  .progress-bar {
+    flex: 1; height: 4px; background: var(--accent-dim);
+    border-radius: 2px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-soft));
+    border-radius: 2px; transition: width 0.35s ease;
+  }
+  .progress-text {
+    font-size: 13px; color: var(--text-soft); white-space: nowrap; font-weight: 500;
+  }
+
+  /* ── Two-column layout ── */
+  .quiz-row {
+    display: grid;
+    grid-template-columns: 1fr 370px;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  /* Question card */
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 12px;
+    padding: 1.75rem 1.85rem;
+    box-shadow: var(--shadow);
+  }
+  .question-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 21px; font-weight: 700; color: var(--text);
+    line-height: 1.35; margin-bottom: 1.5rem;
+  }
+  .opinion-question-only .question-text {
+    font-size: 23px; margin-bottom: 0;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 9px; }
+  .option {
+    display: flex; align-items: center; gap: 13px;
+    padding: 12px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer; font-size: 15px; font-weight: 500;
+    color: var(--text); background: var(--bg-lift);
+    text-align: left; width: 100%;
+    transition: all 0.14s ease;
+    font-family: 'DM Sans', sans-serif; line-height: 1.4;
+  }
+  .option:hover:not(:disabled) {
+    background: var(--card);
+    border-color: var(--accent);
+    box-shadow: var(--shadow);
+  }
+  .option.correct {
+    background: var(--correct-bg);
+    border-color: var(--correct-border);
+    color: var(--correct-text);
+  }
+  .option.wrong {
+    background: var(--wrong-bg);
+    border-color: var(--wrong-border);
+    color: var(--wrong-text);
+  }
+  .option:disabled { cursor: default; }
+  .letter {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+    color: var(--accent); min-width: 16px; flex-shrink: 0;
+  }
+  .option.correct .letter { color: var(--correct-text); }
+  .option.wrong .letter { color: var(--wrong-text); }
+
+  /* Feedback panel */
+  .feedback-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 1.6rem;
+    display: flex; flex-direction: column;
+    box-shadow: var(--shadow);
+    min-height: 220px;
+  }
+  .feedback-panel.empty {
+    justify-content: center; align-items: center;
+    color: var(--text-muted); font-size: 14px;
+    text-align: center; font-style: italic;
+  }
+  .feedback-panel.correct {
+    border-color: var(--correct-border);
+    background: var(--correct-bg);
+    border-left: 4px solid var(--correct-border);
+  }
+  .feedback-panel.wrong {
+    border-color: var(--wrong-border);
+    background: var(--wrong-bg);
+    border-left: 4px solid var(--wrong-border);
+  }
+  .feedback-panel.opinion {
+    border-color: var(--opinion-border);
+    background: var(--opinion-bg);
+    border-left: 4px solid var(--opinion-border);
+    justify-content: flex-end;
+  }
+  .feedback-label {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; margin-bottom: 10px;
+  }
+  .feedback-panel.correct .feedback-label { color: var(--correct-border); }
+  .feedback-panel.wrong .feedback-label { color: var(--wrong-border); }
+  .feedback-text {
+    font-size: 14px; line-height: 1.68; flex: 1;
+  }
+  .feedback-panel.correct .feedback-text { color: var(--correct-text); }
+  .feedback-panel.wrong .feedback-text { color: var(--wrong-text); }
+  .feedback-actions { margin-top: 1.3rem; }
+
+  .next-btn {
+    padding: 10px 24px;
+    border: none; border-radius: 7px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background 0.15s ease;
+    color: #fff; letter-spacing: 0.01em;
+  }
+  .next-btn.correct-btn  { background: var(--btn-correct); }
+  .next-btn.correct-btn:hover { background: var(--btn-correct-h); }
+  .next-btn.wrong-btn    { background: var(--btn-wrong); }
+  .next-btn.wrong-btn:hover { background: var(--btn-wrong-h); }
+  .next-btn.opinion-btn  { background: var(--btn-opinion); }
+  .next-btn.opinion-btn:hover { background: var(--btn-opinion-h); }
+
+  /* Result */
+  .result-screen { text-align: center; padding: 3.5rem 1rem; }
+  .result-section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 1rem;
+  }
+  .result-msg {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; color: var(--text-soft);
+    line-height: 1.6; max-width: 460px;
+    margin: 0 auto 2.5rem; font-style: italic;
+  }
+  .result-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .result-btn {
+    padding: 11px 26px; border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .result-btn.primary {
+    background: var(--accent); color: #fff; border: none;
+  }
+  .result-btn.primary:hover { background: var(--accent-soft); }
+  .result-btn.secondary {
+    background: transparent; color: var(--text-soft);
+    border: 1.5px solid var(--border);
+  }
+  .result-btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  @media (max-width: 720px) {
+    .quiz-row { grid-template-columns: 1fr; }
+    .feedback-panel { min-height: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="banner">
+  <div class="banner-inner">
+    <div class="banner-tag">K-Drama · 2026</div>
+    <div class="banner-title">If Wishes Could Kill</div>
+    <div class="banner-divider"></div>
+  </div>
+</div>
+
+<div id="app">
+  <div id="picker">
+    <p class="picker-intro">Five friends. One app. A wish that cannot be taken back.<br>Choose a section to begin.</p>
+    <div class="section-list" id="section-list"></div>
+  </div>
+
+  <div id="quiz" style="display:none">
+    <div class="quiz-header">
+      <button class="back-btn" onclick="goHome()">← All sections</button>
+      <div class="section-label" id="quiz-section-label"></div>
+      <div class="section-title" id="quiz-section-title"></div>
+    </div>
+    <div class="progress-row">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="progress-text" id="progress-text"></div>
+    </div>
+    <div class="quiz-row">
+      <div class="question-card" id="question-card">
+        <div class="question-text" id="question-text"></div>
+        <div class="options" id="options"></div>
+      </div>
+      <div class="feedback-panel empty" id="feedback-panel">
+        <div>Pick an answer to continue</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="result" style="display:none">
+    <div class="result-screen">
+      <div class="result-section-title" id="result-section-title"></div>
+      <p class="result-msg" id="result-msg"></p>
+      <div class="result-actions">
+        <button class="result-btn primary" onclick="restartCurrent()">Try again</button>
+        <button class="result-btn secondary" onclick="goHome()">All sections</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const sections = [
+  {
+    id: 1,
+    title: 'The App & The Curse',
+    desc: 'How Girigo works — and what it really costs.',
+    isOpinion: false,
+    questions: [
+      {
+        q: "What happens immediately after someone makes a wish on Girigo?",
+        options: ["Their wish comes true and nothing else happens","Their wish comes true and a countdown timer begins","The app deletes itself from their phone","They start seeing messages from strangers"],
+        answer: 1,
+        feedbackCorrect: "The wish comes true immediately, which is what makes it so tempting. The timer is the price, and it only appears after the wish is already granted.",
+        feedbackWrong: "The wish does come true — that part is real. But Girigo always takes something in return. A red countdown begins the moment the wish is granted."
+      },
+      {
+        q: "There is one way to stop your own countdown. What is it?",
+        options: ["Delete the app before the timer reaches zero","Tell someone else about the curse","Get someone else to make a wish on the app","Apologise for the wish you made"],
+        answer: 2,
+        feedbackCorrect: "And this is what makes Girigo so cruel. The only escape is passing the curse to someone else. It has the logic of a chain letter — survival always costs someone.",
+        feedbackWrong: "Deleting the app, confessing, warning others — none of it stops the clock. The curse jumps only when a new wish is made. That discovery changes everything about how the group treats each other."
+      },
+      {
+        q: "The name \"Girigo\" comes from a Korean word used at funerals. What does this tell us about the app?",
+        options: ["It was designed by someone who worked at a hospital","The wish it grants is always connected to death","The app only works if you are feeling sad","It was originally a game about ghosts"],
+        answer: 1,
+        feedbackCorrect: "Girigo literally means \"to honour the dead.\" Every wish granted is already a small death. The name was a warning nobody read.",
+        feedbackWrong: "The name is the show's darkest joke. Girigo means \"to honour the dead\" in Korean — a word used in funeral rites. The app was never really about wishes. It was always about death."
+      },
+      {
+        q: "Only certain people can see the spirits connected to the curse. Which people?",
+        options: ["Only shamans and their families","Anyone who downloads the app","Only people who have already made a wish","Anyone who has witnessed a death connected to Girigo"],
+        answer: 2,
+        feedbackCorrect: "Making a wish opens your eyes to the supernatural world whether you want it to or not. It's another reason the curse is so hard to escape. Once you're in, you can't pretend it isn't real.",
+        feedbackWrong: "The spirits are invisible to most people — including the friends, until they make their own wishes. Seeing the ghosts isn't a gift. It's proof that the curse already has you."
+      },
+      {
+        q: "Who originally created the Girigo app, and why does it carry a curse?",
+        options: ["A tech student who wanted to become famous","Ha-joon, as an experiment that went wrong","Kwon Si-won, whose personal pain became the curse at the heart of the app","A coding club that didn't understand what they were building"],
+        answer: 2,
+        feedbackCorrect: "Si-won isn't just a villain. She's someone whose suffering became something much bigger and darker than herself. The app didn't create the curse. The curse created the app.",
+        feedbackWrong: "The coding club had a role in the idea, but the real origin is Si-won. Her pain and hatred are what gave Girigo its supernatural power. Understanding that changes how you see everything the app does."
+      }
+    ]
+  },
+  {
+    id: 2,
+    title: 'The Five Friends',
+    desc: 'Who they are, what they want, and what breaks them.',
+    isOpinion: false,
+    questions: [
+      {
+        q: "Hyeong-wook is the first of the friends to use Girigo. What did he wish for?",
+        options: ["To be more popular at school","To get a perfect score on his maths test","To make someone fall in love with him","To get revenge on a classmate"],
+        answer: 1,
+        feedbackCorrect: "And the wish worked. He aced the test. That's what makes it so hard to warn people about Girigo. The good part always comes first.",
+        feedbackWrong: "His wish was small and ordinary — a perfect maths score. That's the show's first trap. The curse doesn't start with something dramatic. It starts with exactly the kind of wish anyone might make."
+      },
+      {
+        q: "Ha-joon has a skill the others don't. How does he try to help the group?",
+        options: ["He knows how to fight spirits","He uses his programming knowledge to analyse the app","He has used Girigo before and knows the rules","He contacts the police with evidence"],
+        answer: 1,
+        feedbackCorrect: "Ha-joon approaches the curse like a problem to be solved. It's an interesting contrast with the supernatural elements. Code and spirits turn out to be harder to separate than he expects.",
+        feedbackWrong: "Ha-joon's angle is logic and technology — he tries to understand Girigo as software. What he finds takes the group deeper into the curse's origins than any of them wanted to go."
+      },
+      {
+        q: "Na-ri ends up turning against her friends. What breaks her trust in them?",
+        options: ["She discovers they used Girigo to wish against her","She is tricked by Si-won's spirit into believing they don't care if she lives or dies","She finds out they knew about the curse before telling her","She blames them for Hyeong-wook's death"],
+        answer: 1,
+        feedbackCorrect: "And this is what makes Na-ri's story so painful. She isn't simply a villain. She's someone who was already frightened and guilty, and Si-won found exactly the right crack to push through.",
+        feedbackWrong: "Na-ri's turn isn't really about something her friends did. Si-won's spirit manipulates her at her most vulnerable — feeding her doubts until they become something much darker. The cruelest part is that her friends were trying to save her."
+      },
+      {
+        q: "Se-ah is suspicious of the app from early on. What role does she end up playing in the group?",
+        options: ["The one most likely to use the app anyway","The one who holds the group together and pushes for answers","The most frightened, who wants to run away from the problem","The one nobody listens to until it is too late"],
+        answer: 1,
+        feedbackCorrect: "Se-ah is the engine of the whole story. While others hesitate or fall apart, she keeps moving toward the truth. That stubbornness is both her strength and what puts her in the most danger.",
+        feedbackWrong: "Se-ah's suspicion isn't fear — it's instinct. She becomes the one who pushes hardest to understand and break the curse, even when it would be easier to look away."
+      },
+      {
+        q: "Geon-woo uses the app secretly without telling Se-ah. Why does this matter most to the story?",
+        options: ["His wish is the most powerful one in the series","It creates a secret between him and Se-ah that the curse exploits","His wish is what originally starts the curse","It means Se-ah has to enter the spirit world to save him"],
+        answer: 3,
+        feedbackCorrect: "Geon-woo's secret wish drives the finale. Se-ah risks everything to save him, which is when the story stops being about a curse and becomes about what you are willing to do for someone you love.",
+        feedbackWrong: "The secret matters less for what he wished and more for what it costs Se-ah. His countdown becomes her problem — and her choice to enter the spirit world to save him is the emotional heart of the whole series."
+      }
+    ]
+  },
+  {
+    id: 3,
+    title: 'Secrets & Lies',
+    desc: 'Who knew what — and who stayed silent.',
+    isOpinion: false,
+    questions: [
+      {
+        q: "Hyeong-wook tells his friends about Girigo after his wish comes true. What is their first reaction?",
+        options: ["They are immediately frightened and warn others","They don't take it seriously and brush him off","They all download the app together","They report it to a teacher"],
+        answer: 1,
+        feedbackCorrect: "And that dismissal haunts them later. By the time they believe him, it's already too late. The scariest secrets in this show are the ones nobody wanted to hear.",
+        feedbackWrong: "Their first instinct is disbelief — a wish-granting app sounds ridiculous. That moment of not listening is one the group can't take back. Hyeong-wook needed them to believe him, and they didn't."
+      },
+      {
+        q: "Na-ri has a secret that makes her especially vulnerable to the curse. What is it?",
+        options: ["She secretly hates Se-ah and has for years","She made a drunken wish on Girigo before the others even knew it existed","She was friends with Si-won before the curse began","She knew about the app's dangers and said nothing"],
+        answer: 1,
+        feedbackCorrect: "Na-ri's wish came first, and the guilt of that secret eats at her throughout the series. Si-won's spirit doesn't create Na-ri's weakness. It just finds the one that was already there.",
+        feedbackWrong: "Na-ri's secret is that she was already caught in the curse before the group's story even began. She'd made a wish she was too ashamed to admit — which is exactly why Si-won could use it against her."
+      },
+      {
+        q: "Ha-joon keeps something important hidden from the group for a long time. What is it?",
+        options: ["That he knows who built the Girigo app","That his sister Haetsal is a shaman who might be able to help","That he has already made a wish and his timer is running","That he was the one who introduced Hyeong-wook to the app"],
+        answer: 1,
+        feedbackCorrect: "Ha-joon sits on the one piece of information that could actually help them. Shame, pride, family loyalty — the show never gives a simple reason. But his silence costs the group precious time.",
+        feedbackWrong: "Ha-joon has a connection to the supernatural world through his sister that none of the others have. Keeping that secret while watching his friends suffer is one of the show's quieter betrayals."
+      },
+      {
+        q: "The Girigo curse is connected to a tragedy at Seorin High School before the main story begins. What happened?",
+        options: ["A student was bullied until she transferred schools","A fire destroyed the original coding club's work","Hye-ryung used the app to wish for everyone's death, then took her own life","Si-won's mother cursed the school after a dispute with teachers"],
+        answer: 2,
+        feedbackCorrect: "Hye-ryung's wish is the original wound the whole series grows from. Her pain didn't end with her. It became something that kept spreading, long after she was gone.",
+        feedbackWrong: "The curse didn't start with the main group at all. Hye-ryung's desperate, hateful wish is what first gave the app its power — and Si-won's spirit is what kept it alive."
+      },
+      {
+        q: "By the end of the series the app still exists. What does this suggest?",
+        options: ["The curse was never really broken, only paused","Ha-joon rebuilt it without telling the others","The spirits chose to keep it running as a warning","Se-ah secretly decided to keep it"],
+        answer: 0,
+        feedbackCorrect: "Se-ah destroyed the source, but the app survives. The ending is deliberately unsettling. Some cycles of pain are too deep to break completely in one generation.",
+        feedbackWrong: "The finale gives the group a victory, but not a clean one. The app still exists on Na-ri's abandoned phone — and someone new is already being led toward it. The curse is patient."
+      }
+    ]
+  },
+  {
+    id: 4,
+    title: 'The Supernatural World',
+    desc: 'Spirits, shamans, and the world behind the screen.',
+    isOpinion: false,
+    questions: [
+      {
+        q: "Ha-joon's sister is a shaman who helps the group. What is her shaman name?",
+        options: ["Eop-soon","Bangwool","Haetsal","Ji-sun"],
+        answer: 2,
+        feedbackCorrect: "Haetsal. In Korean, the word means sunlight. There's something intentional about giving the one person who can actually fight the curse a name that means light.",
+        feedbackWrong: "Haetsal is Ha-joon's sister, but shamans take a separate name for their spiritual work. Eop-soon is Si-won's mother — also a shaman, but on the wrong side of this story."
+      },
+      {
+        q: "What role does shamanism play in breaking the Girigo curse?",
+        options: ["A shaman's curse created Girigo, so only a shaman's blessing can undo it","Shamans can enter the spirit world and physically destroy the source of the curse","Shamans can remove the app from phones using ancient rituals","Only a shaman can see the spirits — the others are blind to them"],
+        answer: 1,
+        feedbackCorrect: "The solution isn't technological, it's spiritual. Ha-joon spends the series trying to solve this with code and logic. In the end it takes someone willing to walk into the spirit world and fight.",
+        feedbackWrong: "The curse can't be broken from the outside. Haetsal guides Se-ah into the spirit realm itself — the only place where Si-won's phone, the source of everything, can actually be destroyed."
+      },
+      {
+        q: "Si-won's mother Eop-soon is also a shaman. What makes her a tragic figure in the story?",
+        options: ["She built Girigo herself to honour her daughter's memory","She knew about the curse but was paid to stay silent","She is a shaman and an alcoholic who failed to protect her own daughter","She tries to help the group but is killed by Si-won's spirit"],
+        answer: 2,
+        feedbackCorrect: "Eop-soon had the knowledge and the power to see what was happening, and couldn't stop it. The show uses her to ask a quiet question — what good is the ability to see the supernatural if you can't protect the people closest to you?",
+        feedbackWrong: "Eop-soon's tragedy is personal. She is a shaman — someone who stands between the living and the dead — and she couldn't save her own child. Si-won's rage didn't come from nowhere."
+      },
+      {
+        q: "The show blends Korean shamanism with modern technology. What idea does this combination suggest?",
+        options: ["That technology has made traditional beliefs irrelevant","That old pain and hatred find new ways to spread in every generation","That apps and spirits follow the same rules","That young people have forgotten their cultural roots"],
+        answer: 1,
+        feedbackCorrect: "Girigo is a modern vessel for something ancient. The curse existed long before the app. Technology just gave it a faster way to move. That's the show's most interesting idea.",
+        feedbackWrong: "The combination isn't accidental. The show is asking whether something as old as a curse really changes when it finds a new form. An app that spreads like a chain letter, carrying hatred from person to person — that's not so different from how pain has always travelled."
+      },
+      {
+        q: "In the spirit world, Ha-sal fights Si-won while Se-ah searches for something. What is she looking for?",
+        options: ["Na-ri's phone, because it contains proof of the original wish","Si-won's phone, because destroying it is the only way to break the curse","Hye-ryung's diary, which holds the instructions to reverse the curse","The original Girigo code, which Ha-joon can use to shut it down"],
+        answer: 1,
+        feedbackCorrect: "Everything comes down to one phone in the spirit world. It's a neat, horrible logic — the most powerful supernatural force in the series can only be destroyed by smashing a piece of hardware.",
+        feedbackWrong: "Si-won's phone is the heart of the curse — the original device, still running in the spirit world. Ha-sal holds Si-won back while Se-ah finds it. The whole series builds to that one moment."
+      }
+    ]
+  },
+  {
+    id: 5,
+    title: 'No Right Answer',
+    desc: 'Five questions. No correct answer. Talk about it.',
+    isOpinion: true,
+    questions: [
+      { q: "Would you download Girigo if a friend sent you the link?" },
+      { q: "Was Na-ri a villain or a victim?" },
+      { q: "Who made the worst decision in the entire series?" },
+      { q: "Si-won caused real harm — but does she deserve any sympathy?" },
+      { q: "If you could wish for one thing, knowing the risk — what would it be?" }
+    ]
+  }
+];
+
+let currentSection = null;
+let current = 0;
+let answered = false;
+
+function renderPicker() {
+  document.getElementById('picker').style.display = 'block';
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+  window.scrollTo(0, 0);
+  const list = document.getElementById('section-list');
+  list.innerHTML = '';
+  sections.forEach(function(s) {
+    const card = document.createElement('button');
+    card.className = 'section-card';
+    card.onclick = function() { startSection(s.id); };
+    card.innerHTML =
+      '<div class="section-card-num">Section ' + s.id + '</div>' +
+      '<div class="section-card-title">' + s.title + '</div>' +
+      '<div class="section-card-desc">' + s.desc + '</div>';
+    list.appendChild(card);
+  });
+}
+
+function goHome() { renderPicker(); }
+
+function startSection(id) {
+  currentSection = sections.find(function(s) { return s.id === id; });
+  current = 0;
+  answered = false;
+  document.getElementById('picker').style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+  document.getElementById('quiz-section-label').textContent = 'Section ' + currentSection.id;
+  document.getElementById('quiz-section-title').textContent = currentSection.title;
+  showQuestion();
+  window.scrollTo(0, 0);
+}
+
+function restartCurrent() { startSection(currentSection.id); }
+
+function resetFeedbackPanel() {
+  const panel = document.getElementById('feedback-panel');
+  panel.className = 'feedback-panel empty';
+  panel.innerHTML = '<div>Pick an answer to continue</div>';
+}
+
+function showQuestion() {
+  answered = false;
+  const q = currentSection.questions[current];
+  const total = currentSection.questions.length;
+  document.getElementById('progress-fill').style.width = ((current / total) * 100) + '%';
+  document.getElementById('progress-text').textContent = (current + 1) + ' / ' + total;
+  document.getElementById('question-text').textContent = q.q;
+
+  const card = document.getElementById('question-card');
+  const optsBox = document.getElementById('options');
+  optsBox.innerHTML = '';
+
+  if (currentSection.isOpinion) {
+    card.classList.add('opinion-question-only');
+    const panel = document.getElementById('feedback-panel');
+    panel.className = 'feedback-panel opinion';
+    const isLast = (current === total - 1);
+    panel.innerHTML = '<div class="feedback-actions"><button class="next-btn opinion-btn" onclick="nextQuestion()">' + (isLast ? 'Finish →' : 'Next question →') + '</button></div>';
+  } else {
+    card.classList.remove('opinion-question-only');
+    ['A','B','C','D'].forEach(function(letter, i) {
+      const btn = document.createElement('button');
+      btn.className = 'option';
+      btn.innerHTML = '<span class="letter">' + letter + '</span><span>' + q.options[i] + '</span>';
+      btn.onclick = function() { selectOption(i); };
+      optsBox.appendChild(btn);
+    });
+    resetFeedbackPanel();
+  }
+}
+
+function selectOption(idx) {
+  if (answered) return;
+  answered = true;
+  const q = currentSection.questions[current];
+  const allBtns = document.querySelectorAll('.option');
+  const panel = document.getElementById('feedback-panel');
+  const total = currentSection.questions.length;
+  const isLast = (current === total - 1);
+  const nextLabel = isLast ? 'Finish →' : 'Next question →';
+  const isCorrect = (idx === q.answer);
+
+  allBtns.forEach(function(b, i) {
+    b.disabled = true;
+    if (i === q.answer) b.classList.add('correct');
+    else if (i === idx) b.classList.add('wrong');
+  });
+
+  if (isCorrect) {
+    panel.className = 'feedback-panel correct';
+    panel.innerHTML =
+      '<div class="feedback-label">Yes —</div>' +
+      '<div class="feedback-text">' + q.feedbackCorrect + '</div>' +
+      '<div class="feedback-actions"><button class="next-btn correct-btn" onclick="nextQuestion()">' + nextLabel + '</button></div>';
+  } else {
+    panel.className = 'feedback-panel wrong';
+    panel.innerHTML =
+      '<div class="feedback-text">' + q.feedbackWrong + '</div>' +
+      '<div class="feedback-actions"><button class="next-btn wrong-btn" onclick="nextQuestion()">' + nextLabel + '</button></div>';
+  }
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= currentSection.questions.length) showResult();
+  else showQuestion();
+}
+
+function showResult() {
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('result').style.display = 'block';
+  document.getElementById('result-section-title').textContent = currentSection.title;
+  document.getElementById('result-msg').textContent = currentSection.isOpinion
+    ? "No right answers here. The best part is the conversation."
+    : "Section complete. Try another, or go back and see if anything looks different now.";
+  window.scrollTo(0, 0);
+}
+
+renderPicker();
+</script>
+</body>
+</html>
